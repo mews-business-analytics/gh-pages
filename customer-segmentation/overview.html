@@ -39,13 +39,28 @@
             border: 1px solid #ddd;
             vertical-align: top;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
         .field-name {
             font-weight: bold;
             color: #0066cc;
             font-size: 14px;
+        }
+        .field-display-name {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .field-technical-name {
+            display: block;
+            font-size: 11px;
+            font-weight: normal;
+            color: #666;
+            font-family: 'Courier New', monospace;
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
         }
         .value-name {
             font-weight: 600;
@@ -61,6 +76,39 @@
         .chain-list li {
             margin: 3px 0;
         }
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 11px;
+            border: 1px solid #ccc;
+            white-space: nowrap;
+        }
+        .pill-blue {
+            background-color: #a8d5e2;
+            border-color: #8bc5d8;
+        }
+        .pill-purple {
+            background-color: #d4a5d4;
+            border-color: #c490c4;
+        }
+        .pill-green {
+            background-color: #b8e6b8;
+            border-color: #9dd89d;
+        }
+        .field-section-start {
+            border-top: 3px solid #343a40;
+        }
+        .field-section-segment {
+            background-color: #f0f8ff;
+        }
+        .field-section-enterprise-flag {
+            background-color: #fff9f0;
+        }
+        .field-section-enterprise-type {
+            background-color: #f5f0ff;
+        }
     </style>
 </head>
 <body>
@@ -68,80 +116,87 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 150px;">Field</th>
-                    <th style="width: 200px;">Possible Value</th>
+                    <th style="width: 150px;">
+                        Field
+                        <div style="font-size: 11px; font-weight: normal; color: #999; font-family: 'Courier New', monospace; margin-top: 4px;">(technical name)</div>
+                    </th>
+                    <th style="width: 250px;">Purpose</th>
+                    <th style="width: 200px;">Possible Values</th>
                     <th>Logic / Classification Criteria</th>
                 </tr>
             </thead>
             <tbody>
                 <!-- Segment Field -->
-                <tr>
-                    <td class="field-name" rowspan="2">segment</td>
+                <tr class="field-section-start field-section-segment">
+                    <td class="field-name" rowspan="2">
+                        <span class="field-display-name">Segment</span>
+                        <span class="field-technical-name">segment</span>
+                    </td>
+                    <td rowspan="2">Primary customer and prospect classification based on size</td>
                     <td class="value-name">SMB</td>
-                    <td>Individual accounts + Groups with 2 properties<br><em>No enterprise chain affiliation</em></td>
+                    <td>Individual accounts + Groups with 2 properties</td>
                 </tr>
-                <tr>
+                <tr class="field-section-segment">
                     <td class="value-name">Mid-Market</td>
-                    <td>Groups with 3+ properties<br><em>No enterprise chain affiliation</em></td>
+                    <td>Groups with 3+ properties</td>
                 </tr>
 
                 <!-- Is Enterprise Field -->
-                <tr>
-                    <td class="field-name" rowspan="2">is_enterprise</td>
+                <tr class="field-section-start field-section-enterprise-flag">
+                    <td class="field-name" rowspan="2">
+                        <span class="field-display-name">Enterprise Flag</span>
+                        <span class="field-technical-name">is_enterprise</span>
+                    </td>
+                    <td rowspan="2">Easy way to indicate if a customer or prospect is part of an enterprise group or not</td>
                     <td class="value-name">True</td>
                     <td>Account belongs to an enterprise chain listed in the enterprise_type dimension</td>
                 </tr>
-                <tr>
+                <tr class="field-section-enterprise-flag">
                     <td class="value-name">False</td>
                     <td>Account does not belong to any enterprise chain (independent property or non-enterprise group)</td>
                 </tr>
 
                 <!-- Enterprise Type Field -->
-                <tr>
-                    <td class="field-name" rowspan="3">enterprise_type</td>
+                <tr class="field-section-start field-section-enterprise-type">
+                    <td class="field-name" rowspan="3">
+                        <span class="field-display-name">Enterprise Type</span>
+                        <span class="field-technical-name">enterprise_type</span>
+                    </td>
+                    <td rowspan="3">Break down enterprise customers and prospects into different categories of enterprise chains based on the type of chain they are, which speaks to how they operate, how they're structured, and how we interact with them</td>
                     <td class="value-name">Global Franchise Brands</td>
-                    <td>
-                        <strong>Major international franchise chains:</strong>
-                        <ul class="chain-list">
-                            <li>Accor</li>
-                            <li>BWH (Best Western Hotels & Resorts)</li>
-                            <li>Choice Hotels</li>
-                            <li>Magnuson Hotels</li>
-                        </ul>
+                    <td style="line-height: 2;">
+                        <span class="pill pill-blue">Accor</span>
+                        <span class="pill pill-blue">BWH (Best Western Hotels & Resorts)</span>
+                        <span class="pill pill-blue">Choice Hotels</span>
+                        <span class="pill pill-blue">Magnuson Hotels</span>
                     </td>
                 </tr>
-                <tr>
+                <tr class="field-section-enterprise-type">
                     <td class="value-name">Soft Brands</td>
-                    <td>
-                        <strong>Hospitality collections and marketing consortia:</strong>
-                        <ul class="chain-list">
-                            <li>Logis Hotels</li>
-                            <li>Hotels & Preference</li>
-                            <li>Les Collectionneurs / Teritoria</li>
-                            <li>The Originals Human Hotels & Resorts</li>
-                            <li>Romantik Hotels & Restaurants</li>
-                            <li>Ring Hotels Group</li>
-                            <li>Pride Of Britain Hotels</li>
-                            <li>Historic Hotels of Norway</li>
-                            <li>Quality Lodgings</li>
-                            <li>Small Danish Hotels</li>
-                            <li>Leading Hotels of the World</li>
-                            <li>Design Hotels</li>
-                            <li>Small Luxury Hotels</li>
-                            <li>Relais & Chateaux</li>
-                            <li>Europe Famous Hostels</li>
-                            <li>Preferred Hotels & Resorts</li>
-                        </ul>
+                    <td style="line-height: 2;">
+                        <span class="pill pill-purple">Logis Hotels</span>
+                        <span class="pill pill-purple">Hotels & Preference</span>
+                        <span class="pill pill-purple">Les Collectionneurs / Teritoria</span>
+                        <span class="pill pill-purple">The Originals Human Hotels & Resorts</span>
+                        <span class="pill pill-purple">Romantik Hotels & Restaurants</span>
+                        <span class="pill pill-purple">Ring Hotels Group</span>
+                        <span class="pill pill-purple">Pride Of Britain Hotels</span>
+                        <span class="pill pill-purple">Historic Hotels of Norway</span>
+                        <span class="pill pill-purple">Quality Lodgings</span>
+                        <span class="pill pill-purple">Small Danish Hotels</span>
+                        <span class="pill pill-purple">Leading Hotels of the World</span>
+                        <span class="pill pill-purple">Design Hotels</span>
+                        <span class="pill pill-purple">Small Luxury Hotels</span>
+                        <span class="pill pill-purple">Relais & Chateaux</span>
+                        <span class="pill pill-purple">Europe Famous Hostels</span>
+                        <span class="pill pill-purple">Preferred Hotels & Resorts</span>
                     </td>
                 </tr>
-                <tr>
+                <tr class="field-section-enterprise-type">
                     <td class="value-name">Residential Brands</td>
-                    <td>
-                        <strong>Property management and residential operators:</strong>
-                        <ul class="chain-list">
-                            <li>Greystar</li>
-                            <li>Habyt</li>
-                        </ul>
+                    <td style="line-height: 2;">
+                        <span class="pill pill-green">Greystar</span>
+                        <span class="pill pill-green">Habyt</span>
                     </td>
                 </tr>
             </tbody>
