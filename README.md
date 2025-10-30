@@ -4,6 +4,25 @@ Public repository for hosting interactive dashboards and visualizations for the 
 
 ## Available Dashboards
 
+### Customer Segmentation - New Field Structure
+
+Overview table explaining the new 3-field segmentation model (segment, is_enterprise, enterprise_type).
+
+**Live URL:** https://mews-business-analytics.github.io/gh-pages/customer-segmentation/overview.html
+
+**Best for:** Understanding the new segmentation fields, reference for enterprise chain classifications
+
+**Confluence Embed:**
+```html
+<iframe
+  src="https://mews-business-analytics.github.io/gh-pages/customer-segmentation/overview.html"
+  width="100%"
+  height="800px"
+  frameborder="0"
+  style="border: none;">
+</iframe>
+```
+
 ### Territory Mapping - 2026 Consolidation
 
 Two complementary views of the territory consolidation:
