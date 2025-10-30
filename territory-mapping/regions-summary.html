@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Territory Regions - Quick Summary</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .region-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .region-row:last-child {
+            border-bottom: none;
+        }
+        .region-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            min-width: 120px;
+            margin-right: 20px;
+        }
+        .territories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            flex: 1;
+        }
+        .territory-pill {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+        .emea {
+            background-color: #e3f2fd;
+            border-color: #90caf9;
+            color: #1565c0;
+        }
+        .americas {
+            background-color: #ffe0e0;
+            border-color: #ffb3b3;
+            color: #c62828;
+        }
+        .apac {
+            background-color: #e0f7fa;
+            border-color: #80deea;
+            color: #00838f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="region-row">
+            <div class="region-name">EMEA</div>
+            <div class="territories">
+                <span class="territory-pill emea">DACH</span>
+                <span class="territory-pill emea">France</span>
+                <span class="territory-pill emea">BNX</span>
+                <span class="territory-pill emea">NEU</span>
+                <span class="territory-pill emea">UKIE</span>
+                <span class="territory-pill emea">Spain</span>
+                <span class="territory-pill emea">REU</span>
+                <span class="territory-pill emea">Italy</span>
+                <span class="territory-pill emea">MEA</span>
+            </div>
+        </div>
+
+        <div class="region-row">
+            <div class="region-name">Americas</div>
+            <div class="territories">
+                <span class="territory-pill americas">USA</span>
+                <span class="territory-pill americas">Canada</span>
+                <span class="territory-pill americas">LAC</span>
+            </div>
+        </div>
+
+        <div class="region-row">
+            <div class="region-name">APAC</div>
+            <div class="territories">
+                <span class="territory-pill apac">APAC</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
