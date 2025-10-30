@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Territory Mapping - 2026 Consolidation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .legend {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background-color: #343a40;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        th:hover {
+            background-color: #495057;
+        }
+        th::after {
+            content: ' ⇅';
+            font-size: 11px;
+            opacity: 0.5;
+        }
+        th.sort-asc::after {
+            content: ' ▲';
+            opacity: 1;
+        }
+        th.sort-desc::after {
+            content: ' ▼';
+            opacity: 1;
+        }
+        .summary-table td {
+            border: 1px solid #ddd;
+        }
+        .summary-table th {
+            background-color: #495057;
+            cursor: default;
+            position: static;
+        }
+        .summary-table th:hover {
+            background-color: #495057;
+        }
+        .summary-table th::after {
+            content: '';
+        }
+        .note {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 12px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .table-stats {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h2>Territory Overview - Countries with Existing Business</h2>
+        <table class="summary-table" style="table-layout: fixed;">
+            <thead>
+                <tr>
+                    <th style="width: 200px;">Territory</th>
+                    <th>Countries (# of Properties)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #D4A5D4; font-size: 13px; vertical-align: center;">DACH (Germany, Austria, Switzerland)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #d4a5d4; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Germany (917)</span><span style="background-color: #e4c6e4; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Switzerland (487)</span><span style="background-color: #ecd8ec; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Austria (258)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #FFE6B3; font-size: 13px; vertical-align: center;">France</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #ffe6b3; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">France (1529)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #E6C8FF; font-size: 13px; vertical-align: center;">BNX (Benelux)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #e6c8ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Netherlands (909)</span><span style="background-color: #f2e3ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Belgium (340)</span><span style="background-color: #f9f2ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Luxembourg (31)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #FF9999; font-size: 13px; vertical-align: center;">USA (United States)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #ff9999; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">United States (1063)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #B8E6B8; font-size: 13px; vertical-align: center;">NEU (Northern Europe)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #b8e6b8; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Sweden (298)</span><span style="background-color: #bde8bd; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Norway (268)</span><span style="background-color: #dcf2dc; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Finland (108)</span><span style="background-color: #ddf3dd; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Denmark (100)</span><span style="background-color: #f0f9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Iceland (4)</span><span style="background-color: #f0f9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Faroe Islands (1)</span><span style="background-color: #f0f9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Svalbard and Jan Mayen (1)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #5CB85C; font-size: 13px; vertical-align: center;">UKIE (UK & Ireland)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #5cb85c; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">United Kingdom (709)</span><span style="background-color: #d9eed9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Ireland (24)</span><span style="background-color: #ddf0dd; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Jersey (3)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #FFB380; font-size: 13px; vertical-align: center;">Spain</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #ffb380; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Spain (579)</span><span style="background-color: #ffefe4; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Andorra (6)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #A8D5E2; font-size: 13px; vertical-align: center;">APAC (Asia-Pacific)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #a8d5e2; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Australia (215)</span><span style="background-color: #d6ebf1; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">New Zealand (70)</span><span style="background-color: #daedf2; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Japan (59)</span><span style="background-color: #e0f0f4; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Thailand (41)</span><span style="background-color: #e6f3f6; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Indonesia (22)</span><span style="background-color: #e8f4f7; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Philippines (15)</span><span style="background-color: #eaf5f8; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Singapore (10)</span><span style="background-color: #ebf5f8; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Malaysia (6)</span><span style="background-color: #ecf6f8; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Hong Kong (2)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Cambodia (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Chinese Taipei (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Fiji (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">French Polynesia (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Korea Republic of (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Samoa (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Tonga (1)</span><span style="background-color: #edf6f9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Vanuatu (1)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #D9C8FF; font-size: 13px; vertical-align: center;">REU (Rest of Europe)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #d9c8ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Portugal (118)</span><span style="background-color: #ddcfff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Czech Republic (99)</span><span style="background-color: #e7dcff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Greece (63)</span><span style="background-color: #ede5ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Estonia (38)</span><span style="background-color: #f0eaff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Hungary (26)</span><span style="background-color: #f1ebff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Slovakia (23)</span><span style="background-color: #f1ebff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Poland (22)</span><span style="background-color: #f3edff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Malta (17)</span><span style="background-color: #f5f1ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Cyprus (6)</span><span style="background-color: #f6f2ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Latvia (4)</span><span style="background-color: #f6f3ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Ukraine (2)</span><span style="background-color: #f7f3ff; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Russian Federation (1)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #FF8080; font-size: 13px; vertical-align: center;">Canada</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #ff8080; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Canada (341)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #FF9BBB; font-size: 13px; vertical-align: center;">LAC (Latin America & Caribbean)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #ff9bbb; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Mexico (52)</span><span style="background-color: #ffcfde; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Bonaire Sint Eustatius and Saba (18)</span><span style="background-color: #ffd3e1; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Colombia (15)</span><span style="background-color: #ffd3e1; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Costa Rica (15)</span><span style="background-color: #ffd5e2; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Curaçao (14)</span><span style="background-color: #ffdbe6; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Panama (10)</span><span style="background-color: #ffdbe6; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Peru (10)</span><span style="background-color: #ffdee9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Guatemala (8)</span><span style="background-color: #ffe0ea; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Brazil (7)</span><span style="background-color: #ffe4ed; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Argentina (4)</span><span style="background-color: #ffe4ed; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Ecuador (4)</span><span style="background-color: #ffe4ed; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Guadeloupe (4)</span><span style="background-color: #ffe6ee; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Chile (3)</span><span style="background-color: #ffe6ee; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Dominican Republic (3)</span><span style="background-color: #ffe7ef; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Aruba (2)</span><span style="background-color: #ffe7ef; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Bahamas (2)</span><span style="background-color: #ffe7ef; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Martinique (2)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Bolivia Plurinational State of (1)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Honduras (1)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Paraguay (1)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Saint Barthélemy (1)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Saint Kitts and Nevis (1)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Saint Martin (French part) (1)</span><span style="background-color: #ffe9f0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Uruguay (1)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #FFD580; font-size: 13px; vertical-align: center;">Italy</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #ffd580; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Italy (152)</span></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; font-weight: bold; background-color: #D9C4A8; font-size: 13px; vertical-align: center;">MEA (Middle East & Africa)</td>
+                    <td style="padding: 4px; line-height: 2;"><span style="background-color: #d9c4a8; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">South Africa (66)</span><span style="background-color: #f0e7dc; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Morocco (16)</span><span style="background-color: #f1e9df; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Reunion (13)</span><span style="background-color: #f1eae0; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Georgia (12)</span><span style="background-color: #f4eee7; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Mauritius (6)</span><span style="background-color: #f5f0e9; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Egypt (4)</span><span style="background-color: #f6f1ea; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Namibia (3)</span><span style="background-color: #f6f1eb; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Congo the Democratic Republic of the (2)</span><span style="background-color: #f6f1eb; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Israel (2)</span><span style="background-color: #f6f1eb; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Kenya (2)</span><span style="background-color: #f6f2ec; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Cote d'Ivoire (1)</span><span style="background-color: #f6f2ec; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Ghana (1)</span><span style="background-color: #f6f2ec; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Nigeria (1)</span><span style="background-color: #f6f2ec; padding: 2px 8px; margin: 2px; display: inline-block; border-radius: 12px; font-size: 11px; border: 1px solid #ccc; white-space: nowrap;">Turkey (1)</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Territory Mapping for all Countries with Existing Business (89 countries as of 30 Oct 2025)</h2>
+        <table id="table-with-business">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('table-with-business', 0)" style="width: 60px;">Code</th>
+                    <th onclick="sortTable('table-with-business', 1)" style="width: 200px;">Country</th>
+                    <th onclick="sortTable('table-with-business', 2)" style="width: 150px;">GTM Territory (Old)</th>
+                    <th onclick="sortTable('table-with-business', 3)" style="width: 150px;">Finance Territory (Old)</th>
+                    <th onclick="sortTable('table-with-business', 4)" style="width: 150px;">New Territory (2026)</th>
+                    <th onclick="sortTable('table-with-business', 5)" style="text-align: center; width: 100px;">Mews Properties</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">AU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Australia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">215</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">KH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Cambodia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">TW</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Chinese Taipei</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">FJ</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Fiji</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">French Polynesia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">HK</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Hong Kong</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">ID</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Indonesia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">22</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">JP</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Japan</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">59</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">KR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Korea Republic of</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MY</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Malaysia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">6</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">NZ</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">New Zealand</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">70</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Philippines</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">15</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">WS</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Samoa</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">SG</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Singapore</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">10</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">TH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Thailand</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">41</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">TO</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Tonga</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">VU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Vanuatu</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #A8D5E2; font-weight: bold; font-size: 11px;">APAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">BE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Belgium</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-weight: bold; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">340</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">LU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Luxembourg</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-weight: bold; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">31</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">NL</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Netherlands</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-weight: bold; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">909</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Canada</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFCCCC; font-size: 11px;">NA + CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB3B3; font-size: 11px;">US&CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF8080; font-weight: bold; font-size: 11px;">Canada</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">341</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">AT</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Austria</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D4A5D4; font-size: 11px;">DACH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D4A5D4; font-weight: bold; font-size: 11px;">DACH</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">258</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">DE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Germany</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D4A5D4; font-size: 11px;">DACH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D4A5D4; font-weight: bold; font-size: 11px;">DACH</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">917</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Switzerland</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D4A5D4; font-size: 11px;">DACH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D4A5D4; font-weight: bold; font-size: 11px;">DACH</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">487</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">FR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">France</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFE6B3; font-weight: bold; font-size: 11px;">France</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1529</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">IT</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Italy</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFDAB9; font-size: 11px;">IT&SEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD580; font-weight: bold; font-size: 11px;">Italy</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">152</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">AR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Argentina</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">4</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">AW</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Aruba</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">BS</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Bahamas</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFCCCC; font-size: 11px;">NA + CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB3B3; font-size: 11px;">US&CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">BO</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Bolivia Plurinational State of</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">BQ</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Bonaire Sint Eustatius and Saba</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">18</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">BR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Brazil</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">7</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CL</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Chile</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">3</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CO</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Colombia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">15</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Costa Rica</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">15</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CW</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Curaçao</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">14</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">DO</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Dominican Republic</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">3</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">EC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Ecuador</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">4</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">GP</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Guadeloupe</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">4</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">GT</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Guatemala</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">8</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">HN</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Honduras</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MQ</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Martinique</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Mexico</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFCCCC; font-size: 11px;">NA + CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">52</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Panama</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFCCCC; font-size: 11px;">NA + CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB3B3; font-size: 11px;">US&CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">10</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PY</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Paraguay</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Peru</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">10</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">BL</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Saint Barthélemy</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">KN</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Saint Kitts and Nevis</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFCCCC; font-size: 11px;">NA + CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB3B3; font-size: 11px;">US&CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Saint Martin (French part)</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">UY</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Uruguay</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9BBB; font-weight: bold; font-size: 11px;">LAC</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CD</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Congo the Democratic Republic of the</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CI</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Cote d'Ivoire</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">EG</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Egypt</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">4</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">GE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Georgia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFDAB9; font-size: 11px;">IT&SEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">12</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">GH</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Ghana</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">IL</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Israel</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">KE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Kenya</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Mauritius</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">6</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Morocco</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">16</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">NA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Namibia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">3</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">NG</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Nigeria</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">RE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Reunion</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9A8; font-size: 11px;">FSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">13</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">South Africa</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D5C3; font-size: 11px;">ZA&RAF</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">66</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">TR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Turkey</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFDAB9; font-size: 11px;">IT&SEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C4A8; font-weight: bold; font-size: 11px;">MEA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">DK</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Denmark</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">100</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">FO</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Faroe Islands</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">FI</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Finland</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">108</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">IS</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Iceland</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">4</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">NO</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Norway</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">268</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">SJ</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Svalbard and Jan Mayen</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">SE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Sweden</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-weight: bold; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">298</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CY</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Cyprus</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFDAB9; font-size: 11px;">IT&SEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">6</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">CZ</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Czech Republic</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D9FF; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">99</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Estonia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">38</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">GR</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Greece</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFDAB9; font-size: 11px;">IT&SEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">63</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">HU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Hungary</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D9FF; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">26</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">LV</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Latvia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6C8FF; font-size: 11px;">BNX</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #B8E6B8; font-size: 11px;">NEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">4</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">MT</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Malta</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFDAB9; font-size: 11px;">IT&SEU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">17</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PL</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Poland</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D9FF; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">22</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">PT</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Portugal</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">118</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">RU</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Russian Federation</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D9FF; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">SK</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Slovakia</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D9FF; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">23</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">UA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Ukraine</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D4E6; font-size: 11px;">DACHEE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #E6D9FF; font-size: 11px;">EE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #D9C8FF; font-weight: bold; font-size: 11px;">REU</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">2</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">AD</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Andorra</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB380; font-weight: bold; font-size: 11px;">Spain</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">6</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">ES</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Spain</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFD9E6; font-size: 11px;">LSC</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFC8D9; font-size: 11px;">IP&LATAM</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB380; font-weight: bold; font-size: 11px;">Spain</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">579</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">IE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Ireland</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #90D690; font-size: 11px;">UK&IE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #5CB85C; font-weight: bold; font-size: 11px;">UKIE</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">24</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">JE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">Jersey</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #90D690; font-size: 11px;">UK&IE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #5CB85C; font-weight: bold; font-size: 11px;">UKIE</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">3</td>
+        </tr>
+        
+
+        <tr style="background-color: #f9f9f9;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">GB</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">United Kingdom</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #C8E6C8; font-size: 11px;">UK + IR + ZA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #90D690; font-size: 11px;">UK&IE</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #5CB85C; font-weight: bold; font-size: 11px;">UKIE</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">709</td>
+        </tr>
+        
+
+        <tr style="background-color: #ffffff;">
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">US</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; font-size: 11px;">United States</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFCCCC; font-size: 11px;">NA + CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FFB3B3; font-size: 11px;">US&CA</td>
+            <td style="padding: 3px 6px; border: 1px solid #ddd; background-color: #FF9999; font-weight: bold; font-size: 11px;">USA</td>
+            <td style="padding: 3px 6px; text-align: center; border: 1px solid #ddd; font-size: 11px;">1063</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Simple table sorting function
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const th = table.querySelectorAll('th')[columnIndex];
+
+            // Determine current sort direction
+            const isAsc = th.classList.contains('sort-asc');
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const aText = a.children[columnIndex].textContent.trim();
+                const bText = b.children[columnIndex].textContent.trim();
+
+                // Numeric sort if both are numbers
+                if (!isNaN(aText) && !isNaN(bText)) {
+                    return isAsc ? bText - aText : aText - bText;
+                }
+
+                // Empty string handling for account column
+                if (aText === '' && bText !== '') return 1;
+                if (aText !== '' && bText === '') return -1;
+
+                // String sort
+                return isAsc ? bText.localeCompare(aText) : aText.localeCompare(bText);
+            });
+
+            // Update sort direction class
+            th.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Reapply zebra striping
+            rows.forEach((row, idx) => {
+                row.style.backgroundColor = idx % 2 === 0 ? '#ffffff' : '#f9f9f9';
+            });
+        }
+    </script>
+</body>
+</html>
