@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Segmentation - Old vs New Structure</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .comparison-wrapper {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .column {
+            flex: 1;
+        }
+        .column-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #343a40;
+        }
+        .old-header {
+            border-bottom-color: #dc3545;
+        }
+        .new-header {
+            border-bottom-color: #28a745;
+        }
+        .structure-box {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .field-label {
+            font-weight: 700;
+            color: #0066cc;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .value-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 8px 0;
+        }
+        .value-list li {
+            padding: 5px 10px;
+            margin: 4px 0;
+            background-color: white;
+            border-left: 3px solid #0066cc;
+            font-size: 13px;
+        }
+        .explanation {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .explanation strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #343a40;
+        }
+        .arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #6c757d;
+            margin-top: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="comparison-wrapper">
+            <!-- OLD STRUCTURE -->
+            <div class="column">
+                <div class="column-header old-header">Old Structure</div>
+                <div class="structure-box">
+                    <div class="field-label">segment (single field)</div>
+                    <ul class="value-list">
+                        <li>SMB</li>
+                        <li>Mid-Market</li>
+                        <li>Enterprise</li>
+                    </ul>
+                </div>
+                <div class="explanation">
+                    <strong>Old Approach:</strong>
+                    Single field that grouped all customers into three segments. Enterprise customers were identified by a single "Enterprise" value, making it difficult to distinguish between different types of enterprise relationships (franchise brands, soft brands, residential operators, etc.).
+                </div>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <!-- NEW STRUCTURE -->
+            <div class="column">
+                <div class="column-header new-header">New Structure (2025)</div>
+
+                <div class="structure-box">
+                    <div class="field-label">segment</div>
+                    <ul class="value-list">
+                        <li>SMB</li>
+                        <li>Mid-Market</li>
+                    </ul>
+                </div>
+
+                <div class="structure-box">
+                    <div class="field-label">is_enterprise</div>
+                    <ul class="value-list">
+                        <li>True</li>
+                        <li>False</li>
+                    </ul>
+                </div>
+
+                <div class="structure-box">
+                    <div class="field-label">enterprise_type</div>
+                    <ul class="value-list">
+                        <li>Global Franchise Brands</li>
+                        <li>Soft Brands</li>
+                        <li>Residential Brands</li>
+                    </ul>
+                </div>
+
+                <div class="explanation">
+                    <strong>New Approach:</strong>
+                    Three-field model that separates enterprise classification from segment size. SMB and Mid-Market segments now exclude enterprise accounts. The new <code>is_enterprise</code> flag clearly identifies enterprise customers, while <code>enterprise_type</code> provides granular classification of different enterprise relationship types.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

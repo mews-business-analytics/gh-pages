@@ -6,7 +6,11 @@ Public repository for hosting interactive dashboards and visualizations for the 
 
 ### Customer Segmentation - New Field Structure
 
-Overview table explaining the new 3-field segmentation model (segment, is_enterprise, enterprise_type).
+Two complementary views of the new 3-field segmentation model:
+
+#### 1. Field Overview
+
+Overview table explaining the new 3-field segmentation model (segment, is_enterprise, enterprise_type) with detailed classification criteria.
 
 **Live URL:** https://mews-business-analytics.github.io/gh-pages/customer-segmentation/overview.html
 
@@ -18,6 +22,25 @@ Overview table explaining the new 3-field segmentation model (segment, is_enterp
   src="https://mews-business-analytics.github.io/gh-pages/customer-segmentation/overview.html"
   width="100%"
   height="800px"
+  frameborder="0"
+  style="border: none;">
+</iframe>
+```
+
+#### 2. Old vs New Comparison
+
+Side-by-side comparison showing the evolution from the old single-field segment to the new 3-field model.
+
+**Live URL:** https://mews-business-analytics.github.io/gh-pages/customer-segmentation/comparison.html
+
+**Best for:** Understanding the migration, explaining the change to stakeholders
+
+**Confluence Embed:**
+```html
+<iframe
+  src="https://mews-business-analytics.github.io/gh-pages/customer-segmentation/comparison.html"
+  width="100%"
+  height="700px"
   frameborder="0"
   style="border: none;">
 </iframe>
