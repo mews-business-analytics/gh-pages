@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Territory Consolidation - 2026 Transition</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+        .transition-container {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 60px;
+        }
+        .old-territories {
+            flex: 0 0 45%;
+            display: flex;
+            gap: 20px;
+        }
+        .new-territories {
+            flex: 0 0 35%;
+        }
+        .arrow-container {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow {
+            width: 60px;
+            height: 3px;
+            background-color: #666;
+            position: relative;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -5px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #666;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+        .territory-box {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+        }
+        .territory-box h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        .old-gtm {
+            border-color: #90caf9;
+            background-color: #e3f2fd;
+        }
+        .old-gtm h3 {
+            color: #1565c0;
+            border-color: #90caf9;
+        }
+        .old-finance {
+            border-color: #ffb074;
+            background-color: #fff3e0;
+        }
+        .old-finance h3 {
+            color: #e65100;
+            border-color: #ffb074;
+        }
+        .new-2026 {
+            border-color: #81c784;
+            background-color: #e8f5e9;
+        }
+        .new-2026 h3 {
+            color: #2e7d32;
+            border-color: #81c784;
+        }
+        .territory-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .territory-list li {
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            background-color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .old-gtm .territory-list li {
+            background-color: #ffffff;
+            border-color: #90caf9;
+        }
+        .old-finance .territory-list li {
+            background-color: #ffffff;
+            border-color: #ffb074;
+        }
+        .new-2026 .territory-list li {
+            background-color: #ffffff;
+            border-color: #81c784;
+        }
+        .count-badge {
+            float: right;
+            background-color: rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .transition-note {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f0f4f8;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Territory Structure Consolidation</h1>
+        <p class="subtitle">Transitioning from dual territory systems to unified 2026 structure</p>
+
+        <div class="transition-container">
+            <div class="old-territories">
+                <div class="territory-box old-gtm">
+                    <h3>GTM Territories (Old) <span class="count-badge">8 territories</span></h3>
+                    <ul class="territory-list">
+                        <li>APAC</li>
+                        <li>BNX</li>
+                        <li>DACHEE</li>
+                        <li>FSC</li>
+                        <li>LSC</li>
+                        <li>NA + CA</li>
+                        <li>NEU</li>
+                        <li>UK + IR + ZA</li>
+                    </ul>
+                </div>
+
+                <div class="territory-box old-finance">
+                    <h3>Finance Territories (Old) <span class="count-badge">11 territories</span></h3>
+                    <ul class="territory-list">
+                        <li>APAC</li>
+                        <li>BNX</li>
+                        <li>DACH</li>
+                        <li>EE</li>
+                        <li>FSC</li>
+                        <li>IP&LATAM</li>
+                        <li>IT&SEU</li>
+                        <li>NEU</li>
+                        <li>UK&IE</li>
+                        <li>US&CA</li>
+                        <li>ZA&RAF</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="arrow-container">
+                <div class="arrow"></div>
+            </div>
+
+            <div class="new-territories">
+                <div class="territory-box new-2026">
+                    <h3>New Territories (2026) <span class="count-badge">13 territories</span></h3>
+                    <ul class="territory-list">
+                        <li>APAC</li>
+                        <li>BNX (Benelux)</li>
+                        <li>Canada</li>
+                        <li>DACH (German-speaking)</li>
+                        <li>France</li>
+                        <li>Italy</li>
+                        <li>LAC (Latin America)</li>
+                        <li>MEA (Middle East & Africa)</li>
+                        <li>NEU (Northern Europe)</li>
+                        <li>REU (Rest of Europe)</li>
+                        <li>Spain</li>
+                        <li>UKIE (UK & Ireland)</li>
+                        <li>USA</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="transition-note">
+            <strong>Key Changes:</strong> Consolidation from separate GTM (8) and Finance (11) territory structures to a unified global structure with 13 territories,
+            providing clearer regional alignment and simplified operations.
+        </div>
+    </div>
+</body>
+</html>
