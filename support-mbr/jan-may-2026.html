@@ -185,12 +185,25 @@
   <a href="#territory">Territory</a>
   <a href="#priority-origin">Priority &amp; Origin</a>
   <a href="#categories">Categories</a>
+  <a href="#subcat-issues">What's Inside Each Sub-Cat</a>
   <span class="nav-group-label">Appendix</span>
   <a href="#may-deep-dives">May Deep Dives</a>
   <a href="#enforcement">Classification Fix</a>
   <a href="#backfill">Claude Backfill</a>
   <a href="#summary">Summary &amp; Actions</a>
 </nav>
+
+<!-- ===================== TLDR ===================== -->
+<div style="background:#0f2137;border-radius:12px;padding:24px 28px;margin-bottom:36px;border-left:4px solid #00b5b8;">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#00b5b8;margin-bottom:12px;">TL;DR — Five things to know</div>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+    <li style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#00b5b8;font-weight:700;flex-shrink:0;">↑</span><span style="color:#e2e8f0;font-size:14px;">Live-chat CSAT reached <strong style="color:#fff;">87.1%</strong> — the year's best. Missed chat rate is down to <strong style="color:#fff;">8%</strong> from a 35% peak in March.</span></li>
+    <li style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#e84545;font-weight:700;flex-shrink:0;">✗</span><span style="color:#e2e8f0;font-size:14px;">Q2 OKR effectively missed: Cases/Property at <strong style="color:#fff;">0.68 QTD vs a 0.6 target</strong>. June would need ~0.44 to rescue the quarter.</span></li>
+    <li style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#f4a61a;font-weight:700;flex-shrink:0;">▲</span><span style="color:#e2e8f0;font-size:14px;">Backlog barely moved in May (<strong style="color:#fff;">2,380, down just 45 from April</strong>) — five consecutive months of accumulation totalling ~2,480 cases.</span></li>
+    <li style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#f4a61a;font-weight:700;flex-shrink:0;">!</span><span style="color:#e2e8f0;font-size:14px;"><strong style="color:#fff;">60% of the Waiting internal backlog is blocked on R&amp;D</strong>, not slow triage — 492 of 830 cases need Engineering input before they can move.</span></li>
+    <li style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#e84545;font-weight:700;flex-shrink:0;">⚠</span><span style="color:#e2e8f0;font-size:14px;">Security cases spiked <strong style="color:#fff;">+56% MoM</strong> in May — likely a single Booking.com-side data exposure affecting at least seven properties independently.</span></li>
+  </ul>
+</div>
 
 <!-- ===================== OVERVIEW ===================== -->
 <section id="overview">
@@ -1204,6 +1217,493 @@
     </tbody>
   </table>
   <p style="font-size:11px;color:var(--muted);margin-top:6px;">~47 accounts had >10 May cases. Individual properties only: excluded are 4 integration/chain entities (Booking.com, Accor, Flexkeeping, Strawberry) and 4 multi-property / brand / management-company accounts (Villa Rosa Inn — Groups 3–20, Mariposa Hospitality Group, b_smart services AG — Local Chain, Zenitude Groupe — Brand). "Main channel" is where most of the property's cases originated.</p>
+
+</section>
+
+<!-- ===================== SUB-CATEGORY ISSUE ANALYSIS ===================== -->
+<section id="subcat-issues">
+  <h2>What Are Customers Asking About — Sub-Category Deep Dive</h2>
+  <p class="subtitle">May 2026 · 9 highest-volume sub-categories · created-month cohort · analysis from case subjects, descriptions &amp; Ada conversation summaries</p>
+
+  <div class="narrative">
+    <p>The category table shows <em>how many</em> cases; this section answers <em>what exactly</em> the issues are. For each of the 9 most-requested sub-categories, the reason breakdown (How-to / Technical issue / Mews action required / Incident) is shown alongside the concrete themes extracted from case subjects, descriptions, and Ada conversation summaries. Source: <code>gtm.key_tables.support_cases</code> + <code>cs.ada.conversation.inquiry_summary</code>, May 2026, n=1,515 cases across the 9 sub-categories.</p>
+  </div>
+
+  <!-- Summary table -->
+  <table class="data-table" style="margin-bottom:32px;">
+    <thead>
+      <tr>
+        <th>Sub-category</th>
+        <th>Category</th>
+        <th style="text-align:right;">Cases</th>
+        <th>Dominant type</th>
+        <th>Primary signal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Reservation Management</strong></td><td>PMS</td><td style="text-align:right;">376</td><td><span class="badge" style="background:#e6faf9;color:#00877a;border:1px solid #b2e8e7;">How-to 48%</span></td><td>Customers don't know how to modify / fix billing after check-out</td></tr>
+      <tr><td><strong>User / Permissions</strong></td><td>PMS</td><td style="text-align:right;">371</td><td><span class="badge red">Incident 51%</span></td><td>⚠️ Phishing cluster — fraudulent WhatsApp after Booking.com bookings</td></tr>
+      <tr><td><strong>Integration Setup</strong></td><td>Channel Manager</td><td style="text-align:right;">218</td><td><span class="badge" style="background:#e6faf9;color:#00877a;border:1px solid #b2e8e7;">How-to 43%</span></td><td>OTA rate/room mapping; ~half of "Mews AR" are auto-routed OTA emails (noise)</td></tr>
+      <tr><td><strong>Terminals</strong></td><td>Mews Payments</td><td style="text-align:right;">135</td><td><span class="badge red">Technical 46%</span></td><td>Terminal offline / lost pairing; 36% are new setup/replacement (Mews AR)</td></tr>
+      <tr><td><strong>CC Payments</strong></td><td>Mews Payments</td><td style="text-align:right;">130</td><td><span class="badge red">Technical 48%</span></td><td>Payments failing / preauth not capturing; 35% are how-to (refund workflow)</td></tr>
+      <tr><td><strong>HMS Synchronization</strong></td><td>Mews HMS</td><td style="text-align:right;">110</td><td><span class="badge red">Technical 89%</span></td><td>Almost entirely a product bug — HMS↔PMS sync drops, status mismatch</td></tr>
+      <tr><td><strong>Correction-Rebate</strong></td><td>Billing</td><td style="text-align:right;">106</td><td><span class="badge" style="background:#e6faf9;color:#00877a;border:1px solid #b2e8e7;">How-to 75%</span></td><td>Rebate workflow unknown — customers hit closed bill and don't know what to do</td></tr>
+      <tr><td><strong>Inventory Discrepancies</strong></td><td>Channel Manager</td><td style="text-align:right;">99</td><td><span class="badge red">Technical 67%</span></td><td>Wrong availability/rates pushed to OTA; overbookings from sync gaps</td></tr>
+      <tr><td><strong>HMS Administration</strong></td><td>Mews HMS</td><td style="text-align:right;">96</td><td><span class="badge amber">Mews AR 53%</span></td><td>Property config changes + housekeeping setup; ~33% genuine how-to</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── helper macro ─── -->
+  <style>
+    .sc-block { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin-bottom:24px; }
+    .sc-title { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+    .sc-title h3 { font-size:15px; font-weight:700; color:var(--navy); margin:0; }
+    .sc-title .sc-meta { font-size:12px; color:var(--muted); }
+    .sc-title .sc-n { font-size:13px; font-weight:700; color:var(--navy); margin-left:auto; }
+    .reason-bar { display:flex; height:14px; border-radius:6px; overflow:hidden; gap:1px; margin-bottom:6px; }
+    .reason-legend { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; font-size:11px; color:var(--muted); }
+    .reason-legend span { display:flex; align-items:center; gap:4px; }
+    .reason-legend span::before { content:''; display:inline-block; width:10px; height:10px; border-radius:2px; }
+    .rl-ht::before { background:var(--teal); }
+    .rl-ti::before { background:var(--red); }
+    .rl-ar::before { background:var(--amber); }
+    .rl-inc::before { background:#7c3aed; }
+    .rl-oth::before { background:#cbd5e0; }
+    .theme-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+    .theme-col h4 { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; padding:4px 8px; border-radius:4px; display:inline-block; }
+    .theme-col.ht h4 { background:#e6faf9; color:#007a73; }
+    .theme-col.ti h4 { background:#fdeaea; color:#b91c1c; }
+    .theme-col.ar h4 { background:#fff8e1; color:#92600a; }
+    .theme-col.inc h4 { background:#f3eeff; color:#6d28d9; }
+    .theme-col ul { margin:0 0 0 16px; padding:0; font-size:13px; color:var(--text); }
+    .theme-col ul li { margin-bottom:4px; }
+    .sc-note { font-size:12px; color:var(--muted); margin-top:10px; font-style:italic; }
+  </style>
+
+  <!-- ═══ 1. Reservation Management ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>Reservation Management</h3>
+      <span class="sc-meta">Mews Operations (PMS)</span>
+      <span class="sc-n">376 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--teal);width:48%;" title="How-to: 48% (182)"></div>
+      <div style="background:var(--red);width:36%;" title="Technical issue: 36% (136)"></div>
+      <div style="background:var(--amber);width:5%;" title="Mews action required: 5% (18)"></div>
+      <div style="background:#cbd5e0;width:11%;" title="Other: 11% (40)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ht">How-to 48% (182)</span>
+      <span class="rl-ti">Technical issue 36% (136)</span>
+      <span class="rl-ar">Mews AR 5% (18)</span>
+      <span class="rl-oth">Other 11% (40)</span>
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ht">
+        <h4>How-to (182)</h4>
+        <ul>
+          <li>Modifying a reservation after check-in: date changes, room moves, rate adjustments</li>
+          <li>Group booking creation and bulk operations (assign rooms, apply group rates)</li>
+          <li>Applying cancellation fees and no-show charges</li>
+          <li>Adding extras / products to existing reservations</li>
+          <li>Manual reservation creation for walk-ins</li>
+          <li>Handling overbooking and forced room-move workflows</li>
+          <li>Setting up early check-in / late check-out rules</li>
+        </ul>
+      </div>
+      <div class="theme-col ti">
+        <h4>Technical issue (136)</h4>
+        <ul>
+          <li>OTA reservations not arriving in Mews (channel manager sync gap)</li>
+          <li>Wrong rate applied to an imported reservation</li>
+          <li>Duplicate reservations arriving from channel manager</li>
+          <li>Booking engine errors / checkout not completing for guests</li>
+          <li>Rate / pricing discrepancy on reservation vs. quoted price</li>
+          <li>Group reservations showing split or incorrect status</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2. User / Permissions ═══ -->
+  <div class="sc-block" style="border-color:#e9d5ff;">
+    <div class="sc-title">
+      <h3>User / Permissions</h3>
+      <span class="sc-meta">Mews Operations (PMS)</span>
+      <span class="sc-n">371 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:#7c3aed;width:51%;" title="Incident: 51% (191)"></div>
+      <div style="background:var(--red);width:20%;" title="Technical issue: 20% (75)"></div>
+      <div style="background:var(--teal);width:18%;" title="How-to: 18% (65)"></div>
+      <div style="background:var(--amber);width:8%;" title="Mews action required: 8% (31)"></div>
+      <div style="background:#cbd5e0;width:2%;" title="Other: 2% (9)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-inc">Incident 51% (191)</span>
+      <span class="rl-ti">Technical issue 20% (75)</span>
+      <span class="rl-ht">How-to 18% (65)</span>
+      <span class="rl-ar">Mews AR 8% (31)</span>
+      <span class="rl-oth">Other 2%</span>
+    </div>
+    <div class="callout flag" style="margin-bottom:14px;">
+      <strong>⚠️ Security / phishing cluster drives 51% of this sub-category.</strong> The May Deep Dive identified a cross-property phishing pattern: guests receive fraudulent WhatsApp messages after making a Booking.com reservation, often requesting payment card details. Hotels contact support to report the incident, change credentials, and understand exposure. This is not a "User/Permissions" product issue — it is a security-response workflow that is currently routed here by default. The cluster affected 7+ unrelated properties in May and likely drove much of the Security category's 56% month-on-month jump.
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col inc">
+        <h4>Incident (191)</h4>
+        <ul>
+          <li>Phishing / social engineering: fraudulent WhatsApp contact after Booking.com booking</li>
+          <li>Suspected unauthorized Mews account access — password changed by unknown party</li>
+          <li>Report of fraudulent activity linked to a guest reservation</li>
+          <li>Request to audit login history / recent account activity</li>
+        </ul>
+      </div>
+      <div class="theme-col ti">
+        <h4>Technical issue (75)</h4>
+        <ul>
+          <li>Login failing / account locked out (often after too many failed attempts)</li>
+          <li>2FA no longer working (phone number changed, authenticator lost)</li>
+          <li>Persistent session timeout — can't stay logged in</li>
+          <li>SSO / single sign-on error on enterprise accounts</li>
+        </ul>
+      </div>
+      <div class="theme-col ht">
+        <h4>How-to (65)</h4>
+        <ul>
+          <li>Setting user roles and permission levels (what each role can / can't do)</li>
+          <li>Restricting specific features: billing access, rate visibility, reporting</li>
+          <li>Adding new staff members and managing multiple employee accounts</li>
+          <li>Manager vs. front desk access levels — what to grant and why</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 3. Integration Setup ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>Integration Setup</h3>
+      <span class="sc-meta">Channel Manager</span>
+      <span class="sc-n">218 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--teal);width:43%;" title="How-to: 43% (93)"></div>
+      <div style="background:var(--amber);width:28%;" title="Mews action required: 28% (60)"></div>
+      <div style="background:var(--red);width:24%;" title="Technical issue: 24% (53)"></div>
+      <div style="background:#cbd5e0;width:6%;" title="Other: 6% (12)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ht">How-to 43% (93)</span>
+      <span class="rl-ar">Mews AR 28% (60)</span>
+      <span class="rl-ti">Technical issue 24% (53)</span>
+      <span class="rl-oth">Other 6%</span>
+    </div>
+    <div class="callout insight" style="margin-bottom:14px;">
+      <strong>Noise alert: ~half of "Mews action required" are auto-routed OTA emails, not real support issues.</strong> Booking.com and SiteMinder send automated activation request emails ("[Property X] has requested to activate a connection with you") directly to the Mews support queue. These land as cases, get coded as "Mews action required", and inflate this sub-category by an estimated 25–30 cases per month. They carry no customer complaint — they are partner notification emails that need routing, not support.
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ht">
+        <h4>How-to (93)</h4>
+        <ul>
+          <li>Rate and room type mapping on <strong>Expedia</strong> (most common OTA in May)</li>
+          <li>Airbnb integration setup — via SiteMinder or direct; including business identity verification</li>
+          <li>Booking.com room/rate mapping, age-category mapping, restrictions</li>
+          <li>D-Edge, Lighthouse, SynXis, Amadeus, Profitroom, Dirs21 mapping and setup</li>
+          <li>Adding a second bookable service to an existing channel manager connection</li>
+          <li>Travel agency (TA) code mapping and assignment</li>
+          <li>Adding new room categories to OTAs after updating room types in Mews</li>
+        </ul>
+      </div>
+      <div class="theme-col ar">
+        <h4>Mews AR (60) — incl. noise</h4>
+        <ul>
+          <li>~25–30 are auto-routed OTA activation emails (see note above)</li>
+          <li>Reconnecting a disabled / broken OTA integration</li>
+          <li>Locked mapping fields requiring a Mews-side unlock</li>
+          <li>Rate mapping corrections requiring backend access to fix</li>
+          <li>Health-check and PMS testing meeting requests from OTA onboarding teams</li>
+        </ul>
+      </div>
+      <div class="theme-col ti">
+        <h4>Technical issue (53)</h4>
+        <ul>
+          <li>ARI push failing — rates / availability / inventory not being sent to OTA</li>
+          <li>Rate discrepancy: Mews rate does not match what OTA displays</li>
+          <li>Channel manager connection dropped or marked disabled</li>
+          <li>Mapping validation errors (e.g. Expedia "RateId invalid", invalid age band ID)</li>
+          <li>Sync queue backed up — changes made in Mews not reflected on OTA</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 4. Terminals ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>Terminals</h3>
+      <span class="sc-meta">Mews Payments</span>
+      <span class="sc-n">135 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--red);width:46%;" title="Technical issue: 46% (62)"></div>
+      <div style="background:var(--amber);width:36%;" title="Mews action required: 36% (49)"></div>
+      <div style="background:var(--teal);width:13%;" title="How-to: 13% (17)"></div>
+      <div style="background:#cbd5e0;width:5%;" title="Other: 5% (7)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ti">Technical issue 46% (62)</span>
+      <span class="rl-ar">Mews AR 36% (49)</span>
+      <span class="rl-ht">How-to 13% (17)</span>
+      <span class="rl-oth">Other 5%</span>
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ti">
+        <h4>Technical issue (62)</h4>
+        <ul>
+          <li>Terminal goes offline / loses connection with Mews PMS</li>
+          <li>Card tap or chip declining despite a valid card (false declines)</li>
+          <li>Terminal freezing mid-transaction, requiring reboot</li>
+          <li>Terminal pairing lost after network reset or power cycle</li>
+          <li>Error codes on terminal display with no clear action</li>
+          <li>Terminal not registering the payment in Mews after customer pays</li>
+        </ul>
+      </div>
+      <div class="theme-col ar">
+        <h4>Mews AR (49)</h4>
+        <ul>
+          <li>New terminal installation and initial pairing setup</li>
+          <li>Terminal hardware replacement (faulty device)</li>
+          <li>Firmware or configuration update required by Mews</li>
+          <li>Adding a terminal to a new property location or POS station</li>
+        </ul>
+      </div>
+      <div class="theme-col ht">
+        <h4>How-to (17)</h4>
+        <ul>
+          <li>How to re-pair a terminal after it loses connection</li>
+          <li>How to process a refund directly via the terminal</li>
+          <li>How to use the manual card-entry fallback when contactless fails</li>
+          <li>How to split a payment across multiple cards on one terminal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 5. CC Payments ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>CC Payments</h3>
+      <span class="sc-meta">Mews Payments</span>
+      <span class="sc-n">130 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--red);width:48%;" title="Technical issue: 48% (62)"></div>
+      <div style="background:var(--teal);width:35%;" title="How-to: 35% (45)"></div>
+      <div style="background:var(--amber);width:13%;" title="Mews action required: 13% (17)"></div>
+      <div style="background:#cbd5e0;width:5%;" title="Other: 5% (6)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ti">Technical issue 48% (62)</span>
+      <span class="rl-ht">How-to 35% (45)</span>
+      <span class="rl-ar">Mews AR 13% (17)</span>
+      <span class="rl-oth">Other 5%</span>
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ti">
+        <h4>Technical issue (62)</h4>
+        <ul>
+          <li>Online / card-on-file payment declining at checkout (valid card rejected)</li>
+          <li>Preauthorization failing to capture or releasing unexpectedly</li>
+          <li>Payment gateway error — generic / unexplained decline code</li>
+          <li>Charge appearing on card bank statement but not recorded in Mews</li>
+          <li>Refund processed in Mews but not reflected on the cardholder's account</li>
+        </ul>
+      </div>
+      <div class="theme-col ht">
+        <h4>How-to (45)</h4>
+        <ul>
+          <li>How to process a manual refund in Mews (full or partial)</li>
+          <li>How preauthorization and capture works — timing, hold amounts, release</li>
+          <li>How to handle a chargeback / payment dispute</li>
+          <li>Setting up payment automation rules (auto-charge on arrival, deposits)</li>
+          <li>Why a specific card was declined and what to tell the guest</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 6. HMS Synchronization ═══ -->
+  <div class="sc-block" style="border-color:#fed7d7;">
+    <div class="sc-title">
+      <h3>HMS Synchronization</h3>
+      <span class="sc-meta">Mews HMS</span>
+      <span class="sc-n">110 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--red);width:89%;" title="Technical issue: 89% (98)"></div>
+      <div style="background:var(--amber);width:6%;" title="Mews action required: 6% (7)"></div>
+      <div style="background:var(--teal);width:4%;" title="How-to: 4% (4)"></div>
+      <div style="background:#cbd5e0;width:1%;" title="Other: 1%"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ti">Technical issue 89% (98)</span>
+      <span class="rl-ar">Mews AR 6% (7)</span>
+      <span class="rl-ht">How-to 4%</span>
+    </div>
+    <div class="callout flag" style="margin-bottom:14px;">
+      <strong>89% technical issue — this is almost entirely a product stability problem, not a training gap.</strong> Unlike most other sub-categories, customers are not asking how to use HMS sync; they are reporting that it is broken. The small how-to share (4%) confirms this. The fix is product-side (reliable sync connection, real-time status updates) rather than documentation or coaching.
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ti">
+        <h4>Technical issue (98)</h4>
+        <ul>
+          <li>HMS not reflecting PMS data — reservation or guest data mismatch between systems</li>
+          <li>Housekeeping room status not updating in real time (rooms showing dirty when clean, or vice versa)</li>
+          <li>HMS↔PMS sync connection dropping intermittently</li>
+          <li>Guest room assignments not syncing to HMS dashboard</li>
+          <li>Sync delays causing operational confusion (staff acting on outdated status)</li>
+          <li>Room status changes made in HMS not propagating back to PMS</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 7. Correction-Rebate ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>Correction-Rebate</h3>
+      <span class="sc-meta">Billing and invoicing</span>
+      <span class="sc-n">106 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--teal);width:75%;" title="How-to: 75% (80)"></div>
+      <div style="background:var(--red);width:12%;" title="Technical issue: 12% (13)"></div>
+      <div style="background:var(--amber);width:5%;" title="Mews action required: 5% (5)"></div>
+      <div style="background:#cbd5e0;width:8%;" title="Other: 8% (8)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ht">How-to 75% (80)</span>
+      <span class="rl-ti">Technical issue 12% (13)</span>
+      <span class="rl-ar">Mews AR 5%</span>
+      <span class="rl-oth">Other 8%</span>
+    </div>
+    <div class="callout insight" style="margin-bottom:14px;">
+      <strong>75% how-to — the rebate and invoice-correction workflow is the single biggest self-serve opportunity in billing.</strong> Almost every case is a customer who hit a closed bill, doesn't know the Rebate workflow, and contacts support. Ada deflection or a short in-app tooltip on closed bills could absorb a substantial share of this volume. The technical issues (12%) are real blockers — specifically the missing rebate button and the "adjusted items can only be closed with the original owner" error — and worth a product fix.
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ht">
+        <h4>How-to (80) — specific scenarios</h4>
+        <ul>
+          <li>How to rebate / correct a closed invoice — customers hit a closed bill and don't know the Rebate workflow</li>
+          <li>How to issue a partial refund on an already-processed payment</li>
+          <li>"I accidentally double-rebated" — how to undo or balance the bill</li>
+          <li>Moving items between bills after checkout (wrong room charged, items on wrong guest's bill)</li>
+          <li>Correcting invoice address, name, or company details after the bill is closed</li>
+          <li>How to correct a rate error on a closed invoice</li>
+          <li>Fiscal / Peppol invoice: how to handle corrections in fiscalised markets</li>
+        </ul>
+      </div>
+      <div class="theme-col ti">
+        <h4>Technical issue (13)</h4>
+        <ul>
+          <li><strong>Rebate button missing / greyed out</strong> despite user having admin permissions</li>
+          <li><strong>"Adjusted items can only be closed with the original owner"</strong> — recurring error blocking correction</li>
+          <li>Peppol invoice not sending to the fiscal registry after closing</li>
+          <li>Chargeback entered in Mews but not appearing in the payment report</li>
+          <li>Bill won't reopen even with correct role (edge case around fiscalised countries)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 8. Inventory / Updates Discrepancies ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>Inventory / Updates Discrepancies</h3>
+      <span class="sc-meta">Channel Manager</span>
+      <span class="sc-n">99 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--red);width:67%;" title="Technical issue: 67% (66)"></div>
+      <div style="background:var(--teal);width:18%;" title="How-to: 18% (18)"></div>
+      <div style="background:var(--amber);width:8%;" title="Mews action required: 8% (8)"></div>
+      <div style="background:#cbd5e0;width:7%;" title="Other: 7% (7)"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ti">Technical issue 67% (66)</span>
+      <span class="rl-ht">How-to 18% (18)</span>
+      <span class="rl-ar">Mews AR 8%</span>
+      <span class="rl-oth">Other 7%</span>
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ti">
+        <h4>Technical issue (66)</h4>
+        <ul>
+          <li>OTA showing wrong availability — rooms appearing sold out when inventory exists, or open when closed</li>
+          <li>Rate pushed to OTA does not match the Mews rate plan (price discrepancy)</li>
+          <li>Specific room categories showing 0 availability on OTA despite being open in Mews</li>
+          <li>Overbooking event caused by inventory sync lag between Mews and OTA</li>
+          <li>Availability update not reflected on OTA after manually closing out dates</li>
+          <li>Rate plan missing or retired on OTA side — not updated when Mews rate changed</li>
+        </ul>
+      </div>
+      <div class="theme-col ht">
+        <h4>How-to (18)</h4>
+        <ul>
+          <li>How to audit what Mews is actually sending to the OTA</li>
+          <li>How to manually force an inventory / rate push</li>
+          <li>How to read and interpret sync error messages in the channel manager queue</li>
+          <li>How to reconcile Mews inventory vs. OTA extranet</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 9. HMS Administration ═══ -->
+  <div class="sc-block">
+    <div class="sc-title">
+      <h3>HMS Administration</h3>
+      <span class="sc-meta">Mews HMS</span>
+      <span class="sc-n">96 cases</span>
+    </div>
+    <div class="reason-bar">
+      <div style="background:var(--amber);width:53%;" title="Mews action required: 53% (51)"></div>
+      <div style="background:var(--teal);width:33%;" title="How-to: 33% (32)"></div>
+      <div style="background:var(--red);width:11%;" title="Technical issue: 11% (11)"></div>
+      <div style="background:#cbd5e0;width:2%;" title="Other: 2%"></div>
+    </div>
+    <div class="reason-legend">
+      <span class="rl-ar">Mews AR 53% (51)</span>
+      <span class="rl-ht">How-to 33% (32)</span>
+      <span class="rl-ti">Technical issue 11% (11)</span>
+      <span class="rl-oth">Other 2%</span>
+    </div>
+    <div class="theme-grid">
+      <div class="theme-col ar">
+        <h4>Mews AR (51)</h4>
+        <ul>
+          <li>Property / hotel configuration changes: room layouts, floor maps, room type definitions</li>
+          <li>Staff account management: adding / removing / modifying housekeeping staff in HMS</li>
+          <li>Feature activation or deactivation (maintenance module, inspection workflow, guest apps)</li>
+          <li>Bulk data corrections or one-off migration tasks requiring backend access</li>
+        </ul>
+      </div>
+      <div class="theme-col ht">
+        <h4>How-to (32)</h4>
+        <ul>
+          <li>How to set up housekeeping task assignments and schedules</li>
+          <li>How to manage and route maintenance requests</li>
+          <li>How to configure room inspection checklists</li>
+          <li>How to use the housekeeper mobile app (assignment view, status updates)</li>
+          <li>How to set up automated turnover / cleaning triggers on checkout</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p class="sc-note" style="margin-top:4px;">Channel Manager Synchronization (94 cases: 69% technical issue, 17% how-to) follows the same pattern as Inventory Discrepancies — rates / availability changes made in Mews not syncing to OTAs, manual push failing, sync queue errors — and is not shown separately here to avoid duplication.</p>
 
 </section>
 
@@ -2303,7 +2803,7 @@ new Chart(document.getElementById('chartOtherBacklog'), {
 // Section reorder — Demand & Capacity → Service Quality → Where & What → Appendix
 (function() {
   var container = document.querySelector('.container');
-  var ids = ['overview','key-interpretation','volume','backlog','backlog-deep-dive','cpp','missed-chat','csat','frt','resolution','territory','priority-origin','categories','appendix-divider','may-deep-dives','enforcement','backfill','summary'];
+  var ids = ['overview','key-interpretation','volume','backlog','backlog-deep-dive','cpp','missed-chat','csat','frt','resolution','territory','priority-origin','categories','subcat-issues','appendix-divider','may-deep-dives','enforcement','backfill','summary'];
   ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) container.appendChild(el);
