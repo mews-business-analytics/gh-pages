@@ -191,7 +191,7 @@
   <span class="nav-group-label">Appendix</span>
   <a href="#enforcement">Classification Fix</a>
   <a href="#backfill">Claude Backfill</a>
-  <a href="#summary">Summary &amp; Actions</a>
+  <a href="#summary">Actions &amp; June Watch</a>
 </nav>
 
 <!-- ===================== TLDR ===================== -->
@@ -2098,75 +2098,67 @@
 
 <!-- ===================== SUMMARY ===================== -->
 <section id="summary">
-  <h2>Summary &amp; Interpretation</h2>
-  <p class="subtitle">What the five-month picture tells us</p>
+  <h2>Recommended Actions</h2>
+  <p class="subtitle">What needs to happen next — owners and priority</p>
 
-  <div class="narrative">
-    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">Two systems running in parallel</h3>
-    <p>The most useful frame for understanding this data is that two things are happening simultaneously. <strong>Service quality is improving</strong>: missed chats down from 35% (March) to 8% (May), live-chat CSAT at its year high, FRT SLA at its year high, median FRT at its year low. <strong>Capacity is not</strong>: the canonical backlog has grown every single month, active cases stuck in New beyond 48 hours are trending back toward January levels, and resolution times have only just started to reverse after four months of consistent worsening.</p>
-    <p>These are not contradictory. They describe a team that is improving how it handles the cases in front of it — faster first responses, fewer missed chats, higher satisfaction — while still facing a structural supply-demand imbalance where more cases enter the system each month than leave it.</p>
-  </div>
-
-  <div class="narrative" style="margin-top:16px;">
-    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">The January legacy</h3>
-    <p>January created a deficit of 1,567 cases (created − closed) that the backlog has never recovered from. The backlog has grown every month since. Monthly deficits: Jan −1,567 / Feb −3 / Mar −43 / Apr −700 / May −167. Cumulative YTD net accumulation: approximately 2,480 cases. At May's throughput rate of 248 cases/day, eliminating this excess would require roughly 10 additional working days of throughput above and beyond matching demand — effectively a month of operating at a significant surplus. That has not yet happened.</p>
-  </div>
-
-  <div class="narrative" style="margin-top:16px;">
-    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">March as the inflection point</h3>
-    <p>March was bad across almost every dimension: missed chats spiked to 35%, CSAT hit its year low at 76.1% (combined), FRT avg hit its year high at 109.6h, resolution SLA its year low at 52.0%, and backlog continued growing. The routing issue (RV-5376) is the most likely single cause of the chat deterioration. The CSAT consequence is understandable: customers trying to reach agents in March had a 1-in-3 chance of being turned away. What is notable about April and May is how quickly the quality metrics recovered once the routing issue was addressed — the underlying service delivery capability appears solid.</p>
-  </div>
-
-  <div class="narrative" style="margin-top:16px;">
-    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">The FRT May "anomaly" — resolved: it's an immature cohort</h3>
-    <p>The 22h average FRT in May is a <strong>cohort-completeness artifact, not an improvement</strong>. Cases are bucketed by creation date and only enter the FRT calculation once they've been responded to, so May — with 2,941 cases (37%) still open vs ~1–3% for Jan–Mar — is missing exactly the slow-responding tail that inflates older months' averages. The tail is also physically capped (no May case can have waited more than ~33 days as of 2026-06-03), so max FRT collapses with recency (2,976h → 776h). The median (1.56h) is credible and roughly flat all year. <strong>Do not present the avg-FRT drop or treat the +7.7pp SLA as confirmed</strong> — both will soften as the cohort matures. Quote the median; mark May's average provisional. (Optional: re-pull in ~2 weeks to quantify how far the average climbs.)
-  </p>
-  </div>
-
-
-  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:28px 0 14px;">Metrics to watch in June</h3>
   <table class="data-table">
-    <thead><tr><th>Metric</th><th>May</th><th>Direction</th><th>What to watch</th></tr></thead>
+    <thead>
+      <tr><th style="width:80px;">Priority</th><th>Action</th><th>Owner</th><th>Why now</th></tr>
+    </thead>
     <tbody>
       <tr>
-        <td>Backlog</td><td>2,380</td>
-        <td><span class="badge amber">Barely declining</span></td>
-        <td>First month of sustained drawdown would be a genuine milestone. Requires closed > created. Down −45 from April peak.</td>
+        <td><span class="badge red">P1</span></td>
+        <td><strong>Intervene on Les Airelles - Venise and Generator Venice</strong> — proactive CS outreach before they escalate or churn. Both have recurring fiscal printer failures; Les Airelles opened to broken compliance tooling and explicitly complained.</td>
+        <td>CS / Account</td>
+        <td>🔴 Immediate churn risk. Luxury brand (Les Airelles) + multi-property (Generator). See Territory → churn risk table.</td>
       </tr>
       <tr>
-        <td>Waiting for Customer (separate)</td><td>597</td>
-        <td><span class="badge amber">Watch separately</span></td>
-        <td>Not part of canonical backlog. Jumped 64% in May — worth investigating whether this reflects genuine customer-pending cases or deferred closures.</td>
+        <td><span class="badge red">P1</span></td>
+        <td><strong>Italian fiscal sprint</strong> — 8 properties have open or recurring fiscal compliance issues (fiscal printers, ROSS1000, STORNO ricevuta fiscale, VAT setup). One sprint would cut both churn risk and support volume simultaneously.</td>
+        <td>Product / Engineering</td>
+        <td>Italy volume +128% Jan→May; 52% of open backlog is 30+ days old. Fiscal is the #1 Italy pain driver.</td>
       </tr>
       <tr>
-        <td>Missed Chat</td><td>8.0%</td>
-        <td><span class="badge green">Improving</span></td>
-        <td>Watch for recurrence of March-type spike. Second month below 9% confirms the fix is stable.</td>
+        <td><span class="badge red">P1</span></td>
+        <td><strong>R&amp;D escalation path for backlog</strong> — 492 of 830 Waiting internal cases are blocked on Engineering, not slow triage. Needs an agreed SLA and a weekly escalation queue.</td>
+        <td>Support leadership + Engineering</td>
+        <td>90+ day tail = 135 cases. WI is 33% of backlog but 47% of the 90+ tail. No SLA exists today.</td>
       </tr>
       <tr>
-        <td>FRT SLA</td><td>74.2%</td>
-        <td><span class="badge blue">Needs validation</span></td>
-        <td>Validate eligible case composition before treating as a 7.7pp improvement. If real, strong signal.</td>
+        <td><span class="badge amber">P2</span></td>
+        <td><strong>Booking.com → WhatsApp phishing — cross-team response</strong> — 9 cases across 4 REU properties (PURO chain, The Julius, Secret Patio Lisbon) in May, plus the broader Security +56% spike. Needs a coordinated response (Booking.com, security, CS) rather than case-by-case handling.</td>
+        <td>Security + CS</td>
+        <td>Active campaign. Same mechanism at 7+ properties. Likely driving User/Permissions Incident share (51%).</td>
       </tr>
       <tr>
-        <td>Live-chat CSAT</td><td>87.1%</td>
-        <td><span class="badge green">Improving</span></td>
-        <td>Third consecutive month of improvement. Holding above 86% in June would confirm the trend.</td>
+        <td><span class="badge amber">P2</span></td>
+        <td><strong>Block OTA marketplace activation emails from creating support cases</strong> — ~25–30 Booking.com / SiteMinder auto-notification emails per month land as "Integration Setup / Mews action required" cases. These are partner emails, not customer issues.</td>
+        <td>Support ops</td>
+        <td>Quick win. Removes noise from Channel Manager sub-category and inflated "Mews AR" metric.</td>
       </tr>
       <tr>
-        <td>Resolution Time</td><td>8.7d</td>
-        <td><span class="badge amber">First reversal</span></td>
-        <td>First month of improvement after 4 months deteriorating. Confirm it continues rather than bouncing.</td>
+        <td><span class="badge amber">P2</span></td>
+        <td><strong>Enforce case classification at Ada handoff</strong> — pre-fill category from Ada's detected intent; make reason + category required before agent can resolve a chat case. Fixes the 24% "Other" rate at source.</td>
+        <td>Product (Ada) + Support ops</td>
+        <td>455 double/triple "Other" cases in May; 24% carry ≥1 Other tag. Cheapest fix point is handoff. See Classification Fix section.</td>
       </tr>
       <tr>
-        <td>New &gt;48h</td><td>1,436</td>
-        <td><span class="badge red">Worsening</span></td>
-        <td>Back near January levels. Triage speed is a leading indicator of both FRT and resolution SLA.</td>
+        <td><span class="badge amber">P2</span></td>
+        <td><strong>HMS sender deny-list for the Flexkeeping queue</strong> — Firebase/Flex Staging alerts, vendor incident notices (protel, Cloudbeds, weareplanet), and HyperGuest ack emails are all landing as HMS support cases. 18 of 37 noise cases in May came from this one queue.</td>
+        <td>Support ops</td>
+        <td>Quick win. Same filter already applied to PMS mailboxes. See Classification Fix section.</td>
       </tr>
       <tr>
-        <td>Human Support CSAT</td><td>TBC</td>
-        <td><span class="badge blue">Pending case CSAT</span></td>
-        <td>May combined figure needed. Live-chat at 87.1% suggests combined will show improvement.</td>
+        <td><span class="badge" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;">P3</span></td>
+        <td><strong>Correction-Rebate self-serve</strong> — 75% of 106 monthly cases are how-to questions about the rebate/correction workflow on closed bills. An in-app tooltip or Ada deflection on the closed-bill screen could absorb a meaningful share without agent involvement.</td>
+        <td>Product (PMS) / Ada</td>
+        <td>Highest self-serve opportunity in Billing. Low product effort, recurs every month.</td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;">P3</span></td>
+        <td><strong>Validate FRT May improvement in ~2 weeks</strong> — the +7.7pp SLA and 22h average are cohort artifacts (37% of May cases still open). Re-pull when cohort matures to confirm whether the improvement is real before citing in stakeholder comms.</td>
+        <td>Analytics (Lucie)</td>
+        <td>Risk of overclaiming. Median (1.56h) is credible; average and SLA % are not yet stable.</td>
       </tr>
     </tbody>
   </table>
