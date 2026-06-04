@@ -175,6 +175,7 @@
   <span class="nav-group-label">Demand &amp; Capacity</span>
   <a href="#volume">Volume &amp; Throughput</a>
   <a href="#backlog">Backlog</a>
+  <a href="#backlog-deep-dive">Backlog Deep Dive</a>
   <a href="#cpp">Cases / Property</a>
   <span class="nav-group-label">Service Quality</span>
   <a href="#missed-chat">Missed Chat</a>
@@ -185,7 +186,7 @@
   <a href="#territory">Territory</a>
   <a href="#priority-origin">Priority &amp; Origin</a>
   <a href="#categories">Categories</a>
-  <a href="#subcat-issues">What's Inside Each Sub-Cat</a>
+  <a href="#subcat-issues">Issue Types by Sub-Cat</a>
   <span class="nav-group-label">Appendix</span>
   <a href="#may-deep-dives">May Deep Dives</a>
   <a href="#enforcement">Classification Fix</a>
@@ -846,6 +847,59 @@
       <p><strong>Two cross-territory patterns dominate before looking at any individual property.</strong> First, Italian fiscalization is broken for multiple properties simultaneously — fiscal printers, STORNO ricevuta fiscale, ROSS 1000 integration failures, and pending receipts are showing up across Generator Venice, Les Airelles, Aethos Sardinia, Palazzo Daniele, and Casa Santa Rosa. This is not five separate issues; it is one systemic Italy-specific compliance layer that Mews is not handling reliably. Second, a Booking.com → WhatsApp phishing campaign is running across REU: PURO Kraków (3 cases), PURO Warszawa (3 cases), The Julius (2 cases), and Secret Patio Lisbon (1 case) all report guests being contacted via WhatsApp with fraudulent payment requests tied to specific Booking.com reservation numbers. Nine security cases across four unrelated properties — same mechanism as the Security spike noted in §11.</p>
     </div>
 
+    <!-- Churn risk assessment -->
+    <div style="margin:16px 0 24px;">
+      <h4 style="font-size:13px;font-weight:700;color:var(--navy);margin:0 0 10px;text-transform:uppercase;letter-spacing:.5px;">Churn risk assessment — May 2026</h4>
+      <table class="data-table">
+        <thead><tr><th style="width:110px;">Risk</th><th>Property</th><th>Territory</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge red">🔴 Immediate</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC00000HG2fGYAT/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Les Airelles - Venise ↗</a></strong></td><td>Italy</td>
+            <td>Luxury new opening. Fiscal printers broken since go-live; ROSS1000 (legally mandatory) failing continuously. Customer stated: <em>"MEWS management is frankly unacceptable — NOBODY takes the problem seriously."</em> Relais &amp; Châteaux brand — word-of-mouth risk is disproportionate.</td>
+          </tr>
+          <tr>
+            <td><span class="badge red">🔴 Immediate</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000009hA3JAAU/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Generator Venice ↗</a></strong></td><td>Italy</td>
+            <td>Same fiscal printer + fiscal record report bug recurring every month March–May. Same financial controller repeating the same issues with escalating tone ("again", "WHAT IS HAPPENING???"). 9 cases May (3× Apr). Multi-property: Venice + Rome both affected.</td>
+          </tr>
+          <tr>
+            <td><span class="badge amber">🟠 High watch</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0010900000fWf7NAAS/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Tomato ↗</a></strong></td><td>Italy</td>
+            <td>Account access cut off over an invoice dispute — customer could not use the system. Fiscal printer connector failing since 29 May. Billing conflict + access revocation is a documented pre-churn signal.</td>
+          </tr>
+          <tr>
+            <td><span class="badge amber">🟠 High watch</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000009hB6eAAE/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">PURO Kraków Kazimierz ↗</a></strong></td><td>REU</td>
+            <td>Payment balance data completely invisible May 13–onward — operational blocker for finance team. Concurrent: Match&amp;Merge broken, phishing incidents, VCC wrong expiry dates. Volume 2→4→9 over 3 months.</td>
+          </tr>
+          <tr>
+            <td><span class="badge amber">🟠 High watch</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0015q000008CYn3AAG/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Anda Venice Hostel ↗</a></strong></td><td>Italy</td>
+            <td>Channel manager overbooking unresolved after 3 cases (Hostelworld). Terminal failures blocking payment-taking on 2 separate occasions. Growing volume, recurring, not improving.</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#fef9c3;color:#854d0e;border:1px solid #fde047;">🟡 Monitor</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0015q000009zo3iAAA/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Nordic Hotel Forum ↗</a></strong></td><td>REU</td>
+            <td>Premium customer. BWH CRS sync failure open since 3 Mar (93+ days, Waiting internal). Same sync issue recurred in April and May with no resolution path visible.</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#fef9c3;color:#854d0e;border:1px solid #fde047;">🟡 Monitor</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000009hBH2AAM/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Palazzo Dalla Rosa Prati ↗</a></strong></td><td>Italy</td>
+            <td>7 cases Apr → 0 May. Silence could be resolution — or disengagement. Digital Key issues + billing errors in April were substantive. Worth a proactive check-in.</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#fef9c3;color:#854d0e;border:1px solid #fde047;">🟡 Monitor</span></td>
+            <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0015q00000IuqyPAAR/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Bluserena ↗</a></strong></td><td>Italy</td>
+            <td>Italian fiscal VAT on fiscal printer: Waiting internal since 11 Mar — 85 days unresolved. 2 further POS cases now queued on R&D. Accumulating product debt with no ETA.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout flag" style="margin-top:10px;">
+        <strong>Systemic Italy risk: 8+ properties with open or recurring Italian fiscal compliance issues.</strong> Fiscal printers, ROSS1000/Veneto reporting, STORNO Ricevuta Fiscale, fiscalisation VAT — these are not isolated cases. It is a product gap in Italian fiscal coverage that is generating churn-risk frustration across the entire Italy customer base. A dedicated Italy fiscal sprint would reduce both churn risk and support volume simultaneously. Affected: Generator Venice, Les Airelles, Aethos Sardinia, Anda Venice, Tomato, Bluserena, Càdor Hotel, Casa Santa Rosa.
+      </div>
+    </div>
+
     <div class="chart-row two" style="margin-top:20px;">
 
       <div class="chart-box">
@@ -854,35 +908,35 @@
           <thead><tr><th>Property</th><th>Cases</th><th>GoLive</th><th>What they're struggling with</th></tr></thead>
           <tbody>
             <tr>
-              <td><strong>Palazzo Daniele</strong></td><td>17</td><td>—</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0010900000BUhamAAD/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Palazzo Daniele ↗</a></strong></td><td>17</td><td>—</td>
               <td>One POS training request split into <strong>7 sub-tickets</strong> (inventory, slowness, user deletion, POS revenue, comp/void, customers in POS, Mews University). Also 4 Mews BI cases: virtual rooms miscounting space count, hidden metrics inaccessible to admin, missing service in revenue reports, payment balance granularity. Fiscalization + partial refund billing. The POS fragmentation alone inflates the count significantly.</td>
             </tr>
             <tr>
-              <td><strong>Aethos Sardinia</strong></td><td>10</td><td>Feb 2024</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC000002V5ofYAC/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Aethos Sardinia ↗</a></strong></td><td>10</td><td>Feb 2024</td>
               <td>Reporting-heavy Premium property (4 phone meetings for manager reports). Italian fiscalization: STORNO ricevuta fiscale on partially rebated receipts. Revenue misallocated — Zaia restaurant outlet posting under Hill Pool Center accounting category. Omniboost integration mapping unresolved.</td>
             </tr>
             <tr>
-              <td><strong>Generator Venice</strong></td><td>9</td><td>Apr 2019</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000009hA3JAAU/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Generator Venice ↗</a></strong></td><td>9</td><td>Apr 2019</td>
               <td>Chronic issues from Financial Controller Valeria Agnese via email: fiscal record report broken (again), fiscal printer stuck with hundreds of PENDING receipts, "retry count exceeded" error in Rome, paymaster extremely slow, all guest names replaced by asterisks. Strong frustration pattern — same person repeating the same issues across multiple months.</td>
             </tr>
             <tr>
-              <td><strong>Social Hub Florence</strong></td><td>8</td><td>Nov 2024</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000019KcUnAAK/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Social Hub Florence ↗</a></strong></td><td>8</td><td>Nov 2024</td>
               <td>ROSS 1000 integration errors on extraction. Mews University password reset emails not arriving (x2). Payment automation: pre-capture manual task created before trigger fires — inconsistent and confusing. Refund ARN not provided. New Reservation report not tablet-friendly, missing column controls.</td>
             </tr>
             <tr>
-              <td><strong>Anda Venice Hostel</strong></td><td>7</td><td>Jan 2025</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0015q000008CYn3AAG/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Anda Venice Hostel ↗</a></strong></td><td>7</td><td>Jan 2025</td>
               <td>Channel manager overbooking cluster: 3 cases involving Hostelworld — duplicate reservations, bookings accepted despite zero availability, rate discount not applying. Payment terminals down (2 cases, unable to take payments). The overbooking issue is recurring and unresolved.</td>
             </tr>
             <tr>
-              <td><strong>Les Airelles - Venise</strong></td><td>6</td><td>Oct 2025</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC00000HG2fGYAT/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Les Airelles - Venise ↗</a></strong></td><td>6</td><td>Oct 2025</td>
               <td>New opening, escalating frustration: fiscal printers not working since opening ("frankly unacceptable — NOBODY seems to take the problem seriously"). ROSS 1000 integration failing continuously on mandatory Veneto region files. Email gateway drops for one user. Day-use reservation setup question. Fiscal printer still stuck in Pending as of late May.</td>
             </tr>
             <tr>
-              <td><strong>New Expansion - CX Bari</strong></td><td>6</td><td>May 2025</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC00000DSwpeYAD/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">New Expansion - CX Bari ↗</a></strong></td><td>6</td><td>May 2025</td>
               <td>Reporting gaps: Excel export missing "Place of Birth" column (visible in PDF only). Customer profile data export. Reservation splitting with partial payments — risk of overpayment. Booking Engine payment failure (no trace in system). Timeline drag-and-drop blocked despite unlocked reservations.</td>
             </tr>
             <tr>
-              <td><strong>Casa Santa Rosa</strong></td><td>6</td><td>Sep 2019</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000009hAIqAAM/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Casa Santa Rosa ↗</a></strong></td><td>6</td><td>Sep 2019</td>
               <td>Billing/deposits focus: STAN for cancelled pre-auth requested twice (guests need proof of release). Deposit bill auto-closing unexpectedly on Expedia paymaster moves. Charge removal after guest cancellation. Invoice for partial cash payment without closing full bill.</td>
             </tr>
           </tbody>
@@ -896,35 +950,35 @@
           <thead><tr><th>Property</th><th>Cases</th><th>GoLive</th><th>What they're struggling with</th></tr></thead>
           <tbody>
             <tr>
-              <td><strong>PURO Kraków Kazimierz</strong></td><td>9</td><td>Nov 2023</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/00109000009hB6eAAE/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">PURO Kraków Kazimierz ↗</a></strong></td><td>9</td><td>Nov 2023</td>
               <td>Booking.com → WhatsApp phishing: 3 security cases with specific reservation numbers. Payout issues: discrepancy on one payout + payment balance completely invisible May 13–onward (operational blocker). Payment policy misfiring — pre-auth charged instead of held. GHA loyalty eligibility config. Match&amp;Merge "unexpected execution error" blocking daily operations.</td>
             </tr>
             <tr>
-              <td><strong>Go Hotel Shnelli</strong></td><td>8</td><td>Nov 2024</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0015q00000LCBY3AAP/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Go Hotel Shnelli ↗</a></strong></td><td>8</td><td>Nov 2024</td>
               <td>Finnish passport scanner failing on new Finnish passports during night shifts (random data captured). Terminal payment delay: ~30 second lag in Paymaster before terminal option appears — persistent, not resolved, affects all devices and incognito. User login failure (housekeeping staff). Timeline missing on iPad. Invoice-based corporate booking + GX upsell billing logic.</td>
             </tr>
             <tr>
-              <td><strong>PURO Hotel Warszawa Centrum</strong></td><td>6</td><td>Oct 2024</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0010900000cnwhCAAQ/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">PURO Hotel Warszawa Centrum ↗</a></strong></td><td>6</td><td>Oct 2024</td>
               <td>Booking.com → WhatsApp phishing: 3 security cases, same campaign as PURO Kraków. Admin access setup (email mismatch across properties). Channel manager error. Product checklist — identifying breakfast ordered but not consumed.</td>
             </tr>
             <tr>
-              <td><strong>Nordic Hotel Forum</strong></td><td>6</td><td>Oct 2024</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0015q000009zo3iAAA/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Nordic Hotel Forum ↗</a></strong></td><td>6</td><td>Oct 2024</td>
               <td>BWH CRS integration complexity: 2 cases on availability discrepancies and sync of canceled availability blocks. Rate group sell limits not findable. Breakfast price change reporting for ADR budgeting. Booker logic question on new channel setup. All questions suggest a recently onboarded CRS integration being worked through.</td>
             </tr>
             <tr>
-              <td><strong>Secret Patio Lisbon</strong></td><td>5</td><td>Mar 2026</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC00000Z9WpNYAV/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Secret Patio Lisbon ↗</a></strong></td><td>5</td><td>Mar 2026</td>
               <td>New GoLive (Mar 2026). WhatsApp phishing incident. Channel manager price updates not sending (only inventory updating). Voucher not visible in Booking Engine despite correct setup. Hostelworld city tax/deposit discrepancy. Ghost payment from duplicate wire transfer.</td>
             </tr>
             <tr>
-              <td><strong>Chateau Peruc</strong></td><td>5</td><td>Mar 2026</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC00000NGORKYA5/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">Chateau Peruc ↗</a></strong></td><td>5</td><td>Mar 2026</td>
               <td>New GoLive (Mar 2026). Ordered wrong terminal model (S1 instead of S2) — return process unclear. City tax setup: city not in fixed list, can't include in displayed price. External card payment recording missing from billing screen. Products packaged with included price. Exchange rate integration.</td>
             </tr>
             <tr>
-              <td><strong>The Julius</strong></td><td>5</td><td>Jul 2021</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/0010900000FOyZJAA1/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">The Julius ↗</a></strong></td><td>5</td><td>Jul 2021</td>
               <td>2 WhatsApp phishing security cases (guests contacted re: Booking.com reservations). Terminal replacement needed (built-in printer required). Reservation report shows impossible room night totals after old report removed. Online check-in not collecting ID for 2nd guest in reservation.</td>
             </tr>
             <tr>
-              <td><strong>City Pop 2Night Prague</strong></td><td>5</td><td>Oct 2024</td>
+              <td><strong><a href="https://mews.lightning.force.com/lightning/r/Account/001QC00000CEMjTYAX/view" target="_blank" style="color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--teal);">City Pop 2Night Prague ↗</a></strong></td><td>5</td><td>Oct 2024</td>
               <td>"Offer to customer" option disappeared for products — 2 separate cases raised for same issue. VCC payment rounding mismatch (1558 CZK vs 1557.92 CZK). Timeline not visible for one user. Channel manager availability not updating after room remapping despite price syncing correctly.</td>
             </tr>
           </tbody>
