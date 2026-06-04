@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support MBR Deep Dive — Jan–May 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #0f2137;
+    --teal: #00b5b8;
+    --amber: #f4a61a;
+    --red: #e84545;
+    --green: #27ae60;
+    --mid-green: #2ecc71;
+    --light-bg: #f7f9fc;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --muted: #718096;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--light-bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 32px 48px;
+    border-bottom: 4px solid var(--teal);
+  }
+  header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  header p { color: #94a3b8; font-size: 13px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+  /* Nav */
+  .nav-pills {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px;
+    background: var(--white); padding: 12px 16px; border-radius: 10px;
+    border: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+  }
+  .nav-pills a {
+    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    text-decoration: none; color: var(--muted); background: var(--light-bg);
+    transition: all .15s;
+  }
+  .nav-pills a:hover { background: var(--navy); color: var(--white); }
+  .nav-group-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--muted); padding: 5px 4px 0; display: flex; align-items: flex-end; white-space: nowrap;
+  }
+
+  /* Section */
+  section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  section h2 {
+    font-size: 18px; font-weight: 700; color: var(--navy);
+    margin-bottom: 6px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--teal);
+  }
+  section .subtitle {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--muted); margin-bottom: 20px;
+  }
+
+  /* Scorecard */
+  .scorecard {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px; margin-bottom: 32px;
+  }
+  .kpi {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    right: 0; height: 3px;
+  }
+  .kpi.good::before { background: var(--green); }
+  .kpi.warn::before { background: var(--amber); }
+  .kpi.bad::before { background: var(--red); }
+  .kpi.neutral::before { background: var(--teal); }
+  .kpi label { font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--muted); display: block; margin-bottom: 6px; }
+  .kpi .value { font-size: 26px; font-weight: 800; color: var(--navy); }
+  .kpi .delta { font-size: 12px; margin-top: 4px; }
+  .kpi .delta.up-good { color: var(--green); }
+  .kpi .delta.up-bad { color: var(--red); }
+  .kpi .delta.down-good { color: var(--green); }
+  .kpi .delta.down-bad { color: var(--red); }
+  .kpi .delta.neutral-d { color: var(--muted); }
+  .kpi .goal-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Chart grids */
+  .chart-row { display: grid; gap: 24px; margin-bottom: 24px; }
+  .chart-row.two { grid-template-columns: 1fr 1fr; }
+  .chart-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .chart-row.full { grid-template-columns: 1fr; }
+  .chart-box {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px;
+  }
+  .chart-box h3 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .chart-box .chart-note { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+  .chart-box .chart-insight { font-size: 12px; font-weight: 600; color: var(--navy); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); line-height: 1.5; }
+  .chart-box canvas { max-height: 240px; }
+
+  /* Narrative */
+  .narrative {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px; margin-bottom: 24px;
+  }
+  .narrative p { margin-bottom: 12px; color: #2d3748; }
+  .narrative p:last-child { margin-bottom: 0; }
+  .narrative strong { color: var(--navy); }
+
+  /* Callout boxes */
+  .callout {
+    padding: 14px 18px; border-radius: 8px; margin: 16px 0;
+    font-size: 13.5px; border-left: 4px solid;
+  }
+  .callout.insight { background: #ebf8ff; border-color: var(--teal); color: #1a365d; }
+  .callout.warning { background: #fffbeb; border-color: var(--amber); color: #7b341e; }
+  .callout.flag { background: #fff5f5; border-color: var(--red); color: #742a2a; }
+  .callout.positive { background: #f0fff4; border-color: var(--green); color: #1c4532; }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: var(--navy); color: var(--white);
+    padding: 10px 14px; text-align: left; font-size: 11px;
+    text-transform: uppercase; letter-spacing: .4px; font-weight: 600;
+  }
+  .data-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+  .data-table tr:nth-child(even) td { background: var(--light-bg); }
+  .data-table tr.may-row td { background: #fffde7; font-weight: 600; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge.green { background: #c6f6d5; color: #22543d; }
+  .badge.red { background: #fed7d7; color: #742a2a; }
+  .badge.amber { background: #fef3c7; color: #7c3d04; }
+  .badge.blue { background: #bee3f8; color: #1a365d; }
+
+  /* Footer */
+  footer {
+    background: var(--navy); color: #64748b; text-align: center;
+    padding: 20px; font-size: 12px; margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .chart-row.two, .chart-row.three { grid-template-columns: 1fr; }
+    .scorecard { grid-template-columns: repeat(2, 1fr); }
+    header { padding: 20px 16px; }
+    .container { padding: 20px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Support MBR Deep Dive — Jan–May 2026</h1>
+  <p>Data period: Jan–May 2026 · Snapshot data as of May 31, 2026 · Cohort: created-month unless noted</p>
+</header>
+
+<div class="container">
+
+<nav class="nav-pills">
+  <a href="#overview">Overview</a>
+  <span class="nav-group-label">Demand &amp; Capacity</span>
+  <a href="#volume">Volume &amp; Throughput</a>
+  <a href="#backlog">Backlog</a>
+  <a href="#cpp">Cases / Property</a>
+  <span class="nav-group-label">Service Quality</span>
+  <a href="#missed-chat">Missed Chat</a>
+  <a href="#csat">CSAT</a>
+  <a href="#frt">First Response</a>
+  <a href="#resolution">Resolution</a>
+  <span class="nav-group-label">Where &amp; What</span>
+  <a href="#territory">Territory</a>
+  <a href="#priority-origin">Priority &amp; Origin</a>
+  <a href="#categories">Categories</a>
+  <span class="nav-group-label">Appendix</span>
+  <a href="#may-deep-dives">May Deep Dives</a>
+  <a href="#enforcement">Classification Fix</a>
+  <a href="#backfill">Claude Backfill</a>
+  <a href="#summary">Summary &amp; Actions</a>
+</nav>
+
+<!-- ===================== OVERVIEW ===================== -->
+<section id="overview">
+  <h2>May 2026 at a Glance</h2>
+  <p class="subtitle">Scorecard vs goal — May actuals</p>
+
+  <div class="scorecard">
+    <div class="kpi bad">
+      <label>Cases Created</label>
+      <div class="value">7,867</div>
+      <div class="delta neutral-d">Apr: 7,891 (▼ 0.3%)</div>
+      <div class="goal-label">Goal: 7,008</div>
+    </div>
+    <div class="kpi warn">
+      <label>Cases Closed</label>
+      <div class="value">7,700</div>
+      <div class="delta up-good">▲ Apr: 7,191 (+7.1%)</div>
+      <div class="goal-label">Goal: 8,410</div>
+    </div>
+    <div class="kpi good">
+      <label>Avg Closed / Day</label>
+      <div class="value">248</div>
+      <div class="delta up-good">▲ Best of year</div>
+      <div class="goal-label">Goal: ~271</div>
+    </div>
+    <div class="kpi bad">
+      <label>Resolved by SLA</label>
+      <div class="value">51.5%</div>
+      <div class="delta down-bad">▼ Apr: 55.8%</div>
+      <div class="goal-label">Goal: 100%</div>
+    </div>
+    <div class="kpi good">
+      <label>FRT by SLA</label>
+      <div class="value">74.2%</div>
+      <div class="delta up-good">▲ Best of year (+7.7pp vs Apr)</div>
+      <div class="goal-label">Goal: 85%</div>
+    </div>
+    <div class="kpi bad">
+      <label>Avg Resolution Time</label>
+      <div class="value">8.7d</div>
+      <div class="delta down-good">▼ 0.2d from Apr peak</div>
+      <div class="goal-label">No fixed target</div>
+    </div>
+    <div class="kpi good">
+      <label>Missed Chat Rate</label>
+      <div class="value">8.0%</div>
+      <div class="delta down-good">▼ Best of year (Mar peak: 35%)</div>
+      <div class="goal-label">Goal: ≤5%</div>
+    </div>
+    <div class="kpi bad">
+      <label>Backlog EOM</label>
+      <div class="value">2,380</div>
+      <div class="delta down-good">▼ Apr: 2,425 (−45)</div>
+      <div class="goal-label">Grand open (incl. WfC + R-n-C): 4,795</div>
+    </div>
+    <div class="kpi good">
+      <label>Live-Chat CSAT</label>
+      <div class="value">87.1%</div>
+      <div class="delta up-good">▲ Best of year (+1.6pp)</div>
+      <div class="goal-label">Goal: 90%</div>
+    </div>
+    <div class="kpi warn">
+      <label>Cases / Property</label>
+      <div class="value">0.67</div>
+      <div class="delta down-good">▼ from Apr (0.69)</div>
+      <div class="goal-label">Q2 target: ≤0.6 — missing</div>
+    </div>
+    <div class="kpi bad">
+      <label>New &gt;48h</label>
+      <div class="value">1,436</div>
+      <div class="delta up-bad">▲ Apr: 1,336 (+7.5%)</div>
+      <div class="goal-label">Goal: 0</div>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>May sits at a crossroads. Quality metrics are genuinely improving: live-chat CSAT reached its year high at 87.1%, the missed chat rate held below 9% for the second consecutive month (after a 35% peak in March), and FRT SLA performance jumped to 74% — the best reading this year by a clear margin. These three metrics moving together suggests real operational improvement in how chats and first responses are being handled.</p>
+    <p>The capacity picture is less encouraging. Despite May recording the highest average throughput of the year (248 cases closed per day), demand still outpaced closures by 167 cases. The backlog (New, In Progress, Response Received, Waiting internal, Waiting 3rd party) barely moved from April: 2,425 → 2,380 (−45). Separately reported: Waiting for Customer surged from 365 to 597, and Resolved-not-Closed held at 1,818 — these sit outside the canonical backlog definition and are tracked independently. Resolution SLA dropped to its year low at 51.5%, and cases stuck in New for over 48 hours climbed back toward January levels.</p>
+    <p>Cases per property is the most visible OKR miss. At 0.67 in May against a Q2 ceiling of 0.6, both Q2 months are above target. Q1 was met (0.68 QTD vs 0.7 target), but the step-down has not been matched by a corresponding improvement in the metric.</p>
+    <p>The clearest theme across all five months: service quality and throughput are improving, but the backlog and the cases-per-property OKR are structural challenges that incremental operational improvements have not yet resolved.</p>
+  </div>
+</section>
+
+<!-- ===================== KEY INTERPRETATION ===================== -->
+<section id="key-interpretation">
+  <h2>Key Interpretation</h2>
+  <p class="subtitle">The four things to hold in mind before reading the metrics</p>
+  <div class="scorecard" style="grid-template-columns: repeat(2,1fr);">
+    <div class="kpi neutral">
+      <label>Two systems running in parallel</label>
+      <div class="value" style="font-size:14px;line-height:1.4;padding-top:4px;">Quality ↑ &nbsp;·&nbsp; Capacity flat</div>
+      <div class="delta neutral-d" style="margin-top:6px;">Missed chat 35%→8%. CSAT at year high. FRT median stable. But backlog grew every single month — +2,480 cases YTD.</div>
+    </div>
+    <div class="kpi bad">
+      <label>January deficit never recovered</label>
+      <div class="value" style="font-size:14px;line-height:1.4;padding-top:4px;">−1,567 in Jan alone</div>
+      <div class="delta up-bad" style="margin-top:6px;">Monthly deficits: Jan −1,567 / Feb −3 / Mar −43 / Apr −700 / May −167. Five consecutive months of accumulation.</div>
+    </div>
+    <div class="kpi bad">
+      <label>Q2 OKR effectively missed</label>
+      <div class="value" style="font-size:14px;line-height:1.4;padding-top:4px;">0.68 QTD vs 0.6 Q2 target</div>
+      <div class="delta up-bad" style="margin-top:6px;">Both April and May above 0.6. June would need ≈0.44 to rescue the quarter — not realistic at current volume and property trajectory.</div>
+    </div>
+    <div class="kpi warn">
+      <label>Backlog is largely an R&amp;D problem</label>
+      <div class="value" style="font-size:14px;line-height:1.4;padding-top:4px;">60% of Waiting internal = R&amp;D</div>
+      <div class="delta neutral-d" style="margin-top:6px;">492 of 830 Waiting internal cases are blocked on Engineering, not slow triage. Needs an R&amp;D-facing escalation path and SLA.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VOLUME & THROUGHPUT ===================== -->
+<section id="volume">
+  <h2>Volume &amp; Throughput</h2>
+  <p class="subtitle">Cases created, closed, and daily run rate</p>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Cases Created vs Closed</h3>
+      <p class="chart-note">Jan–May 2026. Monthly totals. Gap = backlog accumulation for that month.</p>
+      <canvas id="chartVolume"></canvas>
+      <p class="chart-insight">May's gap (−167) is the smallest since February — closer to equilibrium than at any point in Q2, but still accumulating.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Avg Cases Closed / Day</h3>
+      <p class="chart-note">Jan–May 2026. Calendar days. Goal ~271/day (based on 8,410 closed goal ÷ 31 days).</p>
+      <canvas id="chartThroughput"></canvas>
+      <p class="chart-insight">248/day is the year's best — but still 23/day short of the ~271 needed to close cases as fast as they arrive.</p>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>January's throughput collapse (198 cases/day, 6,151 closed) created the original backlog deficit that the system has been working to close ever since. It resulted in <strong>1,567 more cases entering the queue than leaving</strong> — by far the largest single-month accumulation. The cause likely sits in January's partial MIAW rollout (live 26 January), agent ramp-up to the new platform, and potentially seasonal demand patterns.</p>
+    <p>From February onwards, throughput normalised between 240–248 cases/day and has held remarkably stable. The monthly closed-vs-created balance improved dramatically, but with two exceptions: April saw another significant accumulation (+700 cases, created 7,891 vs closed 7,191), and May continued accumulating at a slower rate (+167). The net effect is five consecutive months of backlog growth.</p>
+    <p>May's 248 cases/day is the year's best, and the gap between created and closed is the smallest since February (when demand was the year's lowest at 6,914). That is directionally positive. The system is closer to equilibrium than at any point in Q2, but has not crossed it.</p>
+  </div>
+
+  <div class="chart-row full">
+    <div class="chart-box">
+      <h3>Monthly Created vs Closed — detailed</h3>
+      <p class="chart-note">Jan–May 2026. Bar = net balance (Created − Closed). Positive = accumulation, negative = drawdown.</p>
+      <canvas id="chartBalance"></canvas>
+    </div>
+  </div>
+
+  <div class="callout warning">
+    <strong>Pattern:</strong> April's throughput dip (239.7/day vs 240.6 in March, despite one fewer day) combined with elevated demand (7,891 created, year high) produced the sharpest single-month accumulation since January. May reversed the demand side marginally (7,867 vs 7,891) but the throughput gain (+8.7 cases/day) was insufficient to close the gap.
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 12px;">Tier Mix</h3>
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Premium vs Standard — case volume</h3>
+      <p class="chart-note">Jan–May 2026. Standard share is increasing over time.</p>
+      <canvas id="chartTier"></canvas>
+    </div>
+    <div class="chart-box" style="display:flex;flex-direction:column;justify-content:center;">
+      <table class="data-table">
+        <thead><tr><th>Month</th><th>Premium</th><th>Standard</th><th>Premium %</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>1,852</td><td>5,866</td><td>24.0%</td></tr>
+          <tr><td>Feb</td><td>1,657</td><td>5,257</td><td>24.0%</td></tr>
+          <tr><td>Mar</td><td>1,696</td><td>5,805</td><td>22.6%</td></tr>
+          <tr><td>Apr</td><td>1,697</td><td>6,194</td><td>21.5%</td></tr>
+          <tr class="may-row"><td>May</td><td>1,586</td><td>6,281</td><td>20.2%</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;">Premium case volume is declining in absolute terms (1,852 → 1,586, −14.4% Jan to May) while Standard is growing (+7.1%). This is likely explained by the property base growth being disproportionately Standard-tier. It has implications for FRT SLA, where Premium accounts for a larger share of SLA misses on Critical and High priorities.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BACKLOG ===================== -->
+<section id="backlog">
+  <h2>Backlog</h2>
+  <p class="subtitle">End-of-month snapshot · 5-status definition · New / In Progress / Response Received / Waiting internal / Waiting 3rd party</p>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Backlog EOM (5-status bucket)</h3>
+      <p class="chart-note">End-of-month snapshots, Jan–May 2026. New / In Progress / Response Received / Waiting internal / Waiting 3rd party.</p>
+      <canvas id="chartBacklog"></canvas>
+      <p class="chart-insight">Five consecutive months of growth. April's +600 spike has barely reversed — May drew down only 45 cases.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Backlog vs Cases Stuck New &gt;48h</h3>
+      <p class="chart-note">End-of-month snapshots, Jan–May 2026. Active backlog (left axis) vs cases in New status beyond 48h (right axis).</p>
+      <canvas id="chartBacklogNew"></canvas>
+      <p class="chart-insight">1,436 cases stuck in New >48h in May — back near January levels, reversing the triage gains of Feb–Mar.</p>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p><strong>The backlog</strong> (New, In Progress, Response Received, Waiting internal, Waiting 3rd party) held relatively flat from January through March — 1,652 → 1,825, a 10.5% increase over three months. It then jumped sharply in April (+600, +32.9%) before barely retreating in May (−45, reaching 2,380). The system has not yet crossed back below its April peak. At the current run rate, the first genuine month-on-month drawdown would be a milestone worth flagging.</p>
+    <p><strong>April's spike is explained entirely by throughput.</strong> April saw 700 more cases created than closed — the worst monthly balance since January. There is no single operational failure to pin this on; it is a demand surge (7,891 created, the year high) that the current throughput rate could not absorb.</p>
+    <p><strong>Separately from the canonical backlog</strong>, Waiting for Customer (WfC) and Resolved-not-Closed are tracked independently. The EOM WfC reading of 597 (May 31) overstates the trend: it is the single highest day of the month and a Sunday — WfC runs higher on weekends as fewer agents move cases out of pending — compared against an April 30 figure (365) that sat near its monthly low. On a like-for-like monthly-average basis, WfC rose only ~8% (Apr avg 386 → May avg 417), squarely within the band it has held all year (Jan 379, Feb 420, Mar 406), and it had already fallen back to 333 by June 2. No evidence of cases being parked to deflate the visible queue. Resolved-not-Closed has held near 1,800 throughout the year.</p>
+    <p><strong>Cases stuck in New beyond 48 hours</strong> reached 1,436 in May (18.3% of cases created), up from 1,336 in April. The FRT timer starts at creation, so every case sitting untouched in New compounds FRT and Resolution SLA failures simultaneously. April and May have reversed the modest triage improvement seen in February and March.</p>
+  </div>
+
+  <div class="callout flag">
+    <strong>Root cause of backlog growth:</strong> Five consecutive months of cases created ≥ cases closed. Monthly deficits: Jan −1,567 / Feb −3 (balanced) / Mar −43 / Apr −700 / May −167. Cumulative YTD net accumulation: approximately 2,480 cases. Throughput at 248/day is the best of the year but still insufficient to draw down the existing stock.
+  </div>
+
+  <table class="data-table" style="margin-top:16px;">
+    <thead>
+      <tr><th>Month (EOM)</th><th>Backlog</th><th>WfC (separate)</th><th>Resolved-not-Closed (separate)</th><th>Grand Open (all)</th><th>MoM Change (Backlog)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jan 31</td><td>1,652</td><td>420</td><td>1,799</td><td>3,871</td><td>—</td></tr>
+      <tr><td>Feb 28</td><td>1,769</td><td>404</td><td>1,696</td><td>3,869</td><td><span class="badge amber">+117</span></td></tr>
+      <tr><td>Mar 31</td><td>1,825</td><td>358</td><td>1,732</td><td>3,915</td><td><span class="badge amber">+56</span></td></tr>
+      <tr><td>Apr 30</td><td>2,425</td><td>365</td><td>1,824</td><td>4,614</td><td><span class="badge red">+600</span></td></tr>
+      <tr class="may-row"><td>May 31</td><td>2,380</td><td>597</td><td>1,818</td><td>4,795</td><td><span class="badge amber">−45</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== FRT ===================== -->
+<section id="frt">
+  <h2>First Response Time (FRT)</h2>
+  <p class="subtitle">SLA performance by created-month cohort · count_towards_first_response = TRUE</p>
+
+  <div class="scorecard" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="kpi good">
+      <label>May SLA %</label>
+      <div class="value">74.2%</div>
+      <div class="delta up-good">▲ 7.7pp vs Apr (66.5%)</div>
+      <div class="goal-label">Goal: 85%</div>
+    </div>
+    <div class="kpi neutral">
+      <label>May Median FRT</label>
+      <div class="value">1.56h</div>
+      <div class="delta neutral-d">Roughly flat vs Apr (2.92h)</div>
+      <div class="goal-label">Avg 22.0h — provisional, cohort incomplete</div>
+    </div>
+    <div class="kpi neutral">
+      <label>May Eligible Cases</label>
+      <div class="value">4,456</div>
+      <div class="delta down-bad">▼ 257 fewer than Apr (4,713)</div>
+      <div class="goal-label">count_towards_first_response</div>
+    </div>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>FRT SLA % — monthly</h3>
+      <p class="chart-note">Jan–May 2026. % of eligible cases meeting tier×priority SLA threshold. Goal: 85%.</p>
+      <canvas id="chartFrtSla"></canvas>
+      <p class="chart-insight">May's 74.2% is directional only — 37% of May cases are still open and will pull this down as slow responders are answered.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Median FRT (hours) — monthly</h3>
+      <p class="chart-note">Jan–May 2026. The trustworthy number — flat at 1.6–2.9h all year. Avg is tail-dominated and understated for recent months (see flag below).</p>
+      <canvas id="chartFrtAvg"></canvas>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p><strong>The median is the honest number, and it is roughly flat: 1.6–2.9h every month, May included.</strong> First-response behaviour did not transform in May. The eye-catching average drop (100.8h → 22.0h) is a <strong>cohort-completeness artifact</strong>, not an improvement — May's average simply hasn't filled in its tail yet. The mechanism is below; the chart above now plots the median for exactly this reason.</p>
+    <p><strong>Why the May average is censored two ways.</strong> Cases are bucketed by <code>case_created_date</code>, and <code>count_towards_first_response</code> only flips TRUE once a case has actually been responded to. So (1) the slow responders aren't in the denominator yet — May has 2,941 cases (37%) still open vs ~1–3% for Jan–Mar, and the ones that will eventually become the 500h+ "took weeks" tail haven't responded, so they're excluded entirely; and (2) the tail is physically capped — as of 2026-06-03 no May case can have waited more than ~33 days, so the 1,400–2,976h cases that inflate Jan–Apr averages cannot exist for May yet. The average is tail-dominated, so both effects hit it hard. Max FRT collapses monotonically with recency (2,976h → 776h), which is the fingerprint of the artifact.</p>
+    <p>The same caution applies to the <strong>tier × priority averages</strong> below and to the SLA % itself: both lift partly because the not-yet-answered slow cases are missing from May's eligible set. The SLA direction may still be genuinely positive (the missed-chat and CSAT improvements support it), but the magnitude will soften as May's cohort matures. Read the SLA chart as directional, not as a confirmed +7.7pp.</p>
+  </div>
+
+  <div class="callout flag">
+    <strong>Do not present the May avg-FRT drop as a win — it will reverse.</strong> As the 2,941 open May cases get answered over the coming weeks, the average will climb (Jan–Apr settled at 86–110h). This is the exact pattern the canonical FRT methodology flags: avg FRT drifts upward for weeks after month-end as late responses land; the median is the trustworthy number. <strong>Recommendation:</strong> quote the median (≈1.6h, flat), and mark the May average <em>provisional</em> until the cohort matures (~1–2 weeks past month-end) — or drop May from the avg bar entirely.
+  </div>
+
+  <table class="data-table" style="margin-top:14px;">
+    <thead>
+      <tr><th>Month</th><th>Total cases</th><th>FRT-eligible (responded)</th><th>Still open</th><th>Max FRT seen</th><th>Avg FRT</th><th>Median FRT</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jan</td><td>7,718</td><td>5,287</td><td>41</td><td>2,976h</td><td>86.2h</td><td>2.92h</td></tr>
+      <tr><td>Feb</td><td>6,914</td><td>4,530</td><td>54</td><td>2,329h</td><td>106.3h</td><td>2.13h</td></tr>
+      <tr><td>Mar</td><td>7,501</td><td>4,618</td><td>138</td><td>1,662h</td><td>109.6h</td><td>2.45h</td></tr>
+      <tr><td>Apr</td><td>7,891</td><td>4,713</td><td>930</td><td>1,440h</td><td>100.8h</td><td>2.92h</td></tr>
+      <tr class="may-row"><td>May</td><td>7,867</td><td>4,456</td><td><strong>2,941 (37%)</strong></td><td><strong>776h</strong></td><td>22.0h <span class="badge amber">provisional</span></td><td>1.56h</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">"Still open" climbs and "Max FRT seen" collapses monotonically toward the present — the signature of an immature cohort. <code>eligible_but_null_frt = 0</code> in every month confirms unanswered cases are simply absent from the denominator, not counted as large values.</p>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 12px;">FRT by Tier &amp; Priority — May vs April</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>Tier</th><th>Priority</th><th>Apr SLA %</th><th>May SLA %</th><th>Change</th><th>Apr Avg FRT</th><th>May Avg FRT</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Premium</td><td>Critical</td><td>71.4%</td><td>80.7%</td><td><span class="badge green">+9.3pp</span></td><td>4.68h</td><td>7.16h</td></tr>
+      <tr><td>Premium</td><td>High</td><td>63.3%</td><td>60.0%</td><td><span class="badge red">−3.3pp</span></td><td>6.24h</td><td>8.55h</td></tr>
+      <tr><td>Premium</td><td>Medium</td><td>50.0%</td><td>69.0%</td><td><span class="badge green">+19.0pp</span></td><td>70.51h</td><td>12.97h</td></tr>
+      <tr><td>Premium</td><td>Low</td><td>95.1%</td><td>90.7%</td><td><span class="badge red">−4.4pp</span></td><td>2.84h</td><td>4.09h</td></tr>
+      <tr><td>Standard</td><td>Critical</td><td>63.2%</td><td>69.9%</td><td><span class="badge green">+6.7pp</span></td><td>76.78h</td><td>18.4h</td></tr>
+      <tr><td>Standard</td><td>High</td><td>55.4%</td><td>68.4%</td><td><span class="badge green">+13.0pp</span></td><td>160.09h</td><td>34.05h</td></tr>
+      <tr><td>Standard</td><td>Medium</td><td>66.1%</td><td>84.6%</td><td><span class="badge green">+18.5pp</span></td><td>113.36h</td><td>12.7h</td></tr>
+      <tr class="may-row"><td>Standard</td><td>Low</td><td>69.2%</td><td>73.9%</td><td><span class="badge green">+4.7pp</span></td><td>113.09h</td><td>29.7h</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout insight" style="margin-top:16px;">
+    <strong>Median is the number to quote — and it's stable:</strong> 2.92h (Apr) → 1.56h (May), within the 1.6–2.9h band seen all year. Unlike the average (distorted by a few very old cases, and understated for May because those cases haven't responded yet), the median reflects the typical case: half of all eligible cases got a first response within ~90 minutes. The honest read is "first-response speed held steady," not "transformed in May." The <strong>Apr/May avg-FRT columns in the table above are also provisional</strong> and will rise as May's cohort matures.
+  </div>
+</section>
+
+<!-- ===================== RESOLUTION ===================== -->
+<section id="resolution">
+  <h2>Resolution SLA &amp; Final Resolution Time</h2>
+  <p class="subtitle">Resolved-by-SLA: 6h critical / 72h non-critical · Resolution time: closed-month cohort</p>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Resolved by SLA %</h3>
+      <p class="chart-note">Jan–May 2026. Critical within 6h + non-critical within 72h, combined. Goal: 100%.</p>
+      <canvas id="chartResSla"></canvas>
+      <p class="chart-insight">Year-low at 51.5%. With avg resolution at 8.7 days, the 72h non-critical SLA is structurally unachievable without a step-change in capacity or deflection.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Avg Final Resolution Time (days)</h3>
+      <p class="chart-note">Jan–May 2026. Cohort: cases closed in the month, measured created → resolved.</p>
+      <canvas id="chartResTime"></canvas>
+      <p class="chart-insight">First improvement after four consecutive months of worsening (8.9d → 8.7d). One data point — confirm in June before calling a reversal.</p>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>Resolution SLA is the most consistently underperforming metric this year — and May is the worst month yet at 51.5%. The goal of 100% has never been within reach across any of the five months; the best performance was January at 56.3%. This is not a temporary deterioration; it reflects a structural misalignment between the SLA threshold (72 hours for non-critical) and the operational reality of how long cases take to resolve.</p>
+    <p>To understand why: with an average final resolution time of 8.7 days in May, the median case is taking roughly <strong>three times</strong> the non-critical SLA of 72 hours. Even the fastest half of cases are unlikely to close within 72 hours if the average is 8.7 days. The SLA is calibrated for an operating cadence that the team is not currently delivering against. This is not a quality complaint — teams handle complex technical issues, and resolution times at this scale are not unusual for B2B SaaS support — but the 100% goal is mathematically incompatible with average resolution times above three days without a fundamental change in staffing, automation, or case deflection.</p>
+    <p>The <strong>Final Resolution Time trend</strong> is more nuanced. After four months of consistent worsening (6.7d → 8.9d, +33%), May showed the first modest improvement (8.9d → 8.7d). It is too early to call this a reversal — it may simply reflect the composition of cases closed in May (older cases from a period of lighter demand) — but it is the first directionally positive signal on this metric this year.</p>
+    <p>Looking at the Critical SLA specifically: the number of critical cases resolved within 6 hours ranged from 79 (January, very few critical cases) to 335 (April). May had 266 critical cases within SLA out of a total resolved pool of 7,871, but the critical volume itself is relatively small. The non-critical 72h SLA is the main driver of the overall 51.5% figure, and with 3,789 non-critical cases meeting it in May (out of a much larger total), the structural gap is clear.</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Month</th><th>Total Resolved</th><th>Critical ≤6h</th><th>Non-Crit ≤72h</th><th>Combined SLA %</th><th>Avg Resolution Days</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jan</td><td>6,947</td><td>79</td><td>3,833</td><td>56.3%</td><td>6.7d</td></tr>
+      <tr><td>Feb</td><td>6,812</td><td>333</td><td>3,288</td><td>53.2%</td><td>7.5d</td></tr>
+      <tr><td>Mar</td><td>7,505</td><td>200</td><td>3,705</td><td>52.0%</td><td>8.2d</td></tr>
+      <tr><td>Apr</td><td>7,314</td><td>335</td><td>3,744</td><td>55.8%</td><td>8.9d</td></tr>
+      <tr class="may-row"><td>May</td><td>7,871</td><td>266</td><td>3,789</td><td>51.5%</td><td>8.7d</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ===================== MISSED CHAT ===================== -->
+<section id="missed-chat">
+  <h2>Missed Chat Rate (Support Queue)</h2>
+  <p class="subtitle">Sessions where customer requested human agent but did not receive one · case_record_type_c = 'Support'</p>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Missed Chat Rate % — monthly</h3>
+      <p class="chart-note">Jan–May 2026. Jan is partial (MIAW launched 26 Jan). Goal: ≤5%.</p>
+      <canvas id="chartMissed"></canvas>
+      <p class="chart-insight">35% → 8% in 8 weeks. Second consecutive month below 9% confirms the fix is holding; 5% goal is now 3pp away.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Total Chats vs Missed Chats</h3>
+      <p class="chart-note">Jan–May 2026. Volume context for the rate. Chat volume stabilised Apr–May at ~3,740/month.</p>
+      <canvas id="chartMissedVol"></canvas>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>Missed chat is the most dramatic turnaround story in this dataset. The metric went from a near-manageable 22% in February (the first full month of MIAW) to a crisis-level 35% in March, before recovering sharply to 9.1% in April and 8.0% in May. That is a 27-percentage-point improvement from March to May over just eight weeks.</p>
+    <p><strong>January (17.1%, 550 total chats)</strong> is not comparable to later months. MIAW went live on 26 January, so this represents roughly five days of data. Volume is an order of magnitude lower than February onward, and the 17.1% rate likely reflects initial routing and agent configuration issues rather than operational steady state.</p>
+    <p><strong>February (22.0%, 3,091 chats)</strong> was the first full month of MIAW operation. A 22% missed chat rate at launch is high but not surprising — new platform, agents learning new workflows, routing logic still being calibrated.</p>
+    <p><strong>March (35.0%, 3,585 chats)</strong> is where something went wrong. Volume grew by 494 chats month-on-month (+16%), but the rate jumped by 13 percentage points. The most likely explanation, consistent with the investigation documented elsewhere (RV-5376), is that a routing configuration issue caused the system to fall back to case creation even when agents were nominally available. The "premature fallback" issue — where the chat capacity-sensing subflow incorrectly reported no agents available — would result in chats being counted as missed (agent not accepted) even when the issue was system behaviour rather than genuine unavailability.</p>
+    <p><strong>April (9.1%) and May (8.0%)</strong> suggest the configuration issue was resolved, or at least significantly mitigated. Volume remained stable (~3,730–3,744), so this is a genuine rate improvement, not a volume artefact. The gap to the 5% goal is narrowing — May is 3 percentage points away, compared to 30 percentage points in March.</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Month</th><th>Total Chats</th><th>Missed</th><th>Rate</th><th>vs Goal (5%)</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jan</td><td>550</td><td>94</td><td>17.1%</td><td><span class="badge red">+12.1pp</span></td><td>Partial month — MIAW launched 26 Jan</td></tr>
+      <tr><td>Feb</td><td>3,091</td><td>680</td><td>22.0%</td><td><span class="badge red">+17.0pp</span></td><td>First full MIAW month</td></tr>
+      <tr><td>Mar</td><td>3,585</td><td>1,253</td><td>35.0%</td><td><span class="badge red">+30.0pp</span></td><td>Routing issue (RV-5376) likely driver</td></tr>
+      <tr><td>Apr</td><td>3,731</td><td>339</td><td>9.1%</td><td><span class="badge amber">+4.1pp</span></td><td>Sharp recovery — fix appears effective</td></tr>
+      <tr class="may-row"><td>May</td><td>3,744</td><td>301</td><td>8.0%</td><td><span class="badge amber">+3.0pp</span></td><td>Continued improvement</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout positive" style="margin-top:16px;">
+    <strong>Trajectory is positive.</strong> If the May-to-April improvement rate holds, the 5% goal is within reach in Q3. The key risk is whether the routing configuration issue (RV-5376) is fully resolved or only partially mitigated — a recurrence at March scale would set back multiple quarters of progress.
+  </div>
+
+  <!-- ONBOARDING MISSED CHAT -->
+  <h3 style="font-size:16px;font-weight:700;margin:32px 0 10px;color:var(--navy);">Missed Chat Rate — Onboarding (Implementations queue)</h3>
+
+  <div class="callout flag">
+    <strong>Onboarding's missed-chat rate is far worse than Support — and it is not recovering the same way.</strong> Where Support fell to 8% in May, the <strong>Onboarding (Implementations) queue ran at 37.6% in May</strong>, having peaked at 60% in March. Even at its May low it is ~5× the Support rate and ~7.5× the 5% reference goal. The most likely driver is thin agent coverage on the Implementations queue (small chat volume, few agents, so a single unavailable agent spikes the rate). This queue has been largely invisible in MBR reporting and deserves its own line.
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Missed Chat Rate % — Support vs Onboarding</h3>
+      <p class="chart-note">Jan–May 2026. Same 8-condition MIAW logic, split by <code>case_record_type_c</code>. 5% line = Support goal (no agreed Onboarding target).</p>
+      <canvas id="chartMissedOnb"></canvas>
+    </div>
+    <div class="chart-box" style="display:flex;flex-direction:column;justify-content:center;">
+      <table class="data-table">
+        <thead><tr><th>Month</th><th>Total Chats</th><th>Missed</th><th>Onboarding Rate</th><th>Support Rate</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>51</td><td>20</td><td>39.2%</td><td>17.1%</td></tr>
+          <tr><td>Feb</td><td>315</td><td>170</td><td>54.0%</td><td>22.0%</td></tr>
+          <tr><td>Mar</td><td>457</td><td>274</td><td><span class="badge red">60.0%</span></td><td>35.0%</td></tr>
+          <tr><td>Apr</td><td>451</td><td>250</td><td>55.4%</td><td>9.1%</td></tr>
+          <tr class="may-row"><td>May</td><td>290</td><td>109</td><td><span class="badge red">37.6%</span></td><td>8.0%</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;">Onboarding chat volume is ~8–13% of Support's, so the rate is more volatile. The April divergence is striking — Support's routing fix (RV-5376) pulled Support down to 9% while Onboarding <em>stayed</em> at 55%, suggesting the fix did not extend to the Implementations queue.</p>
+    </div>
+  </div>
+
+  <div class="callout insight">
+    <strong>Goal context:</strong> Missed chat rate has not previously been reported for Onboarding in the MBR, so there is no agreed target. The 5% line shown is the Support goal, used here for reference only. <strong>Off-hours demand:</strong> Outside business hours, Onboarding customers trying to chat are routed directly to case creation — no chat is ever offered, so no <code>messaging_session</code> row is created. These customers never appear in the missed chat numbers. This is a lost opportunity to provide live support for Onboarding properties, and the off-hours volume (sourced from cases) should be read alongside this chart to get the full picture.
+  </div>
+
+  <!-- OFF-HOURS DIRECT-TO-CASE -->
+  <h4 style="font-size:14px;font-weight:700;margin:24px 0 8px;color:var(--navy);">Off-hours direct-to-case — the bucket the missed-chat metric can't see</h4>
+
+  <div class="callout flag">
+    <strong>62 Onboarding customers in May reached out off-hours and were never offered a chat</strong> — routed straight to case creation. They don't appear in the 37.6% above (no <code>messaging_session</code> row exists). Adding them, the true unmet Onboarding chat-intent demand in May is roughly <strong>109 missed chats + 62 off-hours = ~171</strong>, not 109. The off-hours bucket splits 34 weekday (evenings/early mornings) + 28 weekend.
+  </div>
+
+  <table class="data-table" style="margin-top:6px;max-width:680px;">
+    <thead><tr><th>May Implementations Ada cases (368)</th><th>Cases</th><th>In missed-chat metric?</th></tr></thead>
+    <tbody>
+      <tr><td>Chat offered (business hours, CET/AEST)</td><td>284</td><td><span class="badge green">Yes — 290 chats, 109 missed</span></td></tr>
+      <tr><td>Direct-to-case, business hours (no agent → ambiguous)</td><td>19 + 3</td><td><span class="badge amber">No</span></td></tr>
+      <tr class="may-row"><td><strong>Direct-to-case, off-hours (no chat offered)</strong></td><td><strong>62</strong></td><td><span class="badge red">No — invisible</span></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">Off-hours = outside Mon–Fri 09:00–20:00 CET (+ a narrow AEST window). The Ada <code>onboarding-on-hours</code> routing variable rolled out week of 2026-04-27, so May is the first clean month for this bucket. Business-hours direct-to-case (19) likely reflects no agent free at the time.</p>
+
+  <h4 style="font-size:13px;font-weight:700;margin:22px 0 8px;color:var(--navy);">When off-hours demand lands — direct-to-case cases by day × time (May, CET)</h4>
+  <p class="chart-note" style="margin-bottom:8px;">81 direct-to-case cases. <span style="background:#c6f6d5;padding:1px 6px;border-radius:3px;">green</span> = within business hours (covered); <span style="background:#f56565;color:#fff;padding:1px 6px;border-radius:3px;">red</span> = off-hours, no chat offered (darker = more cases).</p>
+  <table class="data-table" style="text-align:center;max-width:760px;">
+    <thead>
+      <tr><th style="text-align:left;">Day</th><th>00–05</th><th>06–08</th><th>09–12</th><th>13–16</th><th>17–19</th><th>20–23</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="text-align:left;font-weight:600;">Mon</td><td style="background:#fff5f5;color:#cbd5e0;">0</td><td style="background:#fed7d7;">1</td><td style="background:#c6f6d5;">6</td><td style="background:#c6f6d5;">1</td><td style="background:#f0fff4;color:#a0aec0;">0</td><td style="background:#e84545;color:#fff;">8</td></tr>
+      <tr><td style="text-align:left;font-weight:600;">Tue</td><td style="background:#fc8181;">3</td><td style="background:#fc8181;">3</td><td style="background:#f0fff4;color:#a0aec0;">0</td><td style="background:#f0fff4;color:#a0aec0;">0</td><td style="background:#f0fff4;color:#a0aec0;">0</td><td style="background:#fc8181;">3</td></tr>
+      <tr><td style="text-align:left;font-weight:600;">Wed</td><td style="background:#fed7d7;">1</td><td style="background:#fed7d7;">1</td><td style="background:#c6f6d5;">3</td><td style="background:#c6f6d5;">1</td><td style="background:#c6f6d5;">1</td><td style="background:#fc8181;">3</td></tr>
+      <tr><td style="text-align:left;font-weight:600;">Thu</td><td style="background:#fff5f5;color:#cbd5e0;">0</td><td style="background:#fed7d7;">1</td><td style="background:#f0fff4;color:#a0aec0;">0</td><td style="background:#c6f6d5;">2</td><td style="background:#c6f6d5;">2</td><td style="background:#f56565;color:#fff;">5</td></tr>
+      <tr><td style="text-align:left;font-weight:600;">Fri</td><td style="background:#fed7d7;">2</td><td style="background:#fed7d7;">1</td><td style="background:#c6f6d5;">1</td><td style="background:#c6f6d5;">2</td><td style="background:#f0fff4;color:#a0aec0;">0</td><td style="background:#fed7d7;">2</td></tr>
+      <tr><td style="text-align:left;font-weight:600;">Sat</td><td style="background:#fc8181;">4</td><td style="background:#fff5f5;color:#cbd5e0;">0</td><td style="background:#f56565;color:#fff;">5</td><td style="background:#f56565;color:#fff;">5</td><td style="background:#fed7d7;">2</td><td style="background:#fc8181;">3</td></tr>
+      <tr><td style="text-align:left;font-weight:600;">Sun</td><td style="background:#fed7d7;">1</td><td style="background:#fff5f5;color:#cbd5e0;">0</td><td style="background:#fc8181;">3</td><td style="background:#fc8181;">3</td><td style="background:#fed7d7;">2</td><td style="background:#fff5f5;color:#cbd5e0;">0</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">Weekends are off-hours in full (Sat 19 + Sun 9 = 28 cases). Weekday off-hours concentrate in the <strong>20:00–23:00 evening block</strong> (Mon 8, Thu 5) and early mornings. The pattern says Onboarding chat hours don't match when a chunk of customers actually need help — extending coverage into evenings/weekends, or making the off-hours case path explicit to the customer, would close the gap.</p>
+
+  <h4 style="font-size:14px;font-weight:700;margin:28px 0 10px;color:var(--navy);">How did those 62 cases actually get resolved?</h4>
+
+  <div class="scorecard" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+    <div class="kpi bad">
+      <label>CSAT responses</label>
+      <div class="value">0</div>
+      <div class="delta up-bad">No case survey responses either — checked both chat and case CSAT sources</div>
+    </div>
+    <div class="kpi warn">
+      <label>Priority mix</label>
+      <div class="value">83% Critical / High</div>
+      <div class="delta neutral-d">~52 Critical · ~64 High · ~24 Low across off-hours cases</div>
+    </div>
+    <div class="kpi warn">
+      <label>Median days to close</label>
+      <div class="value">3–4 days</div>
+      <div class="delta neutral-d">Critical: 4d median · High: 3d median · Low: 5d median</div>
+    </div>
+    <div class="kpi bad">
+      <label>Still open</label>
+      <div class="value">~45%</div>
+      <div class="delta up-bad">Roughly half of off-hours cases remain unresolved at time of reporting</div>
+    </div>
+  </div>
+
+  <div class="callout flag">
+    These customers reached out urgently enough to initiate a chat during off-hours and were routed to a case instead of a live agent. They received no CSAT survey, their cases skew heavily Critical and High, and they waited a median of 3–4 days for resolution. The missed-chat rate of 37.6% understates the problem — the 62 invisible cases are on average higher-priority than the cases that did get a chat offered.
+  </div>
+</section>
+
+<!-- ===================== CSAT ===================== -->
+<section id="csat">
+  <h2>CSAT</h2>
+  <p class="subtitle">Live-chat CSAT from cs.ada.conversation (agent_handle_time > 0) · Human Support CSAT (combined) from MBR records</p>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Live-Chat CSAT % — monthly</h3>
+      <p class="chart-note">Jan–May 2026. From Ada conversations with human handling. Goal: 90%.</p>
+      <canvas id="chartCsatChat"></canvas>
+      <p class="chart-insight">Third consecutive month of improvement, now at 87.1% — the year's best and 2.9pp from the 90% goal.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Human Support CSAT (combined) — Jan–Apr confirmed</h3>
+      <p class="chart-note">Volume-weighted email + chat CSAT. May TBC (case CSAT pending). Goal: 90%.</p>
+      <canvas id="chartCsatHuman"></canvas>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>Live-chat CSAT improved for the third consecutive month in May, reaching 87.1% — the highest reading of the year and just 2.9 percentage points below the 90% goal. The correlation with missed chat rate is clear: March's 35% missed chat rate coincided with its worst CSAT (77.8%), and the improvement in chat availability from April onwards tracked almost exactly with CSAT recovery. Customers who reach an agent appear to be satisfied; the friction is in reaching one.</p>
+    <p>The survey response volume for May (1,153 surveys, 1,004 positive) is consistent with April (1,209 surveys) and healthy enough to draw reliable conclusions. The January figure (983 surveys despite only 5 days of MIAW) is puzzling at first glance — it likely includes legacy pre-MIAW chat surveys from the full month.</p>
+    <p><strong>Human Support CSAT (combined — email + live chat)</strong> is confirmed through April: Jan 84.3%, Feb 77.8%, Mar 76.1%, Apr 84.1%. May's combined figure is not yet available as case CSAT requires a separate query against the survey results table. Given live-chat CSAT improved to 87.1% in May, and live chat makes up an increasing share of interactions, the combined figure should show improvement. A reasonable estimate would be 85–87%, though this should be confirmed before the MBR presentation.</p>
+    <p>The Feb–Mar CSAT dip (77.8% → 76.1%) deserves specific attention. Both months saw elevated missed chat rates and were the first full months of MIAW. The dip likely reflects a double effect: customers who were missed generated frustration that occasionally surfaced in email case surveys (where they described the failed chat attempt), and new MIAW interactions had teething issues in agent handling that have since been resolved through training and process refinement.</p>
+  </div>
+
+  <div class="callout insight">
+    <strong>Live-chat CSAT and missed chat rate track each other closely.</strong> March: 35% missed, 77.8% CSAT. May: 8% missed, 87.1% CSAT. The implication is that reducing the missed chat rate from 8% to 5% (the goal) would likely push live-chat CSAT past the 90% threshold, assuming the underlying experience quality holds.
+  </div>
+
+  <table class="data-table" style="margin-top:16px;">
+    <thead>
+      <tr><th>Month</th><th>Live-Chat Surveys</th><th>Positive</th><th>Live-Chat CSAT</th><th>Human Support CSAT</th><th>vs 90% Goal</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jan</td><td>983</td><td>851</td><td>86.6%</td><td>84.3%</td><td><span class="badge red">−5.7pp</span></td></tr>
+      <tr><td>Feb</td><td>602</td><td>490</td><td>81.4%</td><td>77.8%</td><td><span class="badge red">−12.2pp</span></td></tr>
+      <tr><td>Mar</td><td>1,116</td><td>868</td><td>77.8%</td><td>76.1%</td><td><span class="badge red">−13.9pp</span></td></tr>
+      <tr><td>Apr</td><td>1,209</td><td>1,033</td><td>85.4%</td><td>84.1%</td><td><span class="badge red">−5.9pp</span></td></tr>
+      <tr class="may-row"><td>May</td><td>1,153</td><td>1,004</td><td>87.1%</td><td>TBC</td><td><span class="badge amber">~−3pp (est.)</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== CASES PER PROPERTY ===================== -->
+<section id="cpp">
+  <h2>Cases per Property</h2>
+  <p class="subtitle">Monthly cases ÷ avg subscribed properties (all-products) · Q2 OKR target: ≤0.6</p>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Cases per Property — monthly</h3>
+      <p class="chart-note">Jan–May 2026. Lower is better. Q2 target: ≤0.6. Q1 target: ≤0.7.</p>
+      <canvas id="chartCpp"></canvas>
+      <p class="chart-insight">Q2 OKR (≤0.6) missed in both April and May. June would need ~0.44 to rescue the quarter — not realistic at current volume and property trajectory.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Monthly vs QTD Cases / Property</h3>
+      <p class="chart-note">QTD = avg of completed months in quarter. Q1 QTD: 0.68 (met ≤0.7). Q2 QTD through May: 0.68 (missing Q2 target of 0.6).</p>
+      <canvas id="chartCppQtd"></canvas>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>Cases per property is one of the clearest signals of where the team stands on the Q2 OKR — and the picture is not comfortable. The Q2 ceiling is 0.6, and both April (0.69) and May (0.67) are above it. The Q2 QTD through May averages 0.68 against a 0.6 target, a gap of 0.08. To hit the Q2 goal, June would need to come in well below 0.6 — roughly 0.44 or lower — to pull the three-month average down to 0.6. That is not realistic given May's volume and property trajectory.</p>
+    <p>The contrast with Q1 is instructive. Q1 QTD landed at 0.68 against a target of 0.7 — just within tolerance. The target tightened by 0.1 in Q2 (from 0.7 to 0.6), but the actual metric has barely moved: May's 0.67 is almost identical to Q1's average of 0.68. The improvement needed for Q2 has not materialised.</p>
+    <p>The underlying components explain why. The average property count is growing steadily (10,665 in January to 11,678 in May, +9.5%), but case volume is growing at a similar rate (7,718 to 7,867, +1.9% in absolute terms but the property base growth is also modest). The ratio is not improving fast enough to meet the step-down targets. Three documented contributors remain live: Ada containment regression (90.9% → 82.9%, generating roughly 95 extra agent cases per 1pp of containment loss), Final Resolution Time trend (longer resolution = more open cases at any point), and the category taxonomy reclassification making trend analysis noisy.</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Month</th><th>Cases Created</th><th>Avg Properties</th><th>Cases / Property</th><th>QTD CPP</th><th>Target</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jan</td><td>7,718</td><td>10,665</td><td>0.72</td><td rowspan="3" style="vertical-align:middle;text-align:center;font-weight:700;">0.68</td><td>≤0.7 (Q1)</td><td><span class="badge green">Met</span></td></tr>
+      <tr><td>Feb</td><td>6,914</td><td>10,922</td><td>0.63</td><td>≤0.7 (Q1)</td><td><span class="badge green">Met</span></td></tr>
+      <tr><td>Mar</td><td>7,501</td><td>11,173</td><td>0.67</td><td>≤0.7 (Q1)</td><td><span class="badge green">Met</span></td></tr>
+      <tr><td>Apr</td><td>7,891</td><td>11,454</td><td>0.69</td><td rowspan="2" style="vertical-align:middle;text-align:center;font-weight:700;">0.68</td><td>≤0.6 (Q2)</td><td><span class="badge red">Missing</span></td></tr>
+      <tr class="may-row"><td>May</td><td>7,867</td><td>11,678</td><td>0.67</td><td>≤0.6 (Q2)</td><td><span class="badge red">Missing</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ===================== TERRITORY PATTERNS ===================== -->
+<section id="territory">
+  <h2>Territory Patterns</h2>
+  <p class="subtitle">Case volume and resolution time by territory — Jan–May 2026</p>
+
+  <div class="narrative">
+    <p><strong>The volume story has two clear threads.</strong> DACH and BNX — historically the two largest territories — are both declining in absolute terms (DACH: 1,829 → 1,500, −18%; BNX: 1,246 → 997, −20%). Meanwhile REU and Italy are growing rapidly: REU has grown 149% (189 → 471 cases/month), Italy has doubled (89 → 203). USA and NEU are also growing modestly at +14% and +3% respectively. The support team's workload is redistributing geographically — and the newer, faster-growing territories do not yet have the established agent coverage that the legacy EMEA markets do.</p>
+    <p><strong>REU and Italy warrant close attention.</strong> REU overtook Canada and APAC in April and is now the 8th largest territory by volume but growing at a pace that will soon place it in the top five. Italy's doubling happened between January and April; it has since stabilised but at a level more than twice its January baseline. Both of these territories have elevated backlog aged ratios: 41% of REU's open cases are 30+ days old, and Italy's is the worst of any territory at 52% (42 of 81 cases).</p>
+    <p><strong>DACH carries the largest backlog burden despite declining volume.</strong> 506 open cases as of June 3, of which 170 (34%) are aged 30+ days. DACH's resolution performance has been consistently the slowest across the year — even as it improved in line with the rest of the business in April/May, its starting point was the worst. This territory likely needs a dedicated capacity and priority conversation.</p>
+    <p><strong>Resolution time improved universally in April and May</strong>, which is consistent with the headline metric trend. USA, Spain, and REU are the fastest resolvers; Italy, LAC, and REU (older cohorts) have historically been the slowest.</p>
+  </div>
+
+  <div class="chart-row full">
+    <div class="chart-box">
+      <h3>Case Volume by Territory — Jan–May 2026</h3>
+      <p class="chart-note">Jan–May 2026. Top 8 territories shown. Sorted by May volume.</p>
+      <canvas id="chartTerritoryVol" style="max-height:280px;"></canvas>
+      <p class="chart-insight">DACH and BNX are declining (−18%, −20%); REU +149% and Italy +128% in 5 months — agent coverage has not kept pace with this redistribution.</p>
+    </div>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Fast-Growing Territories (REU, Italy)</h3>
+      <p class="chart-note">Jan–May 2026. Jan = 100 index.</p>
+      <canvas id="chartTerritoryGrowth"></canvas>
+      <p class="chart-insight">REU overtook Canada and APAC by April and is still accelerating; Italy doubled in 4 months. Both have the worst backlog age profiles of any territory.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Avg Resolution Days by Territory — closed cohort</h3>
+      <p class="chart-note">Jan–May 2026. Created-month cohort, cases now closed. May shows resolved-to-date only.</p>
+      <canvas id="chartTerritoryRes"></canvas>
+    </div>
+  </div>
+
+  <div class="callout flag">
+    <strong>Action item — DACH:</strong> Largest open backlog (506 cases, 34% aged 30+ days) and consistently the slowest to resolve across all five months. DACH likely needs a capacity review and/or escalation path improvement.
+  </div>
+  <div class="callout warning" style="margin-top:8px;">
+    <strong>Watch — REU &amp; Italy:</strong> REU volume +149% and Italy +128% Jan to May. Current agent allocation may not have kept pace with this growth. Italy's backlog has the worst age profile of any territory (52% of open cases are 30+ days old).
+  </div>
+
+  <table class="data-table" style="margin-top:20px;">
+    <thead>
+      <tr><th>Territory</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Change Jan→May</th><th>Open Backlog (Jun 3)</th><th>% Aged 30d+</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>DACH</td><td>1,829</td><td>1,633</td><td>1,597</td><td>1,561</td><td>1,500</td><td><span class="badge red">−18%</span></td><td>506</td><td>34%</td></tr>
+      <tr><td>France</td><td>1,146</td><td>1,058</td><td>1,226</td><td>1,162</td><td>1,112</td><td><span class="badge amber">−3%</span></td><td>280</td><td>29%</td></tr>
+      <tr><td>BNX</td><td>1,246</td><td>1,053</td><td>1,264</td><td>1,033</td><td>997</td><td><span class="badge red">−20%</span></td><td>340</td><td>32%</td></tr>
+      <tr><td>USA</td><td>866</td><td>762</td><td>856</td><td>977</td><td>990</td><td><span class="badge green">+14%</span></td><td>175</td><td>25%</td></tr>
+      <tr><td>NEU</td><td>695</td><td>530</td><td>553</td><td>663</td><td>719</td><td><span class="badge green">+3%</span></td><td>244</td><td>32%</td></tr>
+      <tr><td>UKIE</td><td>532</td><td>508</td><td>508</td><td>569</td><td>516</td><td><span class="badge amber">−3%</span></td><td>164</td><td>32%</td></tr>
+      <tr><td>Spain</td><td>354</td><td>369</td><td>500</td><td>448</td><td>481</td><td><span class="badge green">+36%</span></td><td>147</td><td>34%</td></tr>
+      <tr><td>REU</td><td>189</td><td>212</td><td>196</td><td>412</td><td>471</td><td><span class="badge red">+149%</span></td><td>162</td><td>41%</td></tr>
+      <tr><td>Canada</td><td>333</td><td>304</td><td>326</td><td>363</td><td>379</td><td><span class="badge green">+14%</span></td><td>93</td><td>23%</td></tr>
+      <tr><td>APAC</td><td>281</td><td>233</td><td>220</td><td>326</td><td>319</td><td><span class="badge green">+14%</span></td><td>115</td><td>55%</td></tr>
+      <tr><td>Italy</td><td>89</td><td>101</td><td>134</td><td>203</td><td>203</td><td><span class="badge red">+128%</span></td><td>81</td><td>52%</td></tr>
+      <tr><td>LAC</td><td>83</td><td>74</td><td>62</td><td>98</td><td>93</td><td><span class="badge green">+12%</span></td><td>42</td><td>52%</td></tr>
+      <tr><td>MEA</td><td>64</td><td>68</td><td>55</td><td>56</td><td>59</td><td><span class="badge amber">−8%</span></td><td>34</td><td>44%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== PRIORITY & ORIGIN ===================== -->
+<section id="priority-origin">
+  <h2>Priority &amp; Origin Patterns</h2>
+  <p class="subtitle">How case mix and channels are shifting — Jan–May 2026</p>
+
+  <div class="narrative">
+    <p><strong>The priority mix has undergone a structural shift that is not explained by volume alone.</strong> In January, 73% of cases were Low priority (5,652 of 7,718). By May, Low had fallen to 36% (2,854 of 7,867) while Critical tripled from 491 to 1,542 and High nearly doubled from 1,386 to 2,704. The total case volume in May is virtually identical to January (7,867 vs 7,718) — what has changed is how cases are categorised. This shift reflects a change in priority assignment logic or Ada routing behaviour rather than a genuine tripling of business-critical incidents. Higher-priority cases require faster SLA response and carry more FRT risk, so the shift has real implications for how FRT and resolution SLA are read across the year.</p>
+    <p><strong>Phone is in structural decline</strong>: 1,267 cases in January, 843 in May — a 33% drop over five months. This is consistent with the MIAW rollout driving customers toward live chat rather than telephone. Phone-originated cases also tend to be lower volume per-agent since they are handled one-at-a-time; the shift toward chat improves agent efficiency but only if the chat infrastructure is working reliably (see March missed chat spike).</p>
+    <p><strong>Email-HMS is a new channel that appeared in April and is growing fast.</strong> It registered 331 cases in April (its first full month) and 610 in May — an 84% month-on-month increase. This channel did not exist in Q1. Its emergence likely corresponds to the HMS product launch or a routing change. At 610 cases in May, it is now the 3rd largest email channel after Email-PMS (700) and would soon surpass it at the current growth rate. The support implications of this channel have not yet been fully absorbed.</p>
+    <p><strong>AdaBot remains the dominant origin</strong> at 63–65% of total volume, but it has not grown proportionally with total volume. January Ada cases (4,737) are actually the year's second highest; May (4,981) is the year's highest. The Ada containment regression documented elsewhere (90.9% → 82.9%) means more conversations are becoming agent cases — this is one mechanism driving volume growth in the non-Ada channels.</p>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Priority Mix — % of monthly cases</h3>
+      <p class="chart-note">Low priority fell from 73% → 36% of volume Jan to May — driven by a classification or routing change, not genuine severity escalation.</p>
+      <canvas id="chartPriorityPct"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Priority Absolute Volume</h3>
+      <p class="chart-note">Jan–May 2026. Critical cases tripled; Low nearly halved. Total volume is flat.</p>
+      <canvas id="chartPriorityAbs"></canvas>
+    </div>
+  </div>
+
+  <div class="callout insight">
+    <strong>Priority shift — classification change, not severity escalation:</strong> The priority distribution changed completely between January and May, yet total volume barely moved. This reflects a change in priority assignment logic or routing, not a genuine increase in business-critical incidents. Do not use the Jan–May priority trend as evidence of worsening severity.
+  </div>
+
+  <div class="chart-row two" style="margin-top:20px;">
+    <div class="chart-box">
+      <h3>Case Origin — top channels by volume</h3>
+      <p class="chart-note">Jan–May 2026. AdaBot dominant; Phone declining; Email-HMS new in April.</p>
+      <canvas id="chartOrigin"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Email-HMS Growth vs Phone Decline</h3>
+      <p class="chart-note">Jan–May 2026. Two structural shifts happening simultaneously.</p>
+      <canvas id="chartOriginShift"></canvas>
+      <p class="chart-insight">Email-HMS: 0 → 610 cases in 2 months. At this rate it overtakes Email-PMS as the largest email channel by July.</p>
+    </div>
+  </div>
+
+  <div class="callout insight" style="margin-top:8px;">
+    <strong>Email-HMS:</strong> 0 cases in Q1 → 331 in April → 610 in May. At this trajectory, Email-HMS will surpass Email-PMS as the largest email channel by July. Agent routing rules, SLA configuration, and knowledge base coverage for this channel need to be reviewed now, not reactively.
+  </div>
+</section>
+
+<!-- ===================== CATEGORIES ===================== -->
+<section id="categories">
+  <h2>Category Patterns</h2>
+  <p class="subtitle">What customers are asking about — with taxonomy reclassification caveat</p>
+
+  <div class="narrative">
+    <p><strong>Critical caveat: the category taxonomy changed ~March 2026.</strong> January through mid-March use the old taxonomy (Mews Operations (PMS), Mews Marketplace (Integrations), My Subscription, etc.). April onwards uses a new taxonomy (Channel Manager, Billing and invoicing, Mews HMS, Security, etc.). This means January-to-May trends across most categories are NOT meaningful — they reflect a name change, not a real movement in issue type. Do not use the Jan–May trend for category-level comparisons without calling this out explicitly.</p>
+    <p><strong>Within the new taxonomy (April–May), the clearest signal is Security growth.</strong> Security went from 185 cases in April to 288 in May — a 56% month-on-month increase. If this continues, it will become the 4th largest category within a few months. Security cases also tend to be higher-urgency and require specialist handling. This trend needs to be surfaced to the security/product team and should be tracked monthly from here.</p>
+    <p><strong>Channel Manager is now the second-largest category</strong> (955 in April, 987 in May). Given that "Channel Manager" was not a visible category in Q1 (it existed but had only 4 cases in January), this is almost entirely a taxonomy reclassification — cases formerly in "Mews Marketplace (Integrations)" are likely now captured as Channel Manager. However, the volume is real and large: roughly 1,000 cases per month about channel connectivity.</p>
+    <p><strong>Mews Operations (PMS) remains the largest category</strong> but is declining: 1,913 in April, 1,753 in May. Given that the PMS property base is growing, a declining case volume for PMS specifically is a positive signal — it may indicate product stability improvements or better self-serve deflection.</p>
+    <p><strong>Mews Reporting jumped 27%</strong> month-on-month (358 → 454), which is notable given that total volume barely changed. Reporting issues may be compounding as the BI product evolves.</p>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Top Categories — April vs May 2026 (new taxonomy only)</h3>
+      <p class="chart-note">Only Apr–May shown; Jan–Mar use a different taxonomy and are not comparable.</p>
+      <canvas id="chartCatAprMay"></canvas>
+      <p class="chart-insight">Security (+56%) and Reporting (+27%) are the standout movers. PMS is declining despite a growing property base — a positive signal.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Security Category Growth</h3>
+      <p class="chart-note">Security went from 11 cases in March to 288 in May. Worth monitoring as a new demand area.</p>
+      <canvas id="chartSecurity"></canvas>
+    </div>
+  </div>
+
+  <div class="callout flag">
+    <strong>Taxonomy break — January through March data is not comparable to April–May.</strong> Categories were reclassified ~March 2026. Any YTD category report must flag this break or it will mislead the audience. Month-on-month comparisons are only clean from April onwards.
+  </div>
+
+  <table class="data-table" style="margin-top:16px;">
+    <thead><tr><th>Category (new taxonomy)</th><th>April</th><th>May</th><th>MoM Change</th></tr></thead>
+    <tbody>
+      <tr><td>Mews Operations (PMS)</td><td>1,913</td><td>1,753</td><td><span class="badge red">−8%</span></td></tr>
+      <tr><td>Channel Manager</td><td>955</td><td>987</td><td><span class="badge green">+3%</span></td></tr>
+      <tr><td>Mews Payments</td><td>722</td><td>778</td><td><span class="badge green">+8%</span></td></tr>
+      <tr><td>Billing and invoicing</td><td>653</td><td>628</td><td><span class="badge amber">−4%</span></td></tr>
+      <tr><td>Other</td><td>586</td><td>566</td><td><span class="badge amber">−3%</span></td></tr>
+      <tr><td>Mews HMS</td><td>534</td><td>521</td><td><span class="badge amber">−2%</span></td></tr>
+      <tr><td>Mews Reporting</td><td>358</td><td>454</td><td><span class="badge red">+27%</span></td></tr>
+      <tr><td>Connector/Integrations</td><td>368</td><td>396</td><td><span class="badge green">+8%</span></td></tr>
+      <tr><td>Guest Experience (GX)</td><td>414</td><td>377</td><td><span class="badge amber">−9%</span></td></tr>
+      <tr><td>Mews Subscription</td><td>312</td><td>313</td><td><span class="badge green">flat</span></td></tr>
+      <tr><td><strong>Security</strong></td><td><strong>185</strong></td><td><strong>288</strong></td><td><span class="badge red"><strong>+56%</strong></span></td></tr>
+      <tr><td>Mews RMS</td><td>203</td><td>218</td><td><span class="badge green">+7%</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== APPENDIX ===================== -->
+<div id="appendix-divider" style="margin:48px 0 32px;padding:16px 24px;background:var(--navy);border-radius:10px;display:flex;align-items:center;gap:16px;">
+  <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b;">Appendix</span>
+  <span style="flex:1;height:1px;background:#1e3a5f;"></span>
+  <span style="font-size:12px;color:#64748b;">Detailed category breakdowns · Classification analysis · Backfill roadmap</span>
+</div>
+
+<!-- ===================== MAY DEEP DIVES ===================== -->
+<section id="may-deep-dives">
+  <h2>May Deep Dives</h2>
+  <p class="subtitle">May 2026 only — category, sub-category, and "Other" case analysis</p>
+
+  <div class="narrative">
+    <p><strong>May created 7,870 cases across 19 categories.</strong> Mews Operations (PMS) remained by far the largest at 1,753 cases (22% of total), followed by Channel Manager (987, 13%) and Mews Payments (778, 10%). "Other" sits fifth at 566 cases (7%) — it is larger than Mews HMS, Reporting, or POS, which is a signal that a significant portion of support demand is being mis-routed rather than genuinely uncategorisable.</p>
+    <p><strong>The Security spike is the most notable shift in May.</strong> 288 Security cases was a 56% jump from April's 185. The sub-category breakdown shows 194 of these were "Suspected/confirmed incident" — meaning agents explicitly flagged a security threat, not just a routine login query. This warrants a separate review to determine whether the incidents shared a root cause or represent scattered phishing/credential events.</p>
+    <p><strong>Channel Manager has 202 cases with no sub-category set.</strong> That is the second-highest sub-category row in the entire dataset. It is a data quality gap — cases routed to Channel Manager that agents did not further classify. These cannot be acted on at a sub-category level until the missing data is addressed.</p>
+  </div>
+
+  <!-- Volume by Category -->
+  <div class="chart-row full">
+    <div class="chart-box">
+      <h3>May 2026 — Volume by Category (cases created)</h3>
+      <p class="chart-note">All 19 categories. Total 7,870 cases.</p>
+      <canvas id="chartMayCategoryVolume" style="max-height:340px;"></canvas>
+      <p class="chart-insight">'Other' (566) is the 5th largest category — bigger than HMS, Reporting, or POS. This is a data quality problem, not a real demand area.</p>
+    </div>
+  </div>
+
+  <!-- Sub-category breakdowns for top 5 categories -->
+  <h3 style="font-size:16px;font-weight:700;margin:28px 0 12px;color:var(--navy);">Sub-category breakdown — top 5 categories (May 2026)</h3>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Mews Operations (PMS) — 1,753 cases</h3>
+      <canvas id="chartSubPMS"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Channel Manager — 987 cases</h3>
+      <canvas id="chartSubCHM"></canvas>
+      <p class="chart-insight">202 of 987 cases have no sub-category — the largest data gap in the whole dataset. Blocks any sub-category-level action on Channel Manager.</p>
+    </div>
+  </div>
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Mews Payments — 778 cases</h3>
+      <canvas id="chartSubPayments"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Billing and invoicing — 628 cases</h3>
+      <canvas id="chartSubBilling"></canvas>
+    </div>
+  </div>
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Security — 288 cases</h3>
+      <canvas id="chartSubSecurity"></canvas>
+      <p class="chart-insight">194 of 288 Security cases are 'Suspected/confirmed incident' — agents flagging active threats, not routine login queries. Likely driven by the Booking.com phishing cluster.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Mews HMS — 521 cases</h3>
+      <canvas id="chartSubHMS"></canvas>
+    </div>
+  </div>
+
+  <!-- Backlog by Category -->
+  <h3 style="font-size:16px;font-weight:700;margin:28px 0 12px;color:var(--navy);">Backlog by Category — EOM May 31 (indicative shares)</h3>
+  <div class="narrative">
+    <p><strong>"Other" holds 122 cases in the backlog</strong> — the single largest category entry, ahead of even the core product areas. Given the analysis below of what "Other" actually contains, a significant share of these 122 cases could be reclassified, which would reduce the apparent "Other" backlog and reveal where work is really sitting.</p>
+    <p><strong>Mews Operations (PMS) has 285 backlog cases</strong>, spread across Reservation Management (78), Settings (52), and Other PMS (52) as the three largest sub-categories. Channel Manager (233) and Mews Payments (161) are next. Billing and invoicing (116) has a high proportion in Invoice Inquiry/disputes (51 cases) — these tend to require Finance involvement and explain why Billing sits disproportionately high in the "Waiting internal" status bucket.</p>
+  </div>
+  <div class="chart-row full">
+    <div class="chart-box">
+      <h3>Backlog by Category — EOM May 31 (top 12)</h3>
+      <p class="chart-note">Category shares from the count_towards_backlog-flagged view — indicative split; totals understate the canonical 2,380.</p>
+      <canvas id="chartBacklogByCategory" style="max-height:320px;"></canvas>
+      <p class="chart-insight">'Other' holds 122 backlog cases — the single largest category entry, and most are reclassifiable. Fixing classification would redraw this chart materially.</p>
+    </div>
+  </div>
+
+  <!-- "Other" Deep Dive -->
+  <h3 style="font-size:16px;font-weight:700;margin:28px 0 12px;color:var(--navy);">"Other" Category — Deep Dive</h3>
+
+  <div class="callout warning">
+    <strong>Scale of the "Other" problem is bigger than the single-field view suggests.</strong> Counting only <code>category_global_c = 'Other'</code> gives 566 cases. But <strong>1,877 of May's 7,867 cases (24%)</strong> carry an "Other" tag in <em>at least one</em> of the three classification fields, and <strong>455 carry it in two or three fields at once</strong>. The multi-field "Other" cases are the clearest classifier failures, so they are the focus of this deep dive.
+  </div>
+
+  <div class="narrative">
+    <p><strong>"Other" is not one problem — it splits three ways, and the split differs sharply by channel.</strong> Reading the raw source for all 455 double/triple cases, roughly <strong>69% are genuinely reclassifiable</strong> into a real product category, <strong>13% are content-less process stubs</strong> (a human-handoff or callback was logged but no topic was ever captured), and <strong>18% should not be a support case at all</strong> (vendor auto-notifications, out-of-office replies, sales spam, third-party surveys, and Premium-support relationship admin). Each slice has a different fix — so a single "enforce a category" rule would only address part of it.</p>
+    <p><strong>Ada is the dominant source and the highest-leverage fix.</strong> 290 of the 455 double/triple cases (65%) came through AdaBot — and <strong>88% of them carry a clear, classifiable topic in the chat summary Ada already captured</strong>. The largest reclassified buckets are Payments &amp; Billing (~70 cases: refunds, preauthorisations, ARN requests, Adyen/Stripe provider issues, deposits), Channel Manager &amp; Integrations (~45: Booking.com/Expedia/SiteMinder sync and mapping), Reporting &amp; BI (~30), Reservations &amp; Guests (~28), Product/Rate config (~22), and Account/Login/Security (~22). In other words, the category is being dropped at or after the bot→agent handoff <em>even though the topic is known</em>. This is the single most automatable fix in the whole analysis.</p>
+    <p><strong>Email "Other" is mostly not support at all.</strong> Of 67 Email double/triple cases, ~57% are vendor and integration auto-notifications (Flexkeeping/Firebase build alerts, protel and Cloudbeds maintenance, Aircall sunset reminders, HyperGuest ticket confirmations, weareplanet incidents), out-of-office auto-replies, sales/marketing spam, and third-party CSAT survey emails. These are heavily concentrated in the <strong>Flexkeeping / HMS queue</strong>, which acts as a noise magnet. The fix here is sender/spam filtering and routing — not reclassification. The genuine ~43% map cleanly to Billing, Reporting, POS, and Reservations.</p>
+    <p><strong>Phone "Other" is mostly Premium-support relationship admin and empty call stubs.</strong> Of 88 Phone double/triple cases, ~40% are Premium-support lifecycle touches logged as cases ("Welcome to Mews Premium Support", "Premium Support Cancellation", "Thank you from Premium Team", "Early Stage Optimisation Meeting Offer"), and a further ~30% are content-less stubs ("Callback", "Voicemail. No answer", "Abandoned: call hung up", missed-meeting notes) with nothing to classify. Only ~26% are genuine support topics (e.g. printer/hardware, login, accounting discrepancies, POS). The fix is a distinct record/activity type for Premium service touches so they leave the product-issue bucket entirely, plus a topic field on call logs.</p>
+    <p><strong>What this means for the headline number.</strong> If the ~69% reclassifiable share holds across the full 1,877 "any-Other" population, well over a thousand May cases are sitting in "Other" with a knowable home. Reclassifying them would materially redraw the category picture (Payments &amp; Billing and Channel Manager/Integrations are the biggest under-counted areas) and shrink the "Other" backlog (122 cases at EOM) — without any change to underlying demand.</p>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>"Other" — Three-way split (n=455, raw source)</h3>
+      <p class="chart-note">May 2026. Claude-coded from Ada chat / Phone subject / Email description. Double &amp; triple "Other" cases.</p>
+      <canvas id="chartOtherBreakdown"></canvas>
+      <p class="chart-insight">69% reclassifiable. Ada is the highest-leverage fix — 88% of its 'Other' cases already contain the topic in the chat summary before an agent ever sees them.</p>
+    </div>
+    <div class="chart-box">
+      <h3>"Other" in Backlog — 122 cases by status</h3>
+      <p class="chart-note">EOM May 31. Sub-categories: All (other)=117, Other=5.</p>
+      <canvas id="chartOtherBacklog"></canvas>
+    </div>
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--navy);margin:20px 0 8px;">The three-way split — by channel (n=455 double/triple "Other")</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Disposition</th><th>Ada (290)</th><th>Email (67)</th><th>Phone (88)</th><th>Total</th><th>The fix</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Reclassifiable</strong> — real topic in text</td><td>~255 (88%)</td><td>~29 (43%)</td><td>~23 (26%)</td><td><span class="badge green">~307 (69%)</span></td><td>Auto-suggest category from existing text (Claude); enforce at handoff/closure</td></tr>
+      <tr><td><strong>Process stub</strong> — no topic captured</td><td>~35 (12%)</td><td>—</td><td>~24 (27%)</td><td><span class="badge amber">~59 (13%)</span></td><td>Capture topic at source: mandatory reason on handoff; topic field on call logs</td></tr>
+      <tr><td><strong>Not a support case</strong> — noise / admin</td><td>—</td><td>~38 (57%)</td><td>~41 (47%)</td><td><span class="badge red">~89 (18%)</span></td><td>Spam/sender filter (HMS queue); distinct record type for Premium service touches</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">~10 cases in minor channels (Chat/Web/External) not individually reviewed. Percentages are Claude-coded estimates from raw source; treat as ±5pp, indicative not exact.</p>
+
+  <p style="font-size:13px;font-weight:700;color:var(--navy);margin:24px 0 8px;">Where the reclassifiable cases actually belong (Ada, ~255 cases)</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Reclassified category</th><th>Approx. cases</th><th>Representative chat summary</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mews Payments / Billing &amp; invoicing</td><td>~70</td><td>"error when charging a deposit — destination account lacks required capabilities"; refunds, ARN, preauth release, Adyen vs Stripe fees</td></tr>
+      <tr><td>Channel Manager / Connector / Integrations</td><td>~45</td><td>"channel manager not receiving automatic updates… inventory not pushed, overbookings"; D-Edge / SiteMinder / Expedia mapping</td></tr>
+      <tr><td>Mews Reporting / BI</td><td>~30</td><td>"monthly accommodation statistics for the Bavarian State Office"; BI Pro historical data import; manager-report discrepancies</td></tr>
+      <tr><td>Mews Operations (PMS) — Reservations &amp; Guests</td><td>~28</td><td>overbooking, rooming-list upload, no-show recovery, cancellation/uncancel flow</td></tr>
+      <tr><td>Product / Rate &amp; Pricing config</td><td>~22</td><td>derived rates, breakfast/package rules, min-stay restrictions, occupancy-based pricing</td></tr>
+      <tr><td>Account / Login / Permissions / Security</td><td>~22</td><td>2FA reset, passkey errors, masked guest names, role assignment, "hacked" reports</td></tr>
+      <tr><td>Online check-in / Kiosk / Guest portal</td><td>~12</td><td>kiosk "Scan ID" missing, online check-in email not sent, child email requirement</td></tr>
+      <tr><td>Tax / VAT / City tax</td><td>~12</td><td>city-tax miscalculation, VAT on cancellation fees, eco-contribution 3× overcharge</td></tr>
+      <tr><td>Notifications / email templates</td><td>~8</td><td>legacy OTA branding in guest emails, confirmation emails not delivered</td></tr>
+      <tr><td>Commercial / CSM / contract</td><td>~6</td><td>"who is my account manager", contract renegotiation, bank-commission pricing</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout insight" style="margin-top:16px;">
+    <strong>The Ada finding is the actionable one.</strong> 88% of Ada "Other" cases already contain a clear topic in <code>inquiry_summary</code> before they ever reach an agent. The classification is lost at the handoff, not because the issue is unknowable. A nightly Claude pass over these cases could populate a <em>suggested</em> category with high confidence — see the Enforcement &amp; Automation section below.
+  </div>
+
+  <!-- NOISE CASES INFLATING THE COUNT -->
+  <h3 style="font-size:16px;font-weight:700;margin:32px 0 10px;color:var(--navy);">⚠ Noise cases inflating the count — Email queue (May 2026)</h3>
+
+  <div class="callout flag">
+    <strong>These are not support cases — yet each one counts as a created case, an "Other" case, and (until closed) a backlog case.</strong> 37 of the 67 Email double/triple "Other" cases below are vendor auto-notifications, out-of-office replies, sales spam, third-party ticket/maintenance alerts, and customers' own CSAT surveys. They are heavily concentrated in the <strong>Flexkeeping / HMS queue</strong> (18 of 37), which is subscribed to integration partners' dev, maintenance and marketing mailing lists. <strong>None has a conversation id</strong> — they never were chats. This inflates Case Volume, the "Other" category, and Cases-per-Property, and dilutes every quality metric. The fix is a sender deny-list + auto-close on this queue, with a light Claude check to rescue the rare genuine case (e.g. the phishing-verification case noted below).
+  </div>
+
+  <p style="font-size:12px;color:var(--muted);margin:10px 0 6px;">5 examples shown; expand for the full 37.</p>
+  <table class="data-table" style="margin-top:4px;">
+    <thead>
+      <tr><th>Case #</th><th>Case ID</th><th>Conv ID</th><th>Type</th><th>Owner</th><th>Subject / text excerpt</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>00633107</td><td>500QC00000apVRhYAM</td><td>—</td><td>Vendor build alert</td><td>Flexkeeping Support</td><td><strong>Flex Staging v860… ready to test</strong> — "Firebase App Distribution… Download the latest build…"</td></tr>
+      <tr><td>00651143</td><td>500QC00000bZZwwYAG</td><td>—</td><td>Vendor maintenance</td><td>Flexkeeping Support</td><td><strong>Cloudbeds scheduled a new maintenance — Guest Experience (Whistle)</strong></td></tr>
+      <tr><td>00636694</td><td>500QC00000b0XJhYAM</td><td>—</td><td>3rd-party ticket ack</td><td>Cases Support</td><td><strong>HyperGuest Support Assistance [##1901180##] Your ticket has been created</strong></td></tr>
+      <tr><td>00633030</td><td>500QC00000aov9pYAA</td><td>—</td><td>Out-of-office</td><td>Cases Support</td><td><strong>Out of Office RE: Case 00633028</strong> — "out of office until 05.05 due to a bank holiday"</td></tr>
+      <tr><td>00633964</td><td>500QC00000arcVTYAY</td><td>—</td><td>3rd-party CSAT survey</td><td>Corto Doucet</td><td><strong>CIS Survey for Service Request 3040736</strong> — "You were recently assisted by: Steven" (Cherwell)</td></tr>
+    </tbody>
+  </table>
+
+  <details style="margin-top:10px;border:1px solid var(--border);border-radius:8px;padding:0;background:var(--white);">
+    <summary style="cursor:pointer;padding:12px 16px;font-size:13px;font-weight:700;color:var(--navy);list-style:none;">▸ Show the remaining 32 noise cases</summary>
+    <div style="padding:0 16px 16px;">
+    <table class="data-table">
+      <thead>
+        <tr><th>Case #</th><th>Case ID</th><th>Conv ID</th><th>Type</th><th>Owner</th><th>Subject / text excerpt</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>00633108</td><td>500QC00000apcheYAA</td><td>—</td><td>Vendor build alert</td><td>Flexkeeping Support</td><td><strong>You've been invited to test Flexkeeping for Android</strong> — "Firebase App Distribution… Developer contact: david@fle…"</td></tr>
+        <tr><td>00633686</td><td>500QC00000aqvaCYAQ</td><td>—</td><td>Vendor build alert</td><td>Flexkeeping Support</td><td><strong>Flex Staging v861… ready to test</strong> — "Firebase App Distribution… Release notes for 3.12.0…"</td></tr>
+        <tr><td>00633734</td><td>500QC00000aqqgwYAA</td><td>—</td><td>Vendor build alert</td><td>Flexkeeping Support</td><td><strong>Flex Staging v861… ready to test</strong> (duplicate build notification)</td></tr>
+        <tr><td>00635267</td><td>500QC00000aw7qvYAA</td><td>—</td><td>Vendor build alert</td><td>Flexkeeping Support</td><td><strong>Flex Staging v862… ready to test</strong> (build notification)</td></tr>
+        <tr><td>00632993</td><td>500QC00000aoxMvYAI</td><td>—</td><td>Vendor integration status</td><td>Flexkeeping Support</td><td><strong>FlexChecker Notification — State OK / maistra_realm5283 / Mlini / s3</strong> — "Required action: No action required"</td></tr>
+        <tr><td>00651386</td><td>500QC00000bahPMYAY</td><td>—</td><td>Vendor maintenance</td><td>Flexkeeping Support</td><td><strong>Cloudbeds updated their maintenance — Completed</strong></td></tr>
+        <tr><td>00655763</td><td>500QC00000cBtkyYAC</td><td>—</td><td>Vendor maintenance</td><td>Flexkeeping Support</td><td><strong>protel Cloud PMS Maintenance — Europe/Africa</strong> — "scheduled maintenance… no interruption expected"</td></tr>
+        <tr><td>00655764</td><td>500QC00000cBuSYYA0</td><td>—</td><td>Vendor maintenance</td><td>Flexkeeping Support</td><td><strong>protel Cloud PMS Maintenance — Australia</strong> (scheduled background maintenance)</td></tr>
+        <tr><td>00656326</td><td>500QC00000cDkopYAC</td><td>—</td><td>Vendor incident</td><td>Flexkeeping Support</td><td><strong>protel statuspage moved to weareplanet</strong> — "New incident: Investigating"</td></tr>
+        <tr><td>00658218</td><td>500QC00000cLKUAYA4</td><td>—</td><td>Vendor incident</td><td>Flexkeeping Support</td><td><strong>weareplanet Incident PSM-567600 — Protel Cloud PMS Service Disruptions</strong></td></tr>
+        <tr><td>00655202</td><td>500QC00000c9Ko3YAE</td><td>—</td><td>Vendor newsletter</td><td>Flexkeeping Support</td><td><strong>protel.I/O | Changes to our Messages</strong> — Mailchimp integration newsletter</td></tr>
+        <tr><td>00654937</td><td>500QC00000c86C4YAI</td><td>—</td><td>Vendor portal invite</td><td>Flexkeeping Support</td><td><strong>Welcome to IT Support</strong> — "You've been invited to IT Support portal…"</td></tr>
+        <tr><td>00637510</td><td>500QC00000b3x6KYAQ</td><td>—</td><td>Sales spam</td><td>Flexkeeping Support</td><td><strong>More direct bookings. Less OTA fees</strong> — "Free eBook inside" (roommaster marketing)</td></tr>
+        <tr><td>00656739</td><td>500QC00000cG0r4YAC</td><td>—</td><td>Sales spam</td><td>Flexkeeping Support</td><td><strong>roommaster | Hospitality Updates You Shouldn't Miss</strong> — "HITEC 2026 · Free buyer's pass…"</td></tr>
+        <tr><td>00650424</td><td>500QC00000bX4naYAC</td><td>—</td><td>Sales spam</td><td>Flexkeeping Support</td><td><strong>Re: Direct campaigns for Flexkeeping</strong> — "we serve 50 billion impressions each month…"</td></tr>
+        <tr><td>00633127</td><td>500QC00000apeQ6YAI</td><td>—</td><td>Sales spam</td><td>Flexkeeping Support</td><td><strong>AHICE APAC 2026</strong> — "acquire the Visitors/Attendees List… 1,025 contacts"</td></tr>
+        <tr><td>00631957</td><td>500QC00000akbRGYAY</td><td>—</td><td>Vendor maintenance</td><td>Cases Support</td><td><strong>Scheduled Production Server Maintenance — COMPLETED</strong> — "All eRevMax services are now available"</td></tr>
+        <tr><td>00633511</td><td>500QC00000aqW5WYAU</td><td>—</td><td>Vendor product notice</td><td>Cases Support</td><td><strong>REMINDER: Switch to Aircall Workspace by May 20</strong> — "Aircall Phone will soon be sunset"</td></tr>
+        <tr><td>00650164</td><td>500QC00000bVr7mYAC</td><td>—</td><td>Vendor product notice</td><td>Cases Support</td><td><strong>REMINDER: Switch to Aircall Workspace by May 20</strong> (duplicate)</td></tr>
+        <tr><td>00637480</td><td>500QC00000b3W7rYAE</td><td>—</td><td>3rd-party ticket ack</td><td>Esteban Dufour-Loriolle</td><td><strong>HyperGuest Support Assistance [##1902208##] Your ticket has been created</strong></td></tr>
+        <tr><td>00639817</td><td>500QC00000bFPFLYA4</td><td>—</td><td>3rd-party ticket ack</td><td>Cases Support</td><td><strong>Ticket Closed Automatically — Reservation Overview Report</strong> (Generator Hostels service desk)</td></tr>
+        <tr><td>00635413</td><td>500QC00000awpALYAY</td><td>—</td><td>Out-of-office</td><td>Cases Support</td><td><strong>Out of Office RE: Case 00635410</strong> — "back on the 11th of May"</td></tr>
+        <tr><td>00652980</td><td>500QC00000bh3euYAA</td><td>—</td><td>Out-of-office</td><td>Cases Support</td><td><strong>Out of Office RE: Case 00652979</strong> — "out of the office until 25.05"</td></tr>
+        <tr><td>00656344</td><td>500QC00000cEB91YAG</td><td>—</td><td>Out-of-office</td><td>Cases Support</td><td><strong>Out of office — Conference / National Guard Training</strong> — "no access to email"</td></tr>
+        <tr><td>00656384</td><td>500QC00000cDlhrYAC</td><td>—</td><td>Out-of-office</td><td>Cases Support</td><td><strong>Out of the Office — back June 2nd</strong> — "acceso limitado a mi correo"</td></tr>
+        <tr><td>00646595</td><td>500QC00000bOozOYAS</td><td>—</td><td>Out-of-office</td><td>Leena Fulena</td><td><strong>Out of Office RE: Case 00646593</strong> — "Currently I'm SICK and not available"</td></tr>
+        <tr><td>00657680</td><td>500QC00000cJbECYA0</td><td>—</td><td>Out-of-office</td><td>Juan Pinargote</td><td><strong>Out of Office RE: Case 00657679</strong> — "Currently I'm SICK…" (Atomize/RMS auto-reply)</td></tr>
+        <tr><td>00631983</td><td>500QC00000akTaIYAU</td><td>—</td><td>Sales spam</td><td>Brooke Britton</td><td><strong>Flexible work perks for your team</strong> — "flexible work + travel perk like Outsite" (Calendly)</td></tr>
+        <tr><td>00646458</td><td>500QC00000bOYBMYA4</td><td>—</td><td>Sales spam</td><td>Cases Support</td><td><strong>Your invite to Puerto Rico</strong> — "Our next Outsite Trip is now live…"</td></tr>
+        <tr><td>00633969</td><td>500QC00000ardksYAA</td><td>—</td><td>3rd-party CSAT survey</td><td>Corto Doucet</td><td><strong>CIS Survey for Service Request 3042637</strong> — "You were recently assisted by: Pamela" (Cherwell)</td></tr>
+        <tr><td>00657521</td><td>500QC00000cIs0tYAC</td><td>—</td><td>3rd-party CSAT survey</td><td>Josue Orellana</td><td><strong>CIS Survey for Service Request 3055442</strong> — "You were recently assisted by: Brian" (Cherwell)</td></tr>
+        <tr><td>00635951</td><td>500QC00000axUjpYAE</td><td>—</td><td>3rd-party CSAT survey</td><td>Nan May Thu Aung</td><td><strong>Rate your support experience — INC-973989</strong> (Strawberry support survey)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </details>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">All 37 are Email-origin with <code>ada_conversation_id = NULL</code> (never chats). 18 of 37 sit in the Flexkeeping / HMS queue. Excludes one near-miss — <strong>00646885</strong> ("Is this email legitimate?") — which looks like noise but is a genuine <strong>Security</strong> case (customer forwarding a suspected phishing email); a sender-only filter would wrongly drop it, so a light Claude check is needed before auto-close.</p>
+
+  <!-- REPEAT-CASE PROPERTIES -->
+  <h3 style="font-size:16px;font-weight:700;margin:32px 0 10px;color:var(--navy);">Properties raising multiple cases — May 2026</h3>
+
+  <div class="callout warning">
+    <strong>Read the top of this list with care — the four highest-volume "accounts" are not hotels with lots of problems.</strong> They are integration partners and chain head-offices: <strong>Booking.com</strong> (236, 233 via email — VCC/booking-failure auto-notifications), <strong>Accor Corporate</strong> (93 — almost entirely Mews POS ↔ Opera Cloud / Bizzon interface incidents across the Accor estate: INC tickets, IP/hostname changes, interface installs — a chain POS-integration programme), <strong>Flexkeeping</strong> (60 — HMS vendor noise from the "Other" deep dive), and <strong>Strawberry HQ</strong> (56 — forwarded <code>#INC-…</code> incidents for the Nordic estate, overwhelmingly Flexkeeping/HMS sync + Mews slowness). These are chain/partner escalation channels, not single struggling hotels — keep them out of any per-property outreach view.
+  </div>
+
+  <div class="callout flag">
+    <strong>⚠ Cross-property security signal — surfaced by reading the cases.</strong> Multiple unrelated properties independently reported the <em>same</em> incident in May: guests receiving <strong>fraudulent WhatsApp/phishing messages after booking via Booking.com</strong>, plus account-takeover symptoms (starred-out guest profiles, inability to charge cards). Confirmed at <strong>Hotel Bero (BNX, hacked twice in two months), HOTEL max70 (DACH), Hotel AMANO (DACH), Kinsarvik Fjordhotel (NEU), Imlauer &amp; Bräu (DACH), Arthotel ANA (DACH) and Hostal Paco Marbella (Spain)</strong>. This is almost certainly a single upstream cause (a Booking.com-side data exposure), not seven coincidences — and it is the likely engine behind the <strong>+56% Security category spike</strong> in May.
+  </div>
+
+  <div class="narrative">
+    <p><strong>Territory shapes the problem.</strong> Reading the cases, clear regional patterns emerge: <strong>Spain</strong> properties cluster on payments/refund disputes + Spanish police-report &amp; fiscal-data compliance + Booking.com online-check-in links not delivering; <strong>USA</strong> properties are overwhelmingly Premium-<em>phone</em>, onboarding-stage how-to (rate setup, OTA mapping); <strong>DACH</strong> skews to billing-error correction (credit notes, double-charge refunds) and the security cluster above; <strong>Nordics/NEU</strong> are dominated by <strong>Flexkeeping/HMS</strong> housekeeping onboarding. The single biggest recurring product theme across territories is <strong>breakfast product-rules auto-adding to OTA reservations</strong> (Alma Vienna, Hotel Bero, Hôtel de l'Océan, Beatenberg).</p>
+    <p><strong>The actionable subset is the breadth cases:</strong> properties raising issues across many categories in one month are onboarding/adoption gaps, not coincidence — one focused CSM/onboarding intervention could remove a dozen-plus cases a month. The channel split tells you <em>how</em> to intervene: phone-heavy US properties (Cactus Cove, Fred's Inn — 100% phone how-to) need a structured onboarding curriculum; Ada-heavy properties need targeted enablement content. The table below explains each property in context.</p>
+  </div>
+
+  <div class="callout insight">
+    <strong>Go-live dates confirm the onboarding thesis.</strong> A large share of these high-volume properties <strong>went live in Q1 2026</strong> — within ~1–3 months of their May case surge: 121 Hotel (Apr 8), Hôtel de l'Océan (Mar 31), MAIN &amp; SALT (Mar 30), Hotel Restaurant Freihof (Mar 25), Nomade Temple Madrid (Mar 20), Hotel Orange (Mar 19), Sun &amp; Moon (Mar 13), Palazzo Daniele (Mar 9), Cactus Cove &amp; Grassy Flats (Mar 3), Hostal Paco &amp; Huntingdon (Mar 2). New go-lives generate dense, broad-topic support demand — exactly the pattern in the table. These are the clearest CSM/onboarding-intervention candidates.
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin:14px 0 6px;">Genuine properties with >10 May cases, ordered by volume. "What they're struggling with" is Claude-read from the Ada chat summaries / phone subjects / email descriptions. <strong>Go-live</strong> = PMS go-live date; <strong>Products</strong> = Mews products live (PMS / RMS / POS / Events) per the account record.</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Property</th><th>Terr</th><th>Cases</th><th>Go-live</th><th>Products</th><th>Main channel</th><th>What they're struggling with (from the cases)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Hotel Orange</td><td>USA</td><td>28</td><td>2026-03-19</td><td>PMS, RMS</td><td>Phone</td><td>OTA mapping &amp; rate discrepancies (Booking.com/Expedia) + PMS how-to (cashiers, no-show, restrictions) — newer property on Premium phone.</td></tr>
+      <tr><td>Sun &amp; Moon Apartments</td><td>Spain</td><td>27</td><td>2026-03-13</td><td>PMS</td><td>Ada</td><td>Payments/billing mechanics: double-charge disputes, refunds, invoice automation, correcting mis-posted payments, closing unbalanced bills.</td></tr>
+      <tr><td>Hostal Paco Marbella</td><td>Spain</td><td>25</td><td>2026-03-02</td><td>PMS</td><td>Ada</td><td>Very broad (10 cats): Spanish police-report integration, Booking.com online-check-in link failures, refunds, overbooking, suspected hack.</td></tr>
+      <tr><td>Huntingdon Hotel &amp; Suites</td><td>Canada</td><td>21</td><td>2026-03-02</td><td>PMS</td><td>Phone</td><td>iHotelier/Amadeus overbooking &amp; availability discrepancies, 2FA/login resets, billing, BI reporting.</td></tr>
+      <tr><td>Nomade Temple Madrid</td><td>Spain</td><td>21</td><td>2026-03-20</td><td>PMS, POS</td><td>Ada</td><td>New-property onboarding: pre-opening Expedia no-show fees, Synxis/Duetto rate gaps, Spanish fiscal data on invoices, Assa Abloy key-cutter, Flexkeeping statuses.</td></tr>
+      <tr><td>Alma Boutique Hotel Vienna</td><td>DACH</td><td>20</td><td>2026-02-03</td><td>PMS, RMS</td><td>Ada</td><td>Billing mechanics: moving payments between reservations, combining invoices, city-tax on cancellations, VAT on deposits; breakfast auto-added on OTA rates.</td></tr>
+      <tr><td>121 Hotel</td><td>USA</td><td>19</td><td>2026-04-08</td><td>PMS, RMS</td><td>Ada</td><td>OTA/integration connectivity: Booking.com check-in emails &amp; missing CC details, Atomize removal, Expedia "results unknown", Airbnb integration.</td></tr>
+      <tr><td>Hotel Bero</td><td>BNX</td><td>19</td><td>2021-03-15</td><td>PMS</td><td>Ada</td><td>Lighthouse channel-manager rate-mapping &amp; restriction-sync overbookings, breakfast product-rule double-charging, Peppol e-invoicing — <strong>plus repeated hacking/phishing</strong>.</td></tr>
+      <tr><td>Hôtel de l'Océan</td><td>France</td><td>19</td><td>2026-03-31</td><td>PMS</td><td>Ada</td><td>Billing (name/address on closed invoices, refunds, cross-settlement) + Popina/Pennylane POS-accounting integration sync.</td></tr>
+      <tr><td>Fred's Inn Restaurant &amp; Lodging</td><td>USA</td><td>18</td><td>2025-11-10</td><td>PMS, RMS</td><td>Phone</td><td>Pure end-to-end onboarding via Premium phone: check-in/out, products, no-show, reports (order items, tax, payouts), chargebacks, CHM queue.</td></tr>
+      <tr><td>Residence de l'Arsenal Royal</td><td>France</td><td>18</td><td>2020-03-03</td><td>PMS, RMS</td><td>Phone</td><td>Group/billing: rooming-list billing, Booking.com billing automation, taxe de séjour, rebates, owner changes, product creation.</td></tr>
+      <tr><td>Hotel Matts</td><td>NEU</td><td>17</td><td>2025-11-24</td><td>PMS, RMS</td><td>Email</td><td>Almost entirely <strong>Flexkeeping/HMS housekeeping onboarding</strong>: checklist errors, public-areas, visibility, user assignment, cleaning credits.</td></tr>
+      <tr><td>Mary Ann's Polarrigg</td><td>NEU</td><td>17</td><td>2023-12-19</td><td>PMS</td><td>Ada</td><td>Adoption-stage PMS how-to: ID-scan, visitor-fee setup, occupancy reporting, room statuses, refunds, payment fees, DPA question.</td></tr>
+      <tr><td>Palazzo Daniele</td><td>Italy</td><td>17</td><td>2026-03-09</td><td>PMS, RMS, POS</td><td>Ada/Email</td><td>One large multi-topic POS ticket (slowness, user deletion, comp/void, POS revenue in PMS) + BI dashboard access + Italian fiscalization of partial refunds.</td></tr>
+      <tr><td>Everwild Canmore</td><td>Canada</td><td>17</td><td>2025-08-25</td><td>PMS</td><td>Ada</td><td>Email deliverability (2FA/setup emails bounce), Trybe integration items, deposits posted as charges, masked guest names, reporting.</td></tr>
+      <tr><td>Cactus Cove Inn &amp; Suites</td><td>USA</td><td>17</td><td>2026-03-03</td><td>PMS, RMS, POS</td><td>Phone</td><td>100% Premium-phone rate setup: tax-exempt rates, rate groups, product rules, price adjustments, Omniboost — classic new-property config.</td></tr>
+      <tr><td>MAIN &amp; SALT</td><td>USA</td><td>16</td><td>2026-03-30</td><td>PMS, RMS</td><td>Ada</td><td>Channel Manager: Booking.com min-stay/availability not enforced, Expedia direct integration not connecting, Atomize window, TripAdvisor.</td></tr>
+      <tr><td>The Roosevelt Hotel Yellowstone</td><td>USA</td><td>16</td><td>2025-10-28</td><td>PMS, RMS</td><td>Ada</td><td>Payments/billing: partial refunds, merged-bill refund confusion, "Verifying" status, Expedia VCC coverage; registration-card printing (one per room vs guest).</td></tr>
+      <tr><td>Pan American - Morey Resorts</td><td>USA</td><td>15</td><td>2026-01-29</td><td>PMS</td><td>Ada</td><td><strong>One workflow blocker repeated ~10×</strong>: uncancel → check-in → check-out flow failing; plus rebate/refund on open bill.</td></tr>
+      <tr><td>Hotel Deutschmeister</td><td>DACH</td><td>15</td><td>2024-01-24</td><td>PMS</td><td>Ada</td><td>Almost entirely billing/invoicing: credit notes, double-charge refunds, Expedia VCC handling, closing invoices, invoice-name corrections.</td></tr>
+      <tr><td>Best Western Arcachon Le Port</td><td>France</td><td>14</td><td>2025-03-27</td><td>PMS</td><td>Phone</td><td>Billing/payments (ghost refund, missing Stripe payment), INSEE export, B.com/BW-CRS data, group rooming-list.</td></tr>
+      <tr><td>Beatenberg Resort &amp; Spa</td><td>DACH</td><td>14</td><td>2023-07-10</td><td>PMS, POS</td><td>Ada</td><td>Onboarding config: online check-in (OTA proxy emails, VCC re-entry), group billing automations, ledger reconciliation, SiteMinder travel-agent.</td></tr>
+      <tr><td>Istrabenz Turizem</td><td>REU</td><td>13</td><td>—</td><td>HMS only</td><td>Email</td><td>Entirely <strong>Flexkeeping/HMS</strong> price/label item-maintenance (Slovenian "please change this price, my mistake") — an HMS catalogue workflow, not PMS support.</td></tr>
+      <tr><td>Grassy Flats Resort &amp; Beach Club</td><td>USA</td><td>13</td><td>2026-03-03</td><td>PMS, RMS</td><td>Ada</td><td>Single config theme — <strong>resort-fee setup</strong> (own bill, hidden from BE, separated from OTA, tax breakdown, tax-exempt) + Atomize billing dispute.</td></tr>
+      <tr><td>Imlauer &amp; Bräu Salzburg</td><td>DACH</td><td>12</td><td>2025-05-06</td><td>PMS</td><td>Ada</td><td>Broad integration onboarding: Flexkeeping + Feratel + SiteMinder + Booking.com sync, permissions, Mews University access — <strong>plus phishing incident</strong>.</td></tr>
+      <tr><td>La Particuliere</td><td>France</td><td>12</td><td>2025-08-20</td><td>PMS, POS</td><td>Ada</td><td>Reporting/VAT (VAT export, monthly revenue, deposit-ledger tax), billing automation, Hotelbeds VCC auth failures.</td></tr>
+      <tr><td>The Drift Resort</td><td>USA</td><td>12</td><td>2025-06-23</td><td>PMS</td><td>Phone</td><td>Premium-phone onboarding: restrictions, internal/boat rates, refunds, RemoteLock automation, day-use.</td></tr>
+      <tr><td>Hotel GUESTapart</td><td>NEU</td><td>12</td><td>2025-02-20</td><td>PMS, POS</td><td>Mixed</td><td>Integration instability: Flexkeeping handover &amp; status mismatch, Mews Automation/Atomize disabling itself, Expedia unpaid reservation, late-cancellation billing.</td></tr>
+      <tr><td>Hotel AMANO Grand Central</td><td>DACH</td><td>12</td><td>2025-07-31</td><td>PMS</td><td>Ada</td><td>Enterprise mix: BI upsell analysis, missing-names incident, SEPA/ledger, multicurrency, Flexkeeping user, room-move errors.</td></tr>
+      <tr><td>Bizipoz</td><td>France</td><td>12</td><td>2024-12-10</td><td>PMS, POS</td><td>Ada</td><td>Payment-timing config (flexible/non-refundable charge D-1 vs D-3) + outstanding-balance reporting + invoice rate edits.</td></tr>
+      <tr><td>Hostal Don Carlos</td><td>Spain</td><td>12</td><td>2026-01-09</td><td>PMS</td><td>Ada</td><td>Booking-engine payments: viewing card data to charge, double-charge concerns, invoice/reservation owner wrong.</td></tr>
+      <tr><td>Parco Ibiza</td><td>Spain</td><td>12</td><td>2024-05-21</td><td>PMS, POS</td><td>Phone</td><td>Booking.com age-category/children pricing wrong, billing reissue/cash modification, rate setup; POS "end of collaboration".</td></tr>
+      <tr><td>HOTEL max70</td><td>DACH</td><td>12</td><td>2025-09-15</td><td>PMS</td><td>Ada</td><td>Billing (cash deposits, tips, rebate/refund) + <strong>security</strong> (2FA not received, WhatsApp phishing data-leak).</td></tr>
+      <tr><td>Best Western Hotel Würzburg Süd</td><td>DACH</td><td>12</td><td>2025-11-19</td><td>PMS</td><td>Ada</td><td>Billing-error correction heavy: cash vs bank-transfer fixes, duplicate-payment removal, a rebated €24k invoice, merging unpaid invoices; CHM switch.</td></tr>
+      <tr><td>Hotel AMANO</td><td>DACH</td><td>11</td><td>2025-01-15</td><td>PMS</td><td>Ada</td><td><strong>Security incident</strong> (Booking.com data breach → phishing, starred profiles, can't charge cards) + HMS (ZOE/Flexkeeping) + invoice billing addresses.</td></tr>
+      <tr><td>HANS-Y</td><td>DACH</td><td>11</td><td>2025-07-21</td><td>PMS</td><td>Mixed</td><td>Mostly Premium meeting logs + payout-status + billing automation + revenue reporting (more relationship-admin than issues).</td></tr>
+      <tr><td>Cedar Lakes Estate</td><td>USA</td><td>11</td><td>2023-12-05</td><td>PMS</td><td>Email</td><td>Billing questions (bookable-product CC fees, Square integration, payment email/invoice) + Onity lock + room-guest upload.</td></tr>
+      <tr><td>La Réserve de Beaulieu, Hôtel &amp; Spa</td><td>France</td><td>11</td><td>2025-09-18</td><td>PMS, POS</td><td>Phone</td><td>POS note-transfer issues + Premium-phone how-to (kiosk ID-scan, online check-in, products, D-edge min-stay, payment reports).</td></tr>
+      <tr><td>Kinsarvik Fjordhotel (BW)</td><td>NEU</td><td>11</td><td>2024-06-21</td><td>PMS</td><td>Mixed</td><td><strong>Security</strong> (WhatsApp phishing incident) + payments (Expedia overcharge) + permissions + SSB reporting.</td></tr>
+      <tr><td>Hotel Restaurant Freihof</td><td>DACH</td><td>11</td><td>2026-03-25</td><td>PMS, POS</td><td>Ada</td><td>POS onboarding: cashier setup, POS product categories, POS↔PMS sync, terminal stuck on boot, deposit/billing reconciliation.</td></tr>
+      <tr><td>Quartier Libre</td><td>France</td><td>11</td><td>2022-05-31</td><td>PMS</td><td>Ada</td><td>Refund-management workflow (finding pending refunds from cancellations, repeated) + deposit/cancellation policy config + occupancy report.</td></tr>
+      <tr><td>Arthotel ANA Olympiapark</td><td>DACH</td><td>11</td><td>2025-12-02</td><td>PMS</td><td>Phone</td><td>Reporting (ADR vs Duetto, availability, cash) + billing corrections (Debitoren, rebated bill) + PMS how-to — <strong>plus phishing incident</strong>.</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">~47 accounts had >10 May cases. Individual properties only: excluded are 4 integration/chain entities (Booking.com, Accor, Flexkeeping, Strawberry) and 4 multi-property / brand / management-company accounts (Villa Rosa Inn — Groups 3–20, Mariposa Hospitality Group, b_smart services AG — Local Chain, Zenitude Groupe — Brand). "Main channel" is where most of the property's cases originated.</p>
+
+</section>
+
+<!-- ===================== ENFORCEMENT & AUTOMATION ===================== -->
+<section id="enforcement">
+  <h2>Classification — Enforcement &amp; Automation</h2>
+  <p class="subtitle">How to stop "Other" being created, and how Claude closes the gap</p>
+
+  <div class="narrative">
+    <p>The three-way split tells us a single rule won't work. <strong>Reclassifiable</strong> cases need the right category captured (or suggested) at the point of work; <strong>process stubs</strong> need a topic captured at all; <strong>not-a-support-case</strong> noise needs to be kept out of the queue. The recommendations below are grouped that way, and they pair a prevention step (stop "Other" at source) with a detection step (Claude catches what slips through).</p>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:20px 0 10px;">1. Prevent — enforce classification at source</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>Channel</th><th>Problem</th><th>Enforcement change</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Ada → agent (chat)</td><td>Topic is known in <code>inquiry_summary</code> but category is dropped at handoff</td><td>Pre-fill the case category from Ada's detected intent; make <code>reason</code> + <code>category</code> required before an agent can resolve a handed-off chat</td></tr>
+      <tr><td>Phone</td><td>Callbacks/voicemails logged with no topic; Premium service calls logged as product cases</td><td>Mandatory one-click "call topic" disposition on close; move Premium welcome/cancellation/optimisation touches to a distinct <strong>record type</strong> (not a support case)</td></tr>
+      <tr><td>Email / HMS</td><td>Vendor auto-notifications, OOO, spam, surveys flood the queue (esp. Flexkeeping/HMS)</td><td>Sender allow/deny list; auto-close known no-reply/vendor senders; route integration status emails out of the support queue entirely</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout flag" style="margin-top:12px;">
+    <strong>Action — extend spam filtering to the HMS / Flexkeeping queue.</strong> Standard Support mailboxes already filter most no-reply and marketing senders; the <strong>HMS / Flexkeeping queue does not</strong>, which is why integration partners' dev-build alerts (Firebase/Flex Staging), maintenance and incident notices (protel, Cloudbeds, weareplanet, eRevMax), 3rd-party ticket acknowledgements (HyperGuest), and marketing blasts (roommaster, Outsite) all land as support cases. 18 of the 37 noise cases above sit in this one queue. <strong>Apply the same sender deny-list + auto-close rules to HMS</strong>, plus a light Claude check before auto-closing to rescue the rare genuine case (e.g. a forwarded phishing email that should become a Security case). This is the single cheapest reduction in fake case volume available.
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 10px;">2. Standardise — a classification playbook for agents</h3>
+  <div class="narrative">
+    <p>Agents currently have no shared decision rule for picking a category, which is why "Other" becomes the path of least resistance. A short <strong>classification guide</strong> — a one-page decision tree mapping common intents to the canonical <code>category_global_c</code> / <code>sub_category_global_c</code> values, with worked examples drawn from the reclassified cases above — should be deployed alongside the enforcement change. The Ada reclassification table is effectively a ready-made training set: the ten buckets and their example summaries are the categories agents most often miss.</p>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 10px;">3. Detect — Claude-assisted suggestion + weekly manager review</h3>
+  <div class="narrative">
+    <p>Enforcement stops new "Other" at creation; it does not help the cases that still slip through or that close before a category is set. A scheduled Claude job closes that gap and puts a human in the loop:</p>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Pull</td><td>Weekly job selects the week's cases tagged "Other" (any field), with raw source: Ada <code>inquiry_summary</code>, Phone subject, Email description.</td></tr>
+      <tr><td>2 · Suggest</td><td>Claude classifies each into a canonical category + sub-category, with a <strong>confidence score</strong> and a one-line rationale quoting the source.</td></tr>
+      <tr><td>3 · Route</td><td>Output a <strong>per-manager review queue</strong> grouped by case owner: case #, owner, current vs Claude-suggested category, confidence, link. High-confidence flagged for quick bulk approve; "not a support case" flagged for close/spam.</td></tr>
+      <tr><td>4 · Apply</td><td>Manager approves/edits in the review sheet; approved suggestions exported for bulk update. Nothing is written to Salesforce without sign-off.</td></tr>
+      <tr><td>5 · Track</td><td>Report acceptance rate and the trend in "% Other at creation" and "% Other at close" — the metrics that tell us whether prevention is working.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout insight" style="margin-top:14px;">
+    <strong>This is the weekly manager-facing artefact:</strong> a short table per manager — their team's "Other" cases this week, the suggested correct category, and a one-click way to accept. It doubles as ongoing coaching (managers see <em>which</em> categories their agents miss) and as the data source for the metrics above. Cadence: weekly, drafted to Lucie for review before it goes to managers.
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 10px;">Success metrics</h3>
+  <table class="data-table">
+    <thead><tr><th>Metric</th><th>May baseline</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>% of cases with any "Other" tag at creation</td><td>24% (1,877 / 7,867)</td><td>&lt; 10%</td></tr>
+      <tr><td>Double/triple "Other" cases per month</td><td>455</td><td>&lt; 100</td></tr>
+      <tr><td>Non-support noise reaching the support queue</td><td>~18% of double/triple Others</td><td>~0 (filtered upstream)</td></tr>
+      <tr><td>Weekly reclassification acceptance rate</td><td>—</td><td>&gt; 80% (validates Claude suggestions)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== CLAUDE BACKFILL ===================== -->
+<section id="backfill">
+  <h2>Historical Backfill with Claude</h2>
+  <p class="subtitle">Retro-correcting prior months' "Other" cases — including the double/triple stack</p>
+
+  <div class="narrative">
+    <p>The same pipeline used for this deep dive — SQL pull of raw source → Claude classification with confidence → human-reviewed write-back — runs equally well over history. The May exercise <em>is</em> the proof of concept: 455 cases reclassified from text Mews already stores. Scaling it backwards recovers category signal that is currently lost across the whole year.</p>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:20px 0 10px;">Phasing — highest confidence first</h3>
+  <table class="data-table">
+    <thead><tr><th>Phase</th><th>Scope</th><th>Why first / notes</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 1</td><td>Double/triple "Other" cases, May 2026 (455)</td><td>Done — this report. Becomes the labelled set to tune the prompt &amp; confidence thresholds.</td></tr>
+      <tr><td>Phase 2</td><td>Double/triple "Other", Jan–Apr 2026</td><td>Clearest classifier failures; ~1,800–2,000 cases. Highest accept rate expected.</td></tr>
+      <tr><td>Phase 3</td><td>Single-field "Other", 2026 YTD</td><td>~1,400/month. Larger, noisier; lean harder on confidence routing.</td></tr>
+      <tr><td>Phase 4</td><td>Ongoing weekly job</td><td>Hands off to the detection automation above — backfill becomes business-as-usual.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 10px;">Guardrails (non-negotiable)</h3>
+  <div class="narrative">
+    <ul style="margin:0 0 0 18px;color:#2d3748;">
+      <li style="margin-bottom:8px;"><strong>Write to a staging field, never overwrite source silently.</strong> Claude populates a <code>suggested_category_c</code> (or a separate table), not the live field, until a human approves — same principle as the protected canonical queries.</li>
+      <li style="margin-bottom:8px;"><strong>Confidence routing.</strong> High-confidence → bulk-approve queue; medium → manager review; low → leave as "Other" (don't guess).</li>
+      <li style="margin-bottom:8px;"><strong>Honour the taxonomy break.</strong> <code>category_global_c</code> was reclassified ~March 2026 — backfill must classify into the taxonomy valid for each case's period, and any cross-period category trend must keep flagging the break.</li>
+      <li style="margin-bottom:8px;"><strong>"Not a support case" is a valid output.</strong> Vendor noise / OOO / spam get tagged for close or spam, not force-fit into a product category.</li>
+      <li><strong>Human sign-off before any bulk Salesforce write.</strong> No automated mutation of case records without an owner/manager approving the batch.</li>
+    </ul>
+  </div>
+
+  <div class="callout warning" style="margin-top:8px;">
+    <strong>Expected payoff &amp; caveat.</strong> If ~69% of "Other" is recoverable, backfill would re-home well over a thousand cases per month into real categories — sharpening every category-level metric and trimming the "Other" backlog. Caveat: the corrected history will make category trends look <em>discontinuous</em> at the point backfill is applied, so any restated series must be labelled "Claude-reclassified" and dated.
+  </div>
+</section>
+
+<!-- ===================== BACKLOG DEEP DIVE ===================== -->
+<section id="backlog-deep-dive">
+  <h2>Backlog Deep Dive</h2>
+  <p class="subtitle">EOM May 31, 2026 · 5-status definition</p>
+
+  <div class="callout insight">
+    <strong>Definition:</strong> 5-status bucket — New, In Progress, Response Received, Waiting internal, Waiting 3rd party. <code>spam_c = false</code>. Finance and RND included. <code>count_towards_backlog</code> NOT used.
+  </div>
+
+  <div class="narrative">
+    <p><strong>New is the largest status bucket at 923 cases (39% of backlog)</strong>, but most are relatively fresh: 233 (25%) under 7 days, 513 (56%) in the 7–30 day range. 177 (19%) are aged 30+ — none over 90 days. New backlog is a throughput-timing issue, not a stuck-case problem.</p>
+    <p><strong>Waiting internal (778 cases, 33% of backlog) is the real problem — and it has by far the worst age profile.</strong> 355 (46%) are aged 30–90 days and a further <strong>64 are over 90 days</strong>; 54% are 30+ days old. These are cases the support team cannot close on its own — and the segment split below shows ~60% are waiting on R&amp;D. This is an engineering-dependency queue, not slow triage.</p>
+    <p><strong>The 90+ day tail across all statuses is 135 cases</strong>, split across Waiting internal (64), In Progress (58), Waiting 3rd party (8) and Response Received (5). A dedicated 90+ triage — close, escalate, or formally re-own — is overdue, and most of it routes to R&amp;D.</p>
+    <p><strong>DACH carries the largest territorial backlog</strong> at 499 cases (174, 35%, aged 30+), with BNX next at 333. Together they are 35% of the backlog. LAC (63% aged 30+), APAC (56%) and Italy (47%) have the worst age profiles relative to size — consistent with the long-tail territory growth in April–May outpacing throughput.</p>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Backlog by Status — canonical snapshot</h3>
+      <p class="chart-note">Snapshot: May 31, 2026. 5-status definition.</p>
+      <canvas id="chartBacklogStatus"></canvas>
+      <p class="chart-insight">Waiting internal (33% of backlog) has the worst age profile: 54% aged 30+, 64 cases over 90 days. The bulk is blocked on R&amp;D — see sub-status breakdown below.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Backlog Age Distribution</h3>
+      <p class="chart-note">Snapshot: May 31, 2026. Overall age profile. 37% of all backlog cases are older than 30 days.</p>
+      <canvas id="chartBacklogAge"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Status × Age — how stale is each status?</h3>
+      <p class="chart-note">Snapshot: May 31, 2026. Waiting internal has the worst age profile: 54% of cases are 30+ days old.</p>
+      <canvas id="chartStatusAge"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Backlog by Territory — total and aged 30+ days</h3>
+      <p class="chart-note">Snapshot: May 31, 2026. DACH largest absolute; LAC (63%), APAC (56%) &amp; Italy (47%) worst by aged proportion.</p>
+      <canvas id="chartBacklogTerritory"></canvas>
+    </div>
+  </div>
+
+  <div class="callout flag" style="margin-top:4px;">
+    <strong>90+ day cases (135 total):</strong> 64 Waiting internal, 58 In Progress, 8 Waiting 3rd party, 5 Response Received. A triage session to close, escalate, or formally assign ownership is overdue — and the bulk of it (Waiting internal) routes to R&amp;D, not Support.
+  </div>
+  <div class="callout warning" style="margin-top:8px;">
+    <strong>177 New cases aged 30–90 days:</strong> Cases in New status have not received a first response. A case that has been New for 30+ days has almost certainly breached every FRT SLA. This is distinct from the "&gt;48h New" metric — these are cases that were never picked up.
+  </div>
+
+  <details style="margin-top:12px;" id="new-cases-30plus">
+    <summary style="cursor:pointer;font-weight:700;font-size:13px;padding:10px 16px;background:#fff8e1;border:1px solid #f4a61a55;border-radius:8px;list-style:none;display:flex;align-items:center;gap:8px;user-select:none;">
+      <span id="nc-arrow" style="font-size:11px;">&#9654;</span>
+      Show all 177 unanswered New cases (30+ days) &mdash; click to expand
+    </summary>
+    <div style="margin-top:8px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <input type="text" id="ncSearch" placeholder="Filter by property, case ID or territory&hellip;"
+          style="flex:1;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;"
+          oninput="filterNC(this.value)" />
+        <span id="ncCount" style="font-size:11px;color:var(--muted);white-space:nowrap;">177 of 177</span>
+      </div>
+      <div style="max-height:520px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+        <table class="data-table" style="margin:0;border-radius:0;">
+          <thead style="position:sticky;top:0;background:var(--navy);">
+            <tr>
+              <th style="color:#fff;width:32px;">#</th>
+              <th style="color:#fff;">Case ID</th>
+              <th style="color:#fff;">Property</th>
+              <th style="color:#fff;">Territory</th>
+              <th style="color:#fff;">Created</th>
+              <th style="color:#fff;">Age</th>
+            </tr>
+          </thead>
+          <tbody id="ncTbody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">Source: <code>oneoff_backlog_may31_cases</code> — status_at_may31 = 'New', age_days &ge; 30. Age from case creation to 31 May 2026. Case IDs link to Salesforce.</p>
+    </div>
+  </details>
+
+  <p style="font-size:11px;color:var(--muted);margin-top:20px;">Source: EOM May 31, 2026 point-in-time snapshot (<code>oneoff_backlog_may31_cases</code>). Total 2,349.</p>
+  <table class="data-table" style="margin-top:6px;">
+    <thead>
+      <tr><th>Status</th><th>0–7d</th><th>7–30d</th><th>30–90d</th><th>&gt;90d</th><th>Total</th><th>% Aged 30d+</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>New</td><td>233</td><td>513</td><td>177</td><td>0</td><td>923</td><td><span class="badge amber">19%</span></td></tr>
+      <tr><td>Waiting internal</td><td>126</td><td>233</td><td>355</td><td>64</td><td>778</td><td><span class="badge red">54%</span></td></tr>
+      <tr><td>Response Received</td><td>84</td><td>101</td><td>90</td><td>5</td><td>280</td><td><span class="badge amber">34%</span></td></tr>
+      <tr><td>In Progress</td><td>61</td><td>49</td><td>54</td><td>58</td><td>222</td><td><span class="badge red">51%</span></td></tr>
+      <tr><td>Waiting 3rd party</td><td>36</td><td>51</td><td>51</td><td>8</td><td>146</td><td><span class="badge amber">41%</span></td></tr>
+      <tr style="font-weight:600;background:#fffde7;"><td>Total</td><td>540</td><td>947</td><td>727</td><td>135</td><td>2,349</td><td><span class="badge amber">37%</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 12px;">Waiting internal — what is it waiting on? (segment split)</h3>
+  <div class="callout flag">
+    <strong>~60% of internally-waiting backlog is blocked on R&amp;D, not on Support.</strong> Splitting open "Waiting internal" cases by <code>case_sub_status</code> shows <strong>RND dominates at 492 of 825 (60%)</strong> — these are cases the support team cannot close on their own; they're waiting on product/engineering. Finance accounts for 69 (8%). This reframes a large slice of the backlog: it isn't slow triage, it's an engineering-dependency queue, and it needs an RND-facing escalation/SLA rather than more support capacity.
+  </div>
+  <table class="data-table" style="margin-top:6px;">
+    <thead>
+      <tr><th>Waiting-internal segment (<code>case_sub_status</code>)</th><th>Open cases</th><th>Share</th><th>Who clears it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>RND</strong></td><td>492</td><td><span class="badge red">60%</span></td><td>Product / Engineering — needs RND escalation path &amp; SLA</td></tr>
+      <tr><td>Other</td><td>132</td><td>16%</td><td>Unspecified internal — should be sub-typed</td></tr>
+      <tr><td>Support</td><td>91</td><td>11%</td><td>Internal support (2nd-line / specialist)</td></tr>
+      <tr><td>Finance</td><td>69</td><td>8%</td><td>Finance Ops</td></tr>
+      <tr><td>(not set)</td><td>41</td><td>5%</td><td>Missing sub-status — data gap</td></tr>
+      <tr style="font-weight:600;background:#fffde7;"><td>Total Waiting internal</td><td>825</td><td>100%</td><td></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">Source: live pull 2026-06-03 (<code>case_status &lt;&gt; 'Closed' AND spam_c = false</code>, RND/Finance included, <code>count_towards_backlog</code> not used). Note: <code>case_sub_status</code> is not tracked in case history, so sub-status values reflect the state as of the June 3 pull, not May 31. Waiting internal totals 778 in the May 31 point-in-time snapshot above; the 825 here reflects cases that moved into WI after May 31. The <strong>proportions</strong> are the takeaway: ~60% RND, and 21% ("Other" + unset = 173 cases) that should be sub-typed before they can be routed.</p>
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 12px;">Backlog by Territory — EOM May 31, 2026</h3>
+  <p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Source: EOM May 31, 2026 point-in-time snapshot. Total 2,349.</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Territory</th><th>Backlog total</th><th>Aged 30d+</th><th>Aged 90d+</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>DACH</td><td>499</td><td>174 (35%)</td><td>31</td></tr>
+      <tr><td>BNX</td><td>333</td><td>131 (39%)</td><td>18</td></tr>
+      <tr><td>France</td><td>252</td><td>65 (26%)</td><td>10</td></tr>
+      <tr><td>NEU</td><td>219</td><td>77 (35%)</td><td>16</td></tr>
+      <tr><td>REU</td><td>175</td><td>81 (46%)</td><td>10</td></tr>
+      <tr><td>USA</td><td>175</td><td>47 (27%)</td><td>4</td></tr>
+      <tr><td>UKIE</td><td>166</td><td>59 (36%)</td><td>12</td></tr>
+      <tr><td>Spain</td><td>140</td><td>54 (39%)</td><td>8</td></tr>
+      <tr><td>APAC</td><td>117</td><td>66 (56%)</td><td>5</td></tr>
+      <tr><td>Canada</td><td>94</td><td>22 (23%)</td><td>7</td></tr>
+      <tr><td>Italy</td><td>91</td><td>43 (47%)</td><td>8</td></tr>
+      <tr><td>LAC</td><td>41</td><td>26 (63%)</td><td>4</td></tr>
+      <tr><td>MEA</td><td>37</td><td>14 (38%)</td><td>2</td></tr>
+      <tr style="font-weight:600;background:#fffde7;"><td>Total (incl. unassigned)</td><td>2,349</td><td>862 (37%)</td><td>135</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== SUMMARY ===================== -->
+<section id="summary">
+  <h2>Summary &amp; Interpretation</h2>
+  <p class="subtitle">What the five-month picture tells us</p>
+
+  <div class="narrative">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">Two systems running in parallel</h3>
+    <p>The most useful frame for understanding this data is that two things are happening simultaneously. <strong>Service quality is improving</strong>: missed chats down from 35% (March) to 8% (May), live-chat CSAT at its year high, FRT SLA at its year high, median FRT at its year low. <strong>Capacity is not</strong>: the canonical backlog has grown every single month, active cases stuck in New beyond 48 hours are trending back toward January levels, and resolution times have only just started to reverse after four months of consistent worsening.</p>
+    <p>These are not contradictory. They describe a team that is improving how it handles the cases in front of it — faster first responses, fewer missed chats, higher satisfaction — while still facing a structural supply-demand imbalance where more cases enter the system each month than leave it.</p>
+  </div>
+
+  <div class="narrative" style="margin-top:16px;">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">The January legacy</h3>
+    <p>January created a deficit of 1,567 cases (created − closed) that the backlog has never recovered from. The backlog has grown every month since. Monthly deficits: Jan −1,567 / Feb −3 / Mar −43 / Apr −700 / May −167. Cumulative YTD net accumulation: approximately 2,480 cases. At May's throughput rate of 248 cases/day, eliminating this excess would require roughly 10 additional working days of throughput above and beyond matching demand — effectively a month of operating at a significant surplus. That has not yet happened.</p>
+  </div>
+
+  <div class="narrative" style="margin-top:16px;">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">March as the inflection point</h3>
+    <p>March was bad across almost every dimension: missed chats spiked to 35%, CSAT hit its year low at 76.1% (combined), FRT avg hit its year high at 109.6h, resolution SLA its year low at 52.0%, and backlog continued growing. The routing issue (RV-5376) is the most likely single cause of the chat deterioration. The CSAT consequence is understandable: customers trying to reach agents in March had a 1-in-3 chance of being turned away. What is notable about April and May is how quickly the quality metrics recovered once the routing issue was addressed — the underlying service delivery capability appears solid.</p>
+  </div>
+
+  <div class="narrative" style="margin-top:16px;">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--navy);">The FRT May "anomaly" — resolved: it's an immature cohort</h3>
+    <p>The 22h average FRT in May is a <strong>cohort-completeness artifact, not an improvement</strong>. Cases are bucketed by creation date and only enter the FRT calculation once they've been responded to, so May — with 2,941 cases (37%) still open vs ~1–3% for Jan–Mar — is missing exactly the slow-responding tail that inflates older months' averages. The tail is also physically capped (no May case can have waited more than ~33 days as of 2026-06-03), so max FRT collapses with recency (2,976h → 776h). The median (1.56h) is credible and roughly flat all year. <strong>Do not present the avg-FRT drop or treat the +7.7pp SLA as confirmed</strong> — both will soften as the cohort matures. Quote the median; mark May's average provisional. (Optional: re-pull in ~2 weeks to quantify how far the average climbs.)
+  </p>
+  </div>
+
+
+  <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:28px 0 14px;">Metrics to watch in June</h3>
+  <table class="data-table">
+    <thead><tr><th>Metric</th><th>May</th><th>Direction</th><th>What to watch</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Backlog</td><td>2,380</td>
+        <td><span class="badge amber">Barely declining</span></td>
+        <td>First month of sustained drawdown would be a genuine milestone. Requires closed > created. Down −45 from April peak.</td>
+      </tr>
+      <tr>
+        <td>Waiting for Customer (separate)</td><td>597</td>
+        <td><span class="badge amber">Watch separately</span></td>
+        <td>Not part of canonical backlog. Jumped 64% in May — worth investigating whether this reflects genuine customer-pending cases or deferred closures.</td>
+      </tr>
+      <tr>
+        <td>Missed Chat</td><td>8.0%</td>
+        <td><span class="badge green">Improving</span></td>
+        <td>Watch for recurrence of March-type spike. Second month below 9% confirms the fix is stable.</td>
+      </tr>
+      <tr>
+        <td>FRT SLA</td><td>74.2%</td>
+        <td><span class="badge blue">Needs validation</span></td>
+        <td>Validate eligible case composition before treating as a 7.7pp improvement. If real, strong signal.</td>
+      </tr>
+      <tr>
+        <td>Live-chat CSAT</td><td>87.1%</td>
+        <td><span class="badge green">Improving</span></td>
+        <td>Third consecutive month of improvement. Holding above 86% in June would confirm the trend.</td>
+      </tr>
+      <tr>
+        <td>Resolution Time</td><td>8.7d</td>
+        <td><span class="badge amber">First reversal</span></td>
+        <td>First month of improvement after 4 months deteriorating. Confirm it continues rather than bouncing.</td>
+      </tr>
+      <tr>
+        <td>New &gt;48h</td><td>1,436</td>
+        <td><span class="badge red">Worsening</span></td>
+        <td>Back near January levels. Triage speed is a leading indicator of both FRT and resolution SLA.</td>
+      </tr>
+      <tr>
+        <td>Human Support CSAT</td><td>TBC</td>
+        <td><span class="badge blue">Pending case CSAT</span></td>
+        <td>May combined figure needed. Live-chat at 87.1% suggests combined will show improvement.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  Support Analytics · Mews · Data period: Jan–May 2026 · All-products property denominator
+</footer>
+
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May'];
+const TEAL = '#00b5b8';
+const NAVY = '#0f2137';
+const AMBER = '#f4a61a';
+const RED = '#e84545';
+const GREEN = '#27ae60';
+const MUTED = '#94a3b8';
+
+const defaults = {
+  responsive: true, maintainAspectRatio: true,
+  plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 12 } } },
+  scales: {
+    x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+    y: { ticks: { font: { size: 11 } }, grid: { color: '#f0f0f0' } }
+  }
+};
+
+// 1. Cases Created vs Closed
+new Chart(document.getElementById('chartVolume'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Created', data: [7718,6914,7501,7891,7867], backgroundColor: NAVY + 'cc', borderRadius: 4 },
+      { label: 'Closed', data: [6151,6917,7458,7191,7700], backgroundColor: TEAL + 'cc', borderRadius: 4 }
+    ]
+  },
+  options: { ...defaults, plugins: { ...defaults.plugins, annotation: {} } }
+});
+
+// 2. Avg Closed per Day
+new Chart(document.getElementById('chartThroughput'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Avg Closed/Day', data: [198.4,247.0,240.6,239.7,248.4],
+        backgroundColor: [AMBER+'bb',GREEN+'bb',GREEN+'bb',GREEN+'bb',GREEN+'bb'], borderRadius: 4 }
+    ]
+  },
+  options: {
+    ...defaults,
+    plugins: { ...defaults.plugins },
+    scales: {
+      ...defaults.scales,
+      y: { ...defaults.scales.y, min: 150, max: 280,
+        ticks: { callback: v => v.toFixed(0), font: { size: 11 } } }
+    }
+  }
+});
+
+// 3. Balance chart
+new Chart(document.getElementById('chartBalance'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [{
+      label: 'Created − Closed',
+      data: [1567, -3, 43, 700, 167],
+      backgroundColor: d => d.raw > 0 ? RED+'cc' : GREEN+'cc',
+      borderRadius: 4
+    }]
+  },
+  options: {
+    ...defaults,
+    plugins: { ...defaults.plugins, tooltip: { callbacks: { label: c => `Net: ${c.raw > 0 ? '+' : ''}${c.raw}` } } },
+    scales: { ...defaults.scales, y: { ...defaults.scales.y, ticks: { callback: v => (v>0?'+':'')+v } } }
+  }
+});
+
+// 4. Tier mix
+new Chart(document.getElementById('chartTier'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Premium', data: [1852,1657,1696,1697,1586], backgroundColor: TEAL+'cc', borderRadius: 4 },
+      { label: 'Standard', data: [5866,5257,5805,6194,6281], backgroundColor: NAVY+'cc', borderRadius: 4 }
+    ]
+  },
+  options: { ...defaults, scales: { x: { ...defaults.scales.x, stacked: true }, y: { ...defaults.scales.y, stacked: true } } }
+});
+
+// 5. Backlog — simple bar (total) with May annotated by status in legend note
+new Chart(document.getElementById('chartBacklog'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'New',               data: [0,0,0,0,878],  backgroundColor: RED+'cc',        stack: 'may', borderRadius: 4 },
+      { label: 'Waiting internal',  data: [0,0,0,0,830],  backgroundColor: '#7c3aed'+'cc',  stack: 'may', borderRadius: 4 },
+      { label: 'Response Received', data: [0,0,0,0,261],  backgroundColor: AMBER+'cc',       stack: 'may', borderRadius: 4 },
+      { label: 'In Progress',       data: [0,0,0,0,204],  backgroundColor: '#0ea5e9'+'cc',  stack: 'may', borderRadius: 4 },
+      { label: 'Waiting 3rd party', data: [0,0,0,0,146],  backgroundColor: MUTED+'cc',       stack: 'may', borderRadius: 4 },
+      { label: 'Total',             data: [1652,1769,1825,2425,0], backgroundColor: RED+'99', stack: 'hist', borderRadius: 4 }
+    ]
+  },
+  options: { ...defaults, scales: { x: { ...defaults.scales.x, stacked: true }, y: { ...defaults.scales.y, stacked: true } } }
+});
+
+// 6. Backlog active vs new>48h
+new Chart(document.getElementById('chartBacklogNew'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Backlog EOM', data: [1652,1769,1825,2425,2380],
+        borderColor: RED, backgroundColor: RED+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Cases Stuck New >48h', data: [1472,1042,1107,1336,1436],
+        borderColor: AMBER, backgroundColor: 'transparent', tension: 0.3, borderDash: [5,3], pointRadius: 5, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    ...defaults,
+    scales: {
+      x: { ...defaults.scales.x },
+      y: { ...defaults.scales.y, position: 'left', title: { display: true, text: 'Backlog', font: { size: 10 } } },
+      y2: { position: 'right', grid: { display: false }, ticks: { font: { size: 11 } }, title: { display: true, text: 'New >48h', font: { size: 10 } } }
+    }
+  }
+});
+
+// 7. FRT SLA
+new Chart(document.getElementById('chartFrtSla'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'FRT SLA %', data: [68.79,69.18,67.93,66.52,74.19],
+        borderColor: TEAL, backgroundColor: TEAL+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Goal (85%)', data: [85,85,85,85,85],
+        borderColor: GREEN, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 60, max: 90, ticks: { callback: v => v+'%', font: { size: 11 } } } } }
+});
+
+// 8. FRT Avg
+new Chart(document.getElementById('chartFrtAvg'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Median FRT (hours)', data: [2.92,2.13,2.45,2.92,1.56],
+        backgroundColor: [TEAL+'bb',TEAL+'bb',TEAL+'bb',TEAL+'bb',TEAL+'66'], borderRadius: 4 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0, max: 4, ticks: { callback: v => v+'h', font: { size: 11 } } } } }
+});
+
+// 9. Resolution SLA
+new Chart(document.getElementById('chartResSla'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Resolved within SLA %', data: [56.3,53.2,52.0,55.8,51.5],
+        borderColor: RED, backgroundColor: RED+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Goal (100%)', data: [100,100,100,100,100],
+        borderColor: GREEN, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 40, max: 105, ticks: { callback: v => v+'%', font: { size: 11 } } } } }
+});
+
+// Missed chat — Support vs Onboarding
+new Chart(document.getElementById('chartMissedOnb'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Onboarding', data: [39.2,54.0,60.0,55.4,37.6],
+        borderColor: RED, backgroundColor: RED+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Support', data: [17.1,22.0,35.0,9.1,8.0],
+        borderColor: TEAL, backgroundColor: TEAL+'15', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Goal ref (5%)', data: [5,5,5,5,5],
+        borderColor: GREEN, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0, max: 65, ticks: { callback: v => v+'%', font: { size: 11 } } } } }
+});
+
+// 10. Resolution time
+new Chart(document.getElementById('chartResTime'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Avg Resolution Days', data: [6.7,7.5,8.2,8.9,8.7],
+        borderColor: AMBER, backgroundColor: AMBER+'22', fill: true, tension: 0.3, pointRadius: 5 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 5, max: 11, ticks: { callback: v => v+'d', font: { size: 11 } } } } }
+});
+
+// 11. Missed chat rate
+new Chart(document.getElementById('chartMissed'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Missed Chat %', data: [17.09,22.00,34.95,9.09,8.04],
+        borderColor: RED, backgroundColor: RED+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Goal (5%)', data: [5,5,5,5,5],
+        borderColor: GREEN, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0, max: 40, ticks: { callback: v => v+'%', font: { size: 11 } } } } }
+});
+
+// 12. Missed chat volume
+new Chart(document.getElementById('chartMissedVol'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Handled', data: [456,2411,2332,3392,3443], backgroundColor: GREEN+'cc', borderRadius: 4 },
+      { label: 'Missed', data: [94,680,1253,339,301], backgroundColor: RED+'cc', borderRadius: 4 }
+    ]
+  },
+  options: { ...defaults, scales: { x: { ...defaults.scales.x, stacked: true }, y: { ...defaults.scales.y, stacked: true } } }
+});
+
+// 13. Live-chat CSAT
+new Chart(document.getElementById('chartCsatChat'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Live-Chat CSAT', data: [86.6,81.4,77.8,85.4,87.1],
+        borderColor: TEAL, backgroundColor: TEAL+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Goal (90%)', data: [90,90,90,90,90],
+        borderColor: GREEN, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 70, max: 95, ticks: { callback: v => v+'%', font: { size: 11 } } } } }
+});
+
+// 14. Human Support CSAT
+new Chart(document.getElementById('chartCsatHuman'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Human Support CSAT', data: [84.3,77.8,76.1,84.1,null],
+        borderColor: NAVY, backgroundColor: NAVY+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Goal (90%)', data: [90,90,90,90,90],
+        borderColor: GREEN, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 70, max: 95, ticks: { callback: v => v+'%', font: { size: 11 } } } } }
+});
+
+// 15. Cases per property (corrected)
+new Chart(document.getElementById('chartCpp'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Cases/Property (monthly)', data: [0.72, 0.63, 0.67, 0.69, 0.67],
+        borderColor: TEAL, backgroundColor: TEAL+'22', fill: true, tension: 0.3, pointRadius: 5 },
+      { label: 'Q2 Target (0.6)', data: [null, null, null, 0.6, 0.6],
+        borderColor: RED, borderDash: [5,3], pointRadius: 0 },
+      { label: 'Q1 Target (0.7)', data: [0.7, 0.7, 0.7, null, null],
+        borderColor: AMBER, borderDash: [5,3], pointRadius: 0 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0.4, max: 0.85, ticks: { font: { size: 11 } } } } }
+});
+
+// 16. CPP monthly vs QTD
+new Chart(document.getElementById('chartCppQtd'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label: 'Monthly CPP', data: [0.72, 0.63, 0.67, 0.69, 0.67],
+        backgroundColor: [TEAL+'bb',TEAL+'bb',TEAL+'bb',RED+'bb',RED+'bb'], borderRadius: 4 },
+      { label: 'QTD CPP', data: [null, null, 0.68, null, 0.68],
+        type: 'line', borderColor: NAVY, pointRadius: 6, pointStyle: 'rectRot', borderDash: [5,3] },
+      { label: 'Q1 Target (0.7)', data: [0.7,0.7,0.7,null,null],
+        type: 'line', borderColor: AMBER, pointRadius: 0, borderDash: [4,2] },
+      { label: 'Q2 Target (0.6)', data: [null,null,null,0.6,0.6],
+        type: 'line', borderColor: RED, pointRadius: 0, borderDash: [4,2] }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min: 0.4, max: 0.85, ticks: { font: { size: 11 } } } } }
+});
+
+// ---- TERRITORY CHARTS ----
+const TERRITORIES = ['DACH','France','BNX','USA','NEU','UKIE','Spain','REU'];
+const TERRITORY_COLORS = ['#0f2137','#00b5b8','#f4a61a','#e84545','#27ae60','#764abc','#e67e22','#e84545'];
+
+// Territory volume chart (line, top 8)
+new Chart(document.getElementById('chartTerritoryVol'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'DACH', data:[1829,1633,1597,1561,1500], backgroundColor:'#0f213799', borderRadius:3 },
+      { label:'France', data:[1146,1058,1226,1162,1112], backgroundColor:'#00b5b899', borderRadius:3 },
+      { label:'BNX', data:[1246,1053,1264,1033,997], backgroundColor:'#f4a61a99', borderRadius:3 },
+      { label:'USA', data:[866,762,856,977,990], backgroundColor:'#e8454599', borderRadius:3 },
+      { label:'NEU', data:[695,530,553,663,719], backgroundColor:'#27ae6099', borderRadius:3 },
+      { label:'UKIE', data:[532,508,508,569,516], backgroundColor:'#764abc99', borderRadius:3 },
+      { label:'Spain', data:[354,369,500,448,481], backgroundColor:'#e67e2299', borderRadius:3 },
+      { label:'REU', data:[189,212,196,412,471], backgroundColor:'#16a08599', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { x: { ...defaults.scales.x, stacked: true }, y: { ...defaults.scales.y, stacked: true } } }
+});
+
+// Fast-growing territories indexed
+new Chart(document.getElementById('chartTerritoryGrowth'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'REU (+149%)', data:[100,112,104,218,249], borderColor:'#e84545', backgroundColor:'#e8454522', fill:true, tension:0.3, pointRadius:5 },
+      { label:'Italy (+128%)', data:[100,113,151,228,228], borderColor:'#f4a61a', backgroundColor:'#f4a61a22', fill:false, tension:0.3, pointRadius:5 },
+      { label:'Spain (+36%)', data:[100,104,141,127,136], borderColor:'#27ae60', backgroundColor:'#27ae6022', fill:false, tension:0.3, pointRadius:4 },
+      { label:'DACH (−18%)', data:[100,89,87,85,82], borderColor:'#94a3b8', backgroundColor:'', fill:false, tension:0.3, borderDash:[4,2], pointRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y: { ...defaults.scales.y, min:50, max:260, ticks: { callback: v => v+'', font:{size:11} } } } }
+});
+
+// Resolution time by territory (top 5 by volume)
+new Chart(document.getElementById('chartTerritoryRes'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'DACH', data:[17.7,17.8,16.8,12.7,9.5], borderColor:'#0f2137', backgroundColor:'#0f213799', borderRadius:3 },
+      { label:'France', data:[14.1,14.2,14.9,12.1,10.0], borderColor:'#00b5b8', backgroundColor:'#00b5b899', borderRadius:3 },
+      { label:'BNX', data:[16.3,15.7,14.3,11.2,9.2], borderColor:'#f4a61a', backgroundColor:'#f4a61a99', borderRadius:3 },
+      { label:'USA', data:[12.2,11.9,11.6,11.7,9.5], borderColor:'#e84545', backgroundColor:'#e8454599', borderRadius:3 },
+      { label:'REU', data:[20.0,21.7,20.6,11.9,8.9], borderColor:'#27ae60', backgroundColor:'#27ae6099', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, plugins:{...defaults.plugins, legend:{...defaults.plugins.legend}}, scales: { x:{...defaults.scales.x}, y:{...defaults.scales.y, min:0, max:25, ticks:{callback:v=>v+'d',font:{size:11}}} } }
+});
+
+// ---- PRIORITY CHARTS ----
+new Chart(document.getElementById('chartPriorityPct'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'Critical', data:[6.4,13.8,16.4,17.2,19.6], backgroundColor:'#e84545cc', borderRadius:3 },
+      { label:'High', data:[17.9,34.9,36.2,34.3,34.4], backgroundColor:'#f4a61acc', borderRadius:3 },
+      { label:'Medium', data:[2.4,3.2,3.0,8.9,9.7], backgroundColor:'#00b5b8cc', borderRadius:3 },
+      { label:'Low', data:[73.2,48.0,44.5,39.5,36.3], backgroundColor:'#27ae60cc', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { x:{...defaults.scales.x,stacked:true}, y:{...defaults.scales.y,stacked:true,max:100,ticks:{callback:v=>v+'%',font:{size:11}}} } }
+});
+
+new Chart(document.getElementById('chartPriorityAbs'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'Critical', data:[491,955,1229,1355,1542], backgroundColor:'#e84545cc', borderRadius:3 },
+      { label:'High', data:[1386,2417,2709,2713,2704], backgroundColor:'#f4a61acc', borderRadius:3 },
+      { label:'Medium', data:[189,223,227,700,767], backgroundColor:'#00b5b8cc', borderRadius:3 },
+      { label:'Low', data:[5652,3319,3336,3123,2854], backgroundColor:'#27ae60cc', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { x:{...defaults.scales.x,stacked:true}, y:{...defaults.scales.y,stacked:true,ticks:{font:{size:11}}} } }
+});
+
+// ---- ORIGIN CHARTS ----
+new Chart(document.getElementById('chartOrigin'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'AdaBot', data:[4737,4333,4899,5100,4981], backgroundColor:'#0f213799', borderRadius:3 },
+      { label:'Phone', data:[1267,1001,1037,913,843], backgroundColor:'#e8454599', borderRadius:3 },
+      { label:'Email-PMS', data:[903,786,811,717,700], backgroundColor:'#f4a61a99', borderRadius:3 },
+      { label:'Email-HMS', data:[0,0,0,331,610], backgroundColor:'#00b5b899', borderRadius:3 },
+      { label:'Email-POS', data:[343,351,342,276,259], backgroundColor:'#27ae6099', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { x:{...defaults.scales.x,stacked:true}, y:{...defaults.scales.y,stacked:true,ticks:{font:{size:11}}} } }
+});
+
+new Chart(document.getElementById('chartOriginShift'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'Phone (declining)', data:[1267,1001,1037,913,843], borderColor:RED, backgroundColor:RED+'22', fill:true, tension:0.3, pointRadius:5 },
+      { label:'Email-HMS (new)', data:[0,0,0,331,610], borderColor:TEAL, backgroundColor:TEAL+'33', fill:true, tension:0.3, pointRadius:5 },
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y:{...defaults.scales.y, min:0, max:1400, ticks:{font:{size:11}}} } }
+});
+
+// ---- CATEGORY CHARTS ----
+new Chart(document.getElementById('chartCatAprMay'), {
+  type: 'bar',
+  data: {
+    labels: ['PMS Ops','Channel Mgr','Payments','Billing','Other','HMS','Reporting','Connector','GX','Subscription','Security','RMS'],
+    datasets: [
+      { label:'April', data:[1913,955,722,653,586,534,358,368,414,312,185,203], backgroundColor:TEAL+'cc', borderRadius:3 },
+      { label:'May', data:[1753,987,778,628,566,521,454,396,377,313,288,218], backgroundColor:NAVY+'cc', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, indexAxis:'y', scales: { x:{...defaults.scales.y, ticks:{font:{size:10}}}, y:{...defaults.scales.x, ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartSecurity'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      { label:'Security cases', data:[0,0,11,185,288], borderColor:RED, backgroundColor:RED+'33', fill:true, tension:0.3, pointRadius:6 }
+    ]
+  },
+  options: { ...defaults, scales: { ...defaults.scales, y:{...defaults.scales.y, min:0, max:350, ticks:{font:{size:11}}} } }
+});
+
+// ---- BACKLOG DEEP DIVE CHARTS ----
+new Chart(document.getElementById('chartBacklogStatus'), {
+  type: 'doughnut',
+  data: {
+    labels: ['New (923)', 'Waiting internal (778)', 'Response Received (280)', 'In Progress (222)', 'Waiting 3rd party (146)'],
+    datasets: [{ data:[923,778,280,222,146],
+      backgroundColor:[RED, AMBER, TEAL, NAVY, '#764abc'],
+      borderWidth: 2 }]
+  },
+  options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{font:{size:11}} } } }
+});
+
+new Chart(document.getElementById('chartBacklogAge'), {
+  type: 'doughnut',
+  data: {
+    labels: ['0–7 days (540)', '7–30 days (947)', '30–90 days (727)', '> 90 days (135)'],
+    datasets: [{ data:[540,947,727,135],
+      backgroundColor:[GREEN, TEAL, AMBER, RED, NAVY],
+      borderWidth: 2 }]
+  },
+  options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{font:{size:11}} } } }
+});
+
+new Chart(document.getElementById('chartStatusAge'), {
+  type: 'bar',
+  data: {
+    labels: ['New','Waiting internal','Resp. Received','In Progress','Waiting 3rd party'],
+    datasets: [
+      { label:'0–7 days', data:[233,126,84,61,36], backgroundColor:GREEN+'cc', borderRadius:3 },
+      { label:'7–30 days', data:[513,233,101,49,51], backgroundColor:TEAL+'cc', borderRadius:3 },
+      { label:'30–90 days', data:[177,355,90,54,51], backgroundColor:AMBER+'cc', borderRadius:3 },
+      { label:'> 90 days', data:[0,64,5,58,8], backgroundColor:RED+'cc', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { x:{...defaults.scales.x,stacked:true}, y:{...defaults.scales.y,stacked:true,ticks:{font:{size:11}}} } }
+});
+
+new Chart(document.getElementById('chartBacklogTerritory'), {
+  type: 'bar',
+  data: {
+    labels: ['DACH','BNX','France','NEU','REU','USA','UKIE','Spain','APAC','Canada','Italy','LAC','MEA'],
+    datasets: [
+      { label:'Total backlog', data:[499,333,252,219,175,175,166,140,117,94,91,41,37], backgroundColor:NAVY+'99', borderRadius:3 },
+      { label:'Aged 30+ days', data:[174,131,65,77,81,47,59,54,66,22,43,26,14], backgroundColor:RED+'cc', borderRadius:3 },
+    ]
+  },
+  options: { ...defaults, scales: { x:{...defaults.scales.x,stacked:false}, y:{...defaults.scales.y} } }
+});
+
+// ---- MAY DEEP DIVE CHARTS ----
+
+new Chart(document.getElementById('chartMayCategoryVolume'), {
+  type: 'bar',
+  data: {
+    labels: ['Mews Operations (PMS)','Channel Manager','Mews Payments','Billing and invoicing','Other','Mews HMS','Mews Reporting','Mews POS','Connector/Integrations','Mews Guest Experience (GX)','Mews Subscription','Security','Mews RMS','Mews BI','Mews EMS','Booking Engine API','Mews Integrations','Mews Gift Voucher','Mews Multi Property'],
+    datasets: [{ data:[1753,987,778,628,566,521,454,413,396,377,313,288,218,61,51,32,13,10,7], backgroundColor: NAVY+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{ legend:{display:false} }, scales:{ x:{...defaults.scales.y,title:{display:false}}, y:{...defaults.scales.x,ticks:{font:{size:11}}} } }
+});
+
+new Chart(document.getElementById('chartSubPMS'), {
+  type: 'bar',
+  data: {
+    labels: ['Reservation Mgmt','User/Permissions','Settings','Rate Management','Bookable Services','Additional Services','Customer Profile','Other (PMS)'],
+    datasets: [{ data:[375,370,185,180,158,50,41,215], backgroundColor: NAVY+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartSubCHM'), {
+  type: 'bar',
+  data: {
+    labels: ['Integration setup','Inventory discrepancies','Synchronization','Reservation price issues','Overbooking','Missing reservations','Gen. res. discrepancies','Other (CHM)','(blank/unset)'],
+    datasets: [{ data:[219,100,94,80,70,55,63,53,202], backgroundColor: TEAL+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartSubPayments'), {
+  type: 'bar',
+  data: {
+    labels: ['Terminals','CC Payments','Refunds','Payout','Other (Payments)','Preauthorization','Payment Automation','VCCs'],
+    datasets: [{ data:[136,130,114,72,82,62,53,41], backgroundColor: AMBER+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartSubBilling'), {
+  type: 'bar',
+  data: {
+    labels: ['Other (Billing)','Correction-Rebate','Modification','Correction-Reissue','Corr-Rebate & Reissue','Fiscal','Error message','Deposits'],
+    datasets: [{ data:[216,106,91,45,44,22,9,6], backgroundColor: '#7c3aed'+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartSubSecurity'), {
+  type: 'bar',
+  data: {
+    labels: ['Suspected/confirmed incident','Login from new device','2FA','Password','Other (Security)'],
+    datasets: [{ data:[194,46,24,11,13], backgroundColor: RED+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartSubHMS'), {
+  type: 'bar',
+  data: {
+    labels: ['Synchronization','Administration','Integration','System Performance','Room view/allocation','Other (HMS)'],
+    datasets: [{ data:[110,96,69,47,46,49], backgroundColor: TEAL+'99', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:10}}} } }
+});
+
+new Chart(document.getElementById('chartBacklogByCategory'), {
+  type: 'bar',
+  data: {
+    labels: ['Other','Mews Operations (PMS)','Channel Manager','Mews Payments','Billing & invoicing','Mews Guest Experience','Mews Subscription','Mews Reporting','Connector/Integrations','Security','Mews POS','Mews RMS'],
+    datasets: [{ data:[122,285,233,161,116,86,75,68,67,47,46,31], backgroundColor: NAVY+'cc', borderRadius:3 }]
+  },
+  options: { ...defaults, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{...defaults.scales.y}, y:{...defaults.scales.x,ticks:{font:{size:11}}} } }
+});
+
+new Chart(document.getElementById('chartOtherBreakdown'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Reclassifiable — real topic (~69%)','Process stub — no topic (~13%)','Not a support case — noise/admin (~18%)'],
+    datasets: [{ data:[69,13,18], backgroundColor:[GREEN,AMBER,RED], borderWidth:2 }]
+  },
+  options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+});
+
+new Chart(document.getElementById('chartOtherBacklog'), {
+  type: 'doughnut',
+  data: {
+    labels: ['New','Waiting internal','Response Received','In Progress','Waiting 3rd party'],
+    datasets: [{ data:[60,22,18,16,6], backgroundColor:[RED+'cc','#7c3aed'+'cc',AMBER+'cc','#0ea5e9'+'cc',MUTED+'cc'], borderWidth:2 }]
+  },
+  options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{font:{size:10}} } } }
+});
+
+// ---- NEW CASES 30+ DAY DRILL-DOWN ----
+(function(){
+  var det = document.getElementById('new-cases-30plus');
+  var arrow = document.getElementById('nc-arrow');
+  if(det) det.addEventListener('toggle', function(){ arrow.style.transform = det.open ? 'rotate(90deg)' : ''; });
+  var SF = 'https://mews.lightning.force.com/lightning/r/Case/{id}/view';
+  var NC = [
+    ['500QC00000ZepHNYAZ','6 Apr 2026',55,'Spain','Romantik Hotel Son Amoixa'],
+    ['500QC00000ZzNi0YAF','14 Apr 2026',47,'BNX','Badhotel Rockanje aan Zee'],
+    ['500QC00000ZzIaQYAV','14 Apr 2026',47,'REU','Bob W Ambassador (TAL-REI8)'],
+    ['500QC00000Zz7tNYAR','14 Apr 2026',47,'BNX','Diamant Suites Brussels'],
+    ['500QC00000ZyjENYAZ','14 Apr 2026',47,'BNX','Different Hotels | HQ'],
+    ['500QC00000ZzFsUYAV','14 Apr 2026',47,'REU','Go Hotel Shnelli'],
+    ['500QC00000a1RmEYAU','15 Apr 2026',46,'Spain','Apartamentos HO Aguadulce'],
+    ['500QC00000a22vcYAA','15 Apr 2026',46,'BNX','Les Cabanes de Rensiwez'],
+    ['500QC00000a2GQdYAM','15 Apr 2026',46,'NEU','Andersen Boutique Hotel'],
+    ['500QC00000a2ClGYAU','15 Apr 2026',46,'Spain','Hostal Don Carlos'],
+    ['500QC00000a20NYYAY','15 Apr 2026',46,'Spain','Feel at Sants'],
+    ['500QC00000a1xXtYAI','15 Apr 2026',46,'MEA','NESS by D-OCEAN'],
+    ['500QC00000a2FUgYAM','15 Apr 2026',46,'BNX','Hotel Gulpenerland'],
+    ['500QC00000a1Xq2YAE','15 Apr 2026',46,'MEA','NESS by D-OCEAN'],
+    ['500QC00000a1luoYAA','15 Apr 2026',46,'MEA','Riad Kheirredine'],
+    ['500QC00000a2OpgYAE','15 Apr 2026',46,'Spain','Hostal Don Carlos'],
+    ['500QC00000a1UfJYAU','15 Apr 2026',46,'BNX','Hotel Westwing (Old Mercure Roeselare Environment)'],
+    ['500QC00000a21PwYAI','15 Apr 2026',46,'Spain','Hostal Sans Barcelona'],
+    ['500QC00000a5ntAYAQ','16 Apr 2026',45,'REU','108 mm house'],
+    ['500QC00000a6UTSYA2','16 Apr 2026',45,'REU','Go Hotel Shnelli'],
+    ['500QC00000a4w8oYAA','16 Apr 2026',45,'REU','Smart Hotels and Hostels'],
+    ['500QC00000a5TJLYA2','16 Apr 2026',45,'BNX','Mondorf Parc Hôtel'],
+    ['500QC00000a5poOYAQ','16 Apr 2026',45,'REU','Cugó Gran Macina - by IBB Hotels'],
+    ['500QC00000a6x0fYAA','16 Apr 2026',45,'Spain','Cats Córdoba'],
+    ['500QC00000a66ysYAA','16 Apr 2026',45,'Spain','Hotel El Ancla'],
+    ['500QC00000a7J1CYAU','16 Apr 2026',45,'BNX','Atelier Skalo'],
+    ['500QC00000a9M9UYAU','17 Apr 2026',44,'Spain','Camping Mola! Surf Loredo'],
+    ['500QC00000a90dcYAA','17 Apr 2026',44,'Spain','Hostal Paco Marbella'],
+    ['500QC00000a9kocYAA','17 Apr 2026',44,'BNX','Delta Hotel Vlaardingen'],
+    ['500QC00000a8orAYAQ','17 Apr 2026',44,'BNX','Strandhotel Cadzand'],
+    ['500QC00000a8yzzYAA','17 Apr 2026',44,'Spain','Makai Bungalows'],
+    ['500QC00000a8wuvYAA','17 Apr 2026',44,'NEU','Valdres Booking Service'],
+    ['500QC00000a8ngkYAA','17 Apr 2026',44,'BNX','Hotel Arena'],
+    ['500QC00000a8qHtYAI','17 Apr 2026',44,'Italy','Be Mate Roma'],
+    ['500QC00000a9YgtYAE','17 Apr 2026',44,'BNX','Hotel de Nieuwe Doelen'],
+    ['500QC00000a9IVdYAM','17 Apr 2026',44,'Spain','Hotel Marina Wellness & Spa- churned'],
+    ['500QC00000a9NtWYAU','17 Apr 2026',44,'BNX','Hôtel Myrtilles'],
+    ['500QC00000aDlNsYAK','20 Apr 2026',41,'Spain','Palacio de Atocha - by CoolRooms'],
+    ['500QC00000aE2BmYAK','20 Apr 2026',41,'MEA','Outsite - Morocco / Marrakesh'],
+    ['500QC00000aFwYRYA0','20 Apr 2026',41,'NEU','Anker Hotel'],
+    ['500QC00000aDItiYAG','20 Apr 2026',41,'Italy','Vocabolo Moscatelli'],
+    ['500QC00000aDpuPYAS','20 Apr 2026',41,'Spain','Hostal Paco Marbella'],
+    ['500QC00000aI73BYAS','21 Apr 2026',40,'BNX','Hotel van der Maas'],
+    ['500QC00000aGV4rYAG','21 Apr 2026',40,'BNX','Landgoed De Wilmersberg'],
+    ['500QC00000aIEB9YAO','21 Apr 2026',40,'France','Comfort Hotel Lille Lomme'],
+    ['500QC00000aHiksYAC','21 Apr 2026',40,'NEU','Park Lane Copenhagen'],
+    ['500QC00000aGkGoYAK','21 Apr 2026',40,'Spain','Hotel Selwo Lodge'],
+    ['500QC00000aHVIpYAO','21 Apr 2026',40,'BNX','Bastion Hotel Group'],
+    ['500QC00000aHgMJYA0','21 Apr 2026',40,'NEU','Pier 5 Hotel'],
+    ['500QC00000aIAlnYAG','21 Apr 2026',40,'NEU','Northern Light Hotel'],
+    ['500QC00000aH4aQYAS','21 Apr 2026',40,'Spain','Hotel Malaga Larios'],
+    ['500QC00000aIOVOYA4','21 Apr 2026',40,'Spain','Apartamentos Vista Mar'],
+    ['500QC00000aHEZnYAO','21 Apr 2026',40,'France','Airelles Courchevel - Les Airelles'],
+    ['500QC00000aJdKWYA0','22 Apr 2026',39,'REU','Valamar Camping PC Ježevac'],
+    ['500QC00000aKX4rYAG','22 Apr 2026',39,'REU','Rixwell Collection Seaside Hotel'],
+    ['500QC00000aJwNDYA0','22 Apr 2026',39,'APAC','Banjo Paterson Motor Inn'],
+    ['500QC00000aJvm3YAC','22 Apr 2026',39,'BNX','Van der Valk Hotel Volendam'],
+    ['500QC00000aK92nYAC','22 Apr 2026',39,'APAC','Accommodation Essentials'],
+    ['500QC00000aJwF1YAK','22 Apr 2026',39,'DACH','b_smart services AG'],
+    ['500QC00000aJvm0YAC','22 Apr 2026',39,'REU','Hoteli Dobrna Higiea'],
+    ['500QC00000aJiNPYA0','22 Apr 2026',39,'Canada','Nester | St. Lawrence Market'],
+    ['500QC00000aJY7lYAG','22 Apr 2026',39,'Spain','The Central House Valencia Mercado Central'],
+    ['500QC00000aK4HLYA0','22 Apr 2026',39,'REU','G3 Malta - HQ'],
+    ['500QC00000aL2GkYAK','22 Apr 2026',39,'NEU','Hotell Solhem Park'],
+    ['500QC00000aK44TYAS','22 Apr 2026',39,'REU','Valamar Hotels & Resorts'],
+    ['500QC00000aMMwTYAW','22 Apr 2026',39,'Italy','Vocabolo Moscatelli'],
+    ['500QC00000aJwF2YAK','22 Apr 2026',39,'DACH','Excelsior Hotel Ernst'],
+    ['500QC00000aM1FSYA0','22 Apr 2026',39,'REU','Outsite - Lisbon / Intendente'],
+    ['500QC00000aM7NuYAK','22 Apr 2026',39,'BNX','Amrâth Airport Hotel Rotterdam'],
+    ['500QC00000aK4HPYA0','22 Apr 2026',39,'BNX','WestCord Strandhotel Seeduyn'],
+    ['500QC00000aK4HNYA0','22 Apr 2026',39,'USA','North Point Hospitality'],
+    ['500QC00000aJvm2YAC','22 Apr 2026',39,'BNX','Hostel The Golden Stork'],
+    ['500QC00000aJvlxYAC','22 Apr 2026',39,'BNX','Les Cabanes de Rensiwez'],
+    ['500QC00000aK1zNYAS','22 Apr 2026',39,'REU','Real House Jasinskio'],
+    ['500QC00000aJqPtYAK','22 Apr 2026',39,'APAC','M. Hotel'],
+    ['500QC00000aNwLJYA0','23 Apr 2026',38,'France','Zenitude Groupe'],
+    ['500QC00000aNJjlYAG','23 Apr 2026',38,'UKIE','Aethos London'],
+    ['500QC00000aNSGbYAO','23 Apr 2026',38,'REU','Porto Santo Destination'],
+    ['500QC00000aNiWgYAK','23 Apr 2026',38,'NEU','Valdres Booking Service'],
+    ['500QC00000aMyKDYA0','23 Apr 2026',38,'REU','Rixwell Collection Seaside Hotel'],
+    ['500QC00000aNAQIYA4','23 Apr 2026',38,'UKIE','The Windmill Inn'],
+    ['500QC00000aNP4LYAW','23 Apr 2026',38,'BNX','Hotel Papendal'],
+    ['500QC00000aNy29YAC','23 Apr 2026',38,'Spain','Camping Las Gaviotas'],
+    ['500QC00000aOIk1YAG','23 Apr 2026',38,'Italy','PuntAla Camp & Resort'],
+    ['500QC00000aO47XYAS','23 Apr 2026',38,'BNX','Les Sorbiers'],
+    ['500QC00000aOWerYAG','23 Apr 2026',38,'France','Comfort Hotel Montluçon'],
+    ['500QC00000aOZ3AYAW','23 Apr 2026',38,'BNX','Bastion Hotel Group'],
+    ['500QC00000aN6g5YAC','23 Apr 2026',38,'NEU','Skjolden Resort'],
+    ['500QC00000aOlFeYAK','23 Apr 2026',38,'NEU','Nøsen Yoga og Fjellhotell'],
+    ['500QC00000aRNodYAG','24 Apr 2026',37,'UKIE','House of Gods Glasgow'],
+    ['500QC00000aR3elYAC','24 Apr 2026',37,'REU','OnJ Boutique Apartments'],
+    ['500QC00000aRgPqYAK','24 Apr 2026',37,'BNX','Mr. Lewis Rotterdam'],
+    ['500QC00000aQXRyYAO','24 Apr 2026',37,'Italy','New Expansion - CX Napoli'],
+    ['500QC00000aQYZPYA4','24 Apr 2026',37,'BNX','Casino de Jeux du Luxembourg SA et Cie secs'],
+    ['500QC00000aRr1uYAC','24 Apr 2026',37,'BNX','Les Sorbiers'],
+    ['500QC00000aRIqdYAG','24 Apr 2026',37,'BNX','Hotel Cosmopolite Nieuwpoort'],
+    ['500QC00000aR89jYAC','24 Apr 2026',37,'NEU','Alpinco Hospitality AS'],
+    ['500QC00000aTA5lYAG','25 Apr 2026',36,'BNX','Intense Wellness'],
+    ['500QC00000aU0AlYAK','25 Apr 2026',36,'BNX','Hotel Old Quarter'],
+    ['500QC00000aTDzeYAG','25 Apr 2026',36,'BNX','Adagio Access Gent Centrum Dampoort'],
+    ['500QC00000aUtGwYAK','26 Apr 2026',35,'Italy','Novanta 9:0'],
+    ['500QC00000aUtthYAC','26 Apr 2026',35,'France','Edouard VII'],
+    ['500QC00000aUcvyYAC','26 Apr 2026',35,'France','Hotel Courseine'],
+    ['500QC00000aUmCMYA0','26 Apr 2026',35,'BNX','The Cornr Hotel'],
+    ['500QC00000aV3o5YAC','26 Apr 2026',35,'UKIE','Dun Aluinn'],
+    ['500QC00000aYDcPYAW','27 Apr 2026',34,'BNX','Hotel Restaurant Oostergoo'],
+    ['500QC00000aXtkDYAS','27 Apr 2026',34,'DACH','Strandhotel Kurhaus Juist'],
+    ['500QC00000aX9iwYAC','27 Apr 2026',34,'REU','Rixwell Viru Square Hotel'],
+    ['500QC00000aXrs3YAC','27 Apr 2026',34,'France','Le Montana'],
+    ['500QC00000aXVN3YAO','27 Apr 2026',34,'BNX','Getaway Ostend'],
+    ['500QC00000aYPgsYAG','27 Apr 2026',34,'REU','DOMA Portugal'],
+    ['500QC00000aW5PnYAK','27 Apr 2026',34,'France','Ternelia Evasion Tonique/Haut du Lac'],
+    ['500QC00000aaSHBYA2','28 Apr 2026',33,'France','BIKUBE Montpellier'],
+    ['500QC00000abkNMYAY','28 Apr 2026',33,'France','COMO Le Beauvallon'],
+    ['500QC00000aa2uhYAA','28 Apr 2026',33,'BNX','Bastion Hotel Group'],
+    ['500QC00000abV06YAE','28 Apr 2026',33,'DACH','Hotel Engadinerhof'],
+    ['500QC00000aZeMEYA0','28 Apr 2026',33,'BNX','Conscious Hotel Museum Square'],
+    ['500QC00000aaHotYAE','28 Apr 2026',33,'BNX','The Rubens Antwerp NV'],
+    ['500QC00000abS7BYAU','28 Apr 2026',33,'France','Villa La Coste'],
+    ['500QC00000aauOyYAI','28 Apr 2026',33,'Spain','Hotel Costabella'],
+    ['500QC00000aaEvwYAE','28 Apr 2026',33,'DACH','Hotel-Garni Hotel Schreier am See'],
+    ['500QC00000ablOFYAY','28 Apr 2026',33,'NEU','Hotell Vilja'],
+    ['500QC00000ackRhYAI','28 Apr 2026',33,'Spain','Hotel Boutique La Marquesina'],
+    ['500QC00000ab7ifYAA','28 Apr 2026',33,'BNX','De Durgerdam'],
+    ['500QC00000abtdVYAQ','28 Apr 2026',33,'DACH','The Amauris Vienna'],
+    ['500QC00000abWQrYAM','28 Apr 2026',33,'BNX','Citybox Antwerp'],
+    ['500QC00000aay4BYAQ','28 Apr 2026',33,'BNX','Hotel Andromeda'],
+    ['500QC00000aaQZ1YAM','28 Apr 2026',33,'BNX','Hotel Aazaert'],
+    ['500QC00000abTklYAE','28 Apr 2026',33,'UKIE','Hesdin Estate'],
+    ['500QC00000abluTYAQ','28 Apr 2026',33,'BNX','Bilderberg Garden Hotel'],
+    ['500QC00000abg22YAA','28 Apr 2026',33,'France','The Fraternity'],
+    ['500QC00000ab1JsYAI','28 Apr 2026',33,'DACH','Hotel Engelhorn'],
+    ['500QC00000aaIDEYA2','28 Apr 2026',33,'BNX','Hotel Portinari'],
+    ['500QC00000abKuUYAU','28 Apr 2026',33,'Spain','Hotel Royal Ramblas'],
+    ['500QC00000ab8wPYAQ','28 Apr 2026',33,'Italy','Palazzo Daniele'],
+    ['500QC00000abK9fYAE','28 Apr 2026',33,'DACH','Kristiania Lech'],
+    ['500QC00000aZVFVYA4','28 Apr 2026',33,'REU','Bob W Ambassador (TAL-REI8)'],
+    ['500QC00000ab7cCYAQ','28 Apr 2026',33,'DACH','Aparthotel Fairschlafen Minden'],
+    ['500QC00000adji7YAA','29 Apr 2026',32,'NEU','Nørre Vosborg'],
+    ['500QC00000agIF7YAM','29 Apr 2026',32,'NEU','K7 Hotel Oslo'],
+    ['500QC00000aeRQ2YAM','29 Apr 2026',32,'DACH','Château Royal GmbH & Co. KG'],
+    ['500QC00000adxbNYAQ','29 Apr 2026',32,'France',"Airelles Val d'Isère"],
+    ['500QC00000afQmjYAE','29 Apr 2026',32,'France','Hôtel Arnold'],
+    ['500QC00000aeD5IYAU','29 Apr 2026',32,'France','Chateau de Theoule'],
+    ['500QC00000afNiNYAU','29 Apr 2026',32,'France','Zenitude Groupe'],
+    ['500QC00000adjerYAA','29 Apr 2026',32,'France','AKENA NANTES ORVAULT'],
+    ['500QC00000adszwYAA','29 Apr 2026',32,'MEA','ALALILA Residence'],
+    ['500QC00000aeklnYAA','29 Apr 2026',32,'France','Zenitude Groupe'],
+    ['500QC00000adh3cYAA','29 Apr 2026',32,'France','Zenitude Groupe'],
+    ['500QC00000afDURYA2','29 Apr 2026',32,'UKIE','room2 Southampton'],
+    ['500QC00000adnqeYAA','29 Apr 2026',32,'UKIE','Kabannas - Newcastle'],
+    ['500QC00000aeIzFYAU','29 Apr 2026',32,'Spain','U-Sense Granada Catedral'],
+    ['500QC00000ae033YAA','29 Apr 2026',32,'France','Zenitude Groupe'],
+    ['500QC00000adxgVYAQ','29 Apr 2026',32,'NEU','Hotel Ullensvang'],
+    ['500QC00000ajGK7YAM','30 Apr 2026',31,'France','Hôtel Botaniste'],
+    ['500QC00000aiFWfYAM','30 Apr 2026',31,'France','Chateau de Fontager'],
+    ['500QC00000ahKYQYA2','30 Apr 2026',31,'REU','Patio Hostel'],
+    ['500QC00000ai9MNYAY','30 Apr 2026',31,'NEU','Smarthotel Oslo'],
+    ['500QC00000aiTklYAE','30 Apr 2026',31,'Spain','Hotel Ankaa'],
+    ['500QC00000ahi6BYAQ','30 Apr 2026',31,'Italy','Musa Lago di Como'],
+    ['500QC00000aianpYAA','30 Apr 2026',31,'BNX','Hotel Franq'],
+    ['500QC00000ahXgmYAE','30 Apr 2026',31,'UKIE','Sloane Place'],
+    ['500QC00000ahx3VYAQ','30 Apr 2026',31,'BNX','Landgoed Duin & Kruidberg'],
+    ['500QC00000aitfCYAQ','30 Apr 2026',31,'France','Zenitude Groupe'],
+    ['500QC00000ajSwKYAU','30 Apr 2026',31,'BNX','The Pand Hotel'],
+    ['500QC00000aiPdyYAE','30 Apr 2026',31,'France','Le Richebourg Hôtel Restaurant & Spa'],
+    ['500QC00000akcKJYAY','1 May 2026',30,'DACH','Alp Art Hotel'],
+    ['500QC00000akhGXYAY','1 May 2026',30,'UKIE','Room2 Belfast'],
+    ['500QC00000al9j3YAA','1 May 2026',30,'MEA',"Kasbah d'If"],
+    ['500QC00000alAx1YAE','1 May 2026',30,'REU','Santo Thyrso Hotel'],
+    ['500QC00000al3CJYAY','1 May 2026',30,'BNX','Landgoed Huize Bergen'],
+    ['500QC00000akeUEYAY','1 May 2026',30,'BNX','Bastion Hotel Group'],
+    ['500QC00000akOU4YAM','1 May 2026',30,'NEU','Pier 5 Hotel'],
+    ['500QC00000akw7jYAA','1 May 2026',30,'NEU','Absalon Hotel'],
+    ['500QC00000alGCpYAM','1 May 2026',30,'France','Hotel Daunou Opera'],
+    ['500QC00000al15ZYAQ','1 May 2026',30,'DACH','Hotel Chateau Kurfürstendamm'],
+    ['500QC00000akx1xYAA','1 May 2026',30,'REU','7Seasons Apartments']
+  ];
+  var tbody = document.getElementById('ncTbody');
+  if(tbody){
+    NC.forEach(function(r,i){
+      var age = r[2], prop = r[4].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      var ac = age >= 40 ? '#e84545' : '#f4a61a';
+      var tr = document.createElement('tr');
+      tr.setAttribute('data-s', (r[4]+' '+r[0]+' '+r[3]).toLowerCase());
+      tr.innerHTML = '<td style="color:var(--muted);font-size:11px;text-align:center;">'+(i+1)+'</td>'
+        +'<td><a href="'+SF.replace('{id}',r[0])+'" target="_blank" style="font-size:11px;color:var(--teal);font-family:monospace;text-decoration:none;">'+r[0]+'</a></td>'
+        +'<td style="font-weight:600;">'+prop+'</td>'
+        +'<td style="text-align:center;"><span style="font-size:11px;padding:2px 7px;border-radius:10px;background:var(--light-bg);border:1px solid var(--border);">'+r[3]+'</span></td>'
+        +'<td style="white-space:nowrap;font-size:13px;">'+r[1]+'</td>'
+        +'<td style="text-align:center;font-weight:700;color:'+ac+';">'+age+'d</td>';
+      tbody.appendChild(tr);
+    });
+  }
+  window.filterNC = function(val){
+    val = val.toLowerCase();
+    var rows = document.querySelectorAll('#ncTbody tr'), n=0;
+    rows.forEach(function(r){ var m=!val||r.getAttribute('data-s').includes(val); r.style.display=m?'':'none'; if(m)n++; });
+    document.getElementById('ncCount').textContent = n+' of 177';
+  };
+})();
+
+// Section reorder — Demand & Capacity → Service Quality → Where & What → Appendix
+(function() {
+  var container = document.querySelector('.container');
+  var ids = ['overview','key-interpretation','volume','backlog','backlog-deep-dive','cpp','missed-chat','csat','frt','resolution','territory','priority-origin','categories','appendix-divider','may-deep-dives','enforcement','backfill','summary'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) container.appendChild(el);
+  });
+})();
+
+</script>
+</body>
+</html>
