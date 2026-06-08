@@ -236,7 +236,7 @@
     <div class="kpi bad">
       <label>Cases Created</label>
       <div class="value">7,867</div>
-      <div class="delta neutral-d">Apr: 7,891 (▼ 0.3%)</div>
+      <div class="delta down-good">▼ Apr: 7,955 (−1.1%)</div>
       <div class="goal-label">Goal: 7,008</div>
     </div>
     <div class="kpi warn">
@@ -322,7 +322,7 @@
     <div class="kpi bad">
       <label>January deficit never recovered</label>
       <div class="value" style="font-size:14px;line-height:1.4;padding-top:4px;">−1,567 in Jan alone</div>
-      <div class="delta up-bad" style="margin-top:6px;">Monthly deficits: Jan −1,567 / Feb −3 / Mar −43 / Apr −700 / May −167. Five consecutive months of accumulation.</div>
+      <div class="delta up-bad" style="margin-top:6px;">Monthly deficits: Jan −1,567 / Feb −3 / Mar −43 / Apr −764 / May −167. Five consecutive months of accumulation.</div>
     </div>
     <div class="kpi bad">
       <label>Q2 OKR effectively missed</label>
@@ -359,8 +359,8 @@
 
   <div class="narrative">
     <p>January's throughput collapse (198 cases/day, 6,151 closed) created the original backlog deficit that the system has been working to close ever since. It resulted in <strong>1,567 more cases entering the queue than leaving</strong> — by far the largest single-month accumulation. The cause likely sits in January's partial MIAW rollout (live 26 January), agent ramp-up to the new platform, and potentially seasonal demand patterns.</p>
-    <p>From February onwards, throughput normalised between 240–248 cases/day and has held remarkably stable. The monthly closed-vs-created balance improved dramatically, but with two exceptions: April saw another significant accumulation (+700 cases, created 7,891 vs closed 7,191), and May continued accumulating at a slower rate (+167). The net effect is five consecutive months of backlog growth.</p>
-    <p>May's 248 cases/day is the year's best, and the gap between created and closed is the smallest since February (when demand was the year's lowest at 6,914). That is directionally positive. The system is closer to equilibrium than at any point in Q2, but has not crossed it.</p>
+    <p>From February onwards, throughput normalised between 240–248 cases/day and has held remarkably stable. The monthly closed-vs-created balance improved dramatically, but with two exceptions: April saw another significant accumulation (+764 cases, created 7,955 vs closed 7,191), and May continued accumulating (+167). The net effect is five consecutive months of backlog growth.</p>
+    <p>May's 248 cases/day is the year's best, and the monthly accumulation (+167) is well below April's surge (+764), though still above March's +43. That is directionally positive. The system is closer to equilibrium than at any point in Q2, but has not crossed it.</p>
   </div>
 
   <div class="chart-row full">
@@ -372,7 +372,7 @@
   </div>
 
   <div class="callout warning">
-    <strong>Pattern:</strong> April's throughput dip (239.7/day vs 240.6 in March, despite one fewer day) combined with elevated demand (7,891 created, year high) produced the sharpest single-month accumulation since January. May reversed the demand side marginally (7,867 vs 7,891) but the throughput gain (+8.7 cases/day) was insufficient to close the gap.
+    <strong>Pattern:</strong> April's throughput dip (239.7/day vs 240.6 in March, despite one fewer day) combined with high demand (7,955 created — the year's highest) produced the sharpest single-month accumulation since January. May demand dipped to 7,867, and a throughput gain of +8.7 cases/day reduced the monthly accumulation from +764 to +167.
   </div>
 
   <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin:24px 0 12px;">Tier Mix</h3>
@@ -420,13 +420,13 @@
 
   <div class="narrative">
     <p><strong>The backlog</strong> (New, In Progress, Response Received, Waiting internal, Waiting 3rd party) held relatively flat from January through March — 1,652 → 1,825, a 10.5% increase over three months. It then jumped sharply in April (+600, +32.9%) before barely retreating in May (−45, reaching 2,380). The system has not yet crossed back below its April peak. At the current run rate, the first genuine month-on-month drawdown would be a milestone worth flagging.</p>
-    <p><strong>April's spike is explained entirely by throughput.</strong> April saw 700 more cases created than closed — the worst monthly balance since January. There is no single operational failure to pin this on; it is a demand surge (7,891 created, the year high) that the current throughput rate could not absorb.</p>
+    <p><strong>April's spike is explained entirely by throughput.</strong> April saw 764 more cases created than closed — the worst monthly balance since January. There is no single operational failure to pin this on; it is a demand surge (7,955 created, the year's highest) that the current throughput rate could not absorb.</p>
     <p><strong>Separately from the canonical backlog</strong>, Waiting for Customer (WfC) and Resolved-not-Closed are tracked independently. The EOM WfC reading of 597 (May 31) overstates the trend: it is the single highest day of the month and a Sunday — WfC runs higher on weekends as fewer agents move cases out of pending — compared against an April 30 figure (365) that sat near its monthly low. On a like-for-like monthly-average basis, WfC rose only ~8% (Apr avg 386 → May avg 417), squarely within the band it has held all year (Jan 379, Feb 420, Mar 406), and it had already fallen back to 333 by June 2. No evidence of cases being parked to deflate the visible queue. Resolved-not-Closed has held near 1,800 throughout the year.</p>
     <p><strong>Cases stuck in New beyond 48 hours</strong> reached 1,436 in May (18.3% of cases created), up from 1,336 in April. The FRT timer starts at creation, so every case sitting untouched in New compounds FRT and Resolution SLA failures simultaneously. April and May have reversed the modest triage improvement seen in February and March.</p>
   </div>
 
   <div class="callout flag">
-    <strong>Root cause of backlog growth:</strong> Five consecutive months of cases created ≥ cases closed. Monthly deficits: Jan −1,567 / Feb −3 (balanced) / Mar −43 / Apr −700 / May −167. Cumulative YTD net accumulation: approximately 2,480 cases. Throughput at 248/day is the best of the year but still insufficient to draw down the existing stock.
+    <strong>Root cause of backlog growth:</strong> Five consecutive months of cases created ≥ cases closed. Monthly deficits: Jan −1,567 / Feb −3 (balanced) / Mar −43 / Apr −764 / May −167. Cumulative YTD net accumulation: approximately 2,544 cases. Throughput at 248/day is the best of the year but still insufficient to draw down the existing stock.
   </div>
 
   <table class="data-table" style="margin-top:16px;">
@@ -501,7 +501,7 @@
       <tr><td>Jan</td><td>7,718</td><td>5,287</td><td>41</td><td>2,976h</td><td>86.2h</td><td>2.92h</td></tr>
       <tr><td>Feb</td><td>6,914</td><td>4,530</td><td>54</td><td>2,329h</td><td>106.3h</td><td>2.13h</td></tr>
       <tr><td>Mar</td><td>7,501</td><td>4,618</td><td>138</td><td>1,662h</td><td>109.6h</td><td>2.45h</td></tr>
-      <tr><td>Apr</td><td>7,891</td><td>4,713</td><td>930</td><td>1,440h</td><td>100.8h</td><td>2.92h</td></tr>
+      <tr><td>Apr</td><td>7,955</td><td>4,713</td><td>930</td><td>1,440h</td><td>100.8h</td><td>2.92h</td></tr>
       <tr class="may-row"><td>May</td><td>7,867</td><td>4,456</td><td><strong>2,941 (37%)</strong></td><td><strong>776h</strong></td><td>22.0h <span class="badge amber">provisional</span></td><td>1.56h</td></tr>
     </tbody>
   </table>
@@ -857,8 +857,8 @@
 
   <div class="narrative">
     <p>Cases per property is one of the clearest signals of where the team stands on the Q2 OKR — and the picture is not comfortable. The Q2 ceiling is 0.6, and both April (0.69) and May (0.67) are above it. The Q2 QTD through May averages 0.68 against a 0.6 target, a gap of 0.08. To hit the Q2 goal, June would need to come in well below 0.6 — roughly 0.44 or lower — to pull the three-month average down to 0.6. That is not realistic given May's volume and property trajectory.</p>
-    <p>The contrast with Q1 is instructive. Q1 QTD landed at 0.68 against a target of 0.7 — just within tolerance. The target tightened by 0.1 in Q2 (from 0.7 to 0.6), but the actual metric has barely moved: May's 0.67 is almost identical to Q1's average of 0.68. The improvement needed for Q2 has not materialised.</p>
-    <p>The underlying components explain why. The average property count is growing steadily (10,665 in January to 11,678 in May, +9.5%), but case volume is growing at a similar rate (7,718 to 7,867, +1.9% in absolute terms but the property base growth is also modest). The ratio is not improving fast enough to meet the step-down targets. Three documented contributors remain live: Ada containment regression (90.9% → 82.9%, generating roughly 95 extra agent cases per 1pp of containment loss), Final Resolution Time trend (longer resolution = more open cases at any point), and the category taxonomy reclassification making trend analysis noisy.</p>
+    <p>The contrast with Q1 is instructive. Q1 QTD landed at 0.68 against a target of 0.7 — just within tolerance. The target tightened by 0.1 in Q2 (from 0.7 to 0.6), but the actual metric has barely moved: May's 0.67 is just below Q1's average of 0.68. The improvement needed for Q2 has not materialised.</p>
+    <p>The underlying components explain why. The average property count is growing steadily (10,665 in January to 11,678 in May, +9.5%), but case volume is broadly stable (7,718 in January to 7,867 in May, +1.9% in absolute terms but the property base growth is also modest). The ratio is not improving fast enough to meet the step-down targets. Three documented contributors remain live: Ada containment regression (90.9% → 82.9%, generating roughly 95 extra agent cases per 1pp of containment loss), Final Resolution Time trend (longer resolution = more open cases at any point), and the category taxonomy reclassification making trend analysis noisy.</p>
   </div>
 
   <table class="data-table">
@@ -869,7 +869,7 @@
       <tr><td>Jan</td><td>7,718</td><td>10,665</td><td>0.72</td><td rowspan="3" style="vertical-align:middle;text-align:center;font-weight:700;">0.68</td><td>≤0.7 (Q1)</td><td><span class="badge green">Met</span></td></tr>
       <tr><td>Feb</td><td>6,914</td><td>10,922</td><td>0.63</td><td>≤0.7 (Q1)</td><td><span class="badge green">Met</span></td></tr>
       <tr><td>Mar</td><td>7,501</td><td>11,173</td><td>0.67</td><td>≤0.7 (Q1)</td><td><span class="badge green">Met</span></td></tr>
-      <tr><td>Apr</td><td>7,891</td><td>11,454</td><td>0.69</td><td rowspan="2" style="vertical-align:middle;text-align:center;font-weight:700;">0.68</td><td>≤0.6 (Q2)</td><td><span class="badge red">Missing</span></td></tr>
+      <tr><td>Apr</td><td>7,955</td><td>11,454</td><td>0.69</td><td rowspan="2" style="vertical-align:middle;text-align:center;font-weight:700;">0.68</td><td>≤0.6 (Q2)</td><td><span class="badge red">Missing</span></td></tr>
       <tr class="may-row"><td>May</td><td>7,867</td><td>11,678</td><td>0.67</td><td>≤0.6 (Q2)</td><td><span class="badge red">Missing</span></td></tr>
     </tbody>
   </table>
@@ -1098,7 +1098,7 @@
   <p class="subtitle">How case mix and channels are shifting — Jan–May 2026</p>
 
   <div class="narrative">
-    <p><strong>The priority mix has undergone a structural shift that is not explained by volume alone.</strong> In January, 73% of cases were Low priority (5,652 of 7,718). By May, Low had fallen to 36% (2,854 of 7,867) while Critical tripled from 491 to 1,542 and High nearly doubled from 1,386 to 2,704. The total case volume in May is virtually identical to January (7,867 vs 7,718) — what has changed is how cases are categorised. This shift reflects a change in priority assignment logic or Ada routing behaviour rather than a genuine tripling of business-critical incidents. Higher-priority cases require faster SLA response and carry more FRT risk, so the shift has real implications for how FRT and resolution SLA are read across the year.</p>
+    <p><strong>The priority mix has undergone a structural shift that is not explained by volume alone.</strong> In January, 73% of cases were Low priority (5,652 of 7,718). By May, Low had fallen to 36% (2,854 of 7,955) while Critical tripled from 491 to 1,542 and High nearly doubled from 1,386 to 2,704. The total case volume in May is broadly comparable to January (7,955 vs 7,718) — what has changed is how cases are categorised. This shift reflects a change in priority assignment logic or Ada routing behaviour rather than a genuine tripling of business-critical incidents. Higher-priority cases require faster SLA response and carry more FRT risk, so the shift has real implications for how FRT and resolution SLA are read across the year.</p>
     <p><strong>Phone is in structural decline</strong>: 1,267 cases in January, 843 in May — a 33% drop over five months. This is consistent with the MIAW rollout driving customers toward live chat rather than telephone. Phone-originated cases also tend to be lower volume per-agent since they are handled one-at-a-time; the shift toward chat improves agent efficiency but only if the chat infrastructure is working reliably (see March missed chat spike).</p>
     <p><strong>Email-HMS is a new channel that appeared in April and is growing fast.</strong> It registered 331 cases in April (its first full month) and 610 in May — an 84% month-on-month increase. This channel did not exist in Q1. Its emergence likely corresponds to the HMS product launch or a routing change. At 610 cases in May, it is now the 3rd largest email channel after Email-PMS (700) and would soon surpass it at the current growth rate. The support implications of this channel have not yet been fully absorbed.</p>
     <p><strong>AdaBot remains the dominant origin</strong> at 63–65% of total volume, but it has not grown proportionally with total volume. January Ada cases (4,737) are actually the year's second highest; May (4,981) is the year's highest. The Ada containment regression documented elsewhere (90.9% → 82.9%) means more conversations are becoming agent cases — this is one mechanism driving volume growth in the non-Ada channels.</p>
@@ -2291,7 +2291,7 @@ new Chart(document.getElementById('chartVolume'), {
   data: {
     labels: MONTHS,
     datasets: [
-      { label: 'Created', data: [7718,6914,7501,7891,7867], backgroundColor: NAVY + 'cc', borderRadius: 4 },
+      { label: 'Created', data: [7718,6914,7501,7955,7867], backgroundColor: NAVY + 'cc', borderRadius: 4 },
       { label: 'Closed', data: [6151,6917,7458,7191,7700], backgroundColor: TEAL + 'cc', borderRadius: 4 }
     ]
   },
@@ -2326,7 +2326,7 @@ new Chart(document.getElementById('chartBalance'), {
     labels: MONTHS,
     datasets: [{
       label: 'Created − Closed',
-      data: [1567, -3, 43, 700, 167],
+      data: [1567, -3, 43, 764, 167],
       backgroundColor: d => d.raw > 0 ? RED+'cc' : GREEN+'cc',
       borderRadius: 4
     }]
