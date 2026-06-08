@@ -153,6 +153,26 @@
     padding: 20px; font-size: 12px; margin-top: 40px;
   }
 
+  /* Tooltip helper */
+  .tip {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--muted); color: white; font-size: 9px; font-weight: 700;
+    cursor: help; position: relative; vertical-align: middle; margin-left: 3px;
+    flex-shrink: 0;
+  }
+  .tip::after {
+    content: attr(data-tip);
+    position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+    background: var(--navy); color: white; font-size: 11px; font-weight: 400;
+    text-transform: none; letter-spacing: 0; line-height: 1.5;
+    padding: 8px 12px; border-radius: 6px; width: 230px;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+    white-space: normal; z-index: 100;
+  }
+  .tip:hover::after { opacity: 1; }
+  .kpi label { display: flex; align-items: center; }
+
   @media (max-width: 768px) {
     .chart-row.two, .chart-row.three { grid-template-columns: 1fr; }
     .scorecard { grid-template-columns: repeat(2, 1fr); }
@@ -705,7 +725,7 @@
       <div class="goal-label">37,532 greeted (opened)</div>
     </div>
     <div class="kpi warn">
-      <label>Resolved by Bot</label>
+      <label>Resolved by Bot <span class="tip" data-tip="The bot answered the question and marked the conversation resolved — a positive outcome within Ada. Does not include conversations that contained but dropped off or abandoned.">?</span></label>
       <div class="value">73.2%</div>
       <div class="delta down-bad">▼ Apr: 73.8%</div>
       <div class="goal-label">Ada auto-resolution</div>
@@ -717,10 +737,16 @@
       <div class="goal-label">16.1% of engaged</div>
     </div>
     <div class="kpi warn">
-      <label>Contained (not escalated)</label>
+      <label>Contained (not escalated) <span class="tip" data-tip="Conversation ended in the bot — no live agent involved. Includes both resolved conversations AND ones that dropped off without a clear answer. Always ≥ resolved by bot %.">?</span></label>
       <div class="value">83.9%</div>
       <div class="delta up-good">▲ Apr: 82.9%</div>
       <div class="goal-label">Dec baseline: 90.9%</div>
+    </div>
+    <div class="kpi neutral">
+      <label>Cases Created (no agent) <span class="tip" data-tip="Customer chose to create a support case via Ada without being connected to a live agent — e.g. picked 'open a ticket' in the bot menu. Separate from the 5,250 handoffs, most of which also create a case alongside the live-chat connection.">?</span></label>
+      <div class="value">727</div>
+      <div class="delta neutral-d">1.5% of bot-only (contained) conversations</div>
+      <div class="goal-label">of 27,453 contained convs</div>
     </div>
   </div>
 
