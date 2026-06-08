@@ -192,13 +192,13 @@
 
 <nav class="nav-pills">
   <a href="#overview">Overview</a>
+  <a href="#ada-funnel">Ada Bot Funnel</a>
   <span class="nav-group-label">Demand &amp; Capacity</span>
   <a href="#volume">Volume &amp; Throughput</a>
   <a href="#backlog">Backlog</a>
   <a href="#backlog-deep-dive">Backlog Deep Dive</a>
   <a href="#cpp">Cases / Property</a>
   <span class="nav-group-label">Service Quality</span>
-  <a href="#ada-funnel">Ada Bot Funnel</a>
   <a href="#missed-chat">Missed Chat</a>
   <a href="#csat">CSAT</a>
   <a href="#frt">First Response</a>
@@ -308,6 +308,87 @@
     <p>The clearest theme across all five months: service quality and throughput are improving, but the backlog and the cases-per-property OKR are structural challenges that incremental operational improvements have not yet resolved.</p>
   </div>
 </section>
+
+<!-- ===================== ADA BOT FUNNEL ===================== -->
+<section id="ada-funnel">
+  <h2>Ada Bot Funnel</h2>
+  <p class="subtitle">Top-of-funnel automation, before any human touch · all figures from the Ada MCP (aggregate conversation metrics), May 2026 · trend Dec 2025–May 2026</p>
+
+  <div class="scorecard">
+    <div class="kpi good">
+      <label>Total Contacts (engaged)</label>
+      <div class="value">32,703</div>
+      <div class="delta neutral-d">Apr: 32,185 (▲ 1.6%)</div>
+      <div class="goal-label">37,532 greeted (opened)</div>
+    </div>
+    <div class="kpi warn">
+      <label>Resolved by Bot <span class="tip" data-tip="The bot answered the question and marked the conversation resolved — a positive outcome within Ada. Does not include conversations that contained but dropped off or abandoned.">?</span></label>
+      <div class="value">73.2%</div>
+      <div class="delta down-bad">▼ Apr: 73.8%</div>
+      <div class="goal-label">Ada auto-resolution</div>
+    </div>
+    <div class="kpi good">
+      <label>Handed Over to Agent</label>
+      <div class="value">5,250</div>
+      <div class="delta down-good">▼ Apr: 5,498 (escalations fell)</div>
+      <div class="goal-label">16.1% of engaged</div>
+    </div>
+    <div class="kpi warn">
+      <label>Contained (not escalated) <span class="tip" data-tip="Conversation ended in the bot — no live agent involved. Includes both resolved conversations AND ones that dropped off without a clear answer. Always ≥ resolved by bot %.">?</span></label>
+      <div class="value">83.9%</div>
+      <div class="delta up-good">▲ Apr: 82.9%</div>
+      <div class="goal-label">Dec baseline: 90.9%</div>
+    </div>
+    <div class="kpi neutral">
+      <label>Cases Created (no agent) <span class="tip" data-tip="Customer chose to create a support case via Ada without being connected to a live agent — e.g. picked 'open a ticket' in the bot menu. Separate from the 5,250 handoffs, most of which also create a case alongside the live-chat connection.">?</span></label>
+      <div class="value">727</div>
+      <div class="delta neutral-d">1.5% of bot-only (contained) conversations</div>
+      <div class="goal-label">of 27,453 contained convs</div>
+    </div>
+  </div>
+
+  <div class="callout insight">
+    <strong>Of 32,703 engaged conversations in May, Ada handled 84% without a human (27,453 contained), auto-resolved 73%, and handed 5,250 (16%) to a live agent.</strong> "Handed over" is the customer being connected to a person — <em>not</em> an Ada failure. Routing through Ada (<code>origin = 'AdaBot'</code>) means the bot did its job of triaging; it does not mean the bot couldn't help.
+  </div>
+
+  <div class="chart-row two">
+    <div class="chart-box">
+      <h3>Conversation volume — contained vs handed over</h3>
+      <p class="chart-note">Dec 2025–May 2026. Engaged conversations split into bot-contained and handed-to-agent. Jan is the MIAW transition month (live agent went live 2026-01-26).</p>
+      <canvas id="chartAdaVolume"></canvas>
+      <p class="chart-insight">Engaged volume grew ~34% Dec→May (24.3k→32.7k). Handoffs grew faster — from 2.2k to 5.3k — as containment slipped.</p>
+    </div>
+    <div class="chart-box">
+      <h3>Resolved-by-bot % vs Containment %</h3>
+      <p class="chart-note">Dec 2025–May 2026. Containment = share not escalated to a human. Resolution = share auto-resolved by the bot.</p>
+      <canvas id="chartAdaRates"></canvas>
+      <p class="chart-insight">Containment fell ~8pp Dec→Apr (90.9%→82.9%) before stabilising in May (83.9%). The gap below containment is conversations that neither escalated nor resolved.</p>
+    </div>
+  </div>
+
+  <div class="narrative">
+    <p>Ada is the first thing almost every customer touches. In May 2026, <strong>37,532 conversations were opened</strong> (a greeting was shown) and <strong>32,703 engaged</strong> (the customer actually interacted). Of those engaged conversations, <strong>83.9% were contained</strong> — resolved or abandoned without ever reaching a human — and <strong>5,250 (16.1%) were handed over to a live agent</strong>.</p>
+    <p>The headline trend is <strong>containment erosion</strong>: it fell from <strong>90.9% in December to 82.9% in April</strong>, before stabilising at 83.9% in May. Each percentage point of lost containment pushes roughly <strong>~95 additional conversations per month onto human agents</strong>, so the ~7pp slide since December is a material contributor to rising agent load and the Q2 cases-per-property OKR miss. This matches the containment regression already flagged in the Priority &amp; Origin section.</p>
+    <p>Note the gap between containment (83.9%) and bot resolution (73.2%) — about <strong>10.7pp, or ~3,500 conversations in May</strong>. These engaged the bot, did not escalate, but were not auto-resolved either: customers who dropped off, abandoned, or got an answer the bot couldn't formally mark as resolved. It is the clearest pool of "self-service that didn't quite land."</p>
+    <p><strong>Caveat:</strong> live agent (MIAW) only went live on 2026-01-26, so December and the bulk of January predate the current handoff routing — read the Dec/Jan handoff and containment figures as a transition baseline, not like-for-like with Feb onward.</p>
+  </div>
+
+  <table class="data-table" style="margin-top:16px;">
+    <thead>
+      <tr><th>Month</th><th>Opened (greeted)</th><th>Engaged</th><th>Resolved by Bot</th><th>Contained</th><th>Handed to Agent</th><th>Handoff %</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Dec 2025</td><td>28,680</td><td>24,318</td><td>76.6%</td><td>90.9%</td><td>2,213</td><td>9.1%</td></tr>
+      <tr><td>Jan 2026</td><td>33,055</td><td>28,650</td><td>73.2%</td><td>87.5%</td><td>3,568</td><td>12.5%</td></tr>
+      <tr><td>Feb 2026</td><td>32,983</td><td>28,480</td><td>70.3%</td><td>83.9%</td><td>4,576</td><td>16.1%</td></tr>
+      <tr><td>Mar 2026</td><td>37,249</td><td>32,565</td><td>71.3%</td><td>83.7%</td><td>5,320</td><td>16.3%</td></tr>
+      <tr><td>Apr 2026</td><td>36,662</td><td>32,185</td><td>73.8%</td><td>82.9%</td><td>5,498</td><td>17.1%</td></tr>
+      <tr class="may-row"><td>May 2026</td><td>37,532</td><td>32,703</td><td>73.2%</td><td>83.9%</td><td>5,250</td><td>16.1%</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;">Source: Ada MCP aggregate metrics (<code>conversation_volume_opened</code>, <code>conversation_volume_engaged</code>, <code>resolution_rate</code>, <code>containment_rate</code>, and engaged volume with <code>HANDOFF IS true</code>). "Handed to Agent" = engaged − contained. A live-chat <em>resolved-within-chat</em> (FCR) line is intentionally not shown here — Ada's resolution metric is 0 by construction for handed-over conversations; that figure comes from the Databricks live-chat FCR query and can be added later.</p>
+</section>
+
 
 <!-- ===================== KEY INTERPRETATION ===================== -->
 <section id="key-interpretation">
@@ -710,86 +791,6 @@
   <div class="callout flag">
     These customers reached out urgently enough to initiate a chat during off-hours and were routed to a case instead of a live agent. They received no CSAT survey, their cases skew heavily Critical and High, and they waited a median of 3–4 days for resolution. The missed-chat rate of 37.6% understates the problem — the 62 invisible cases are on average higher-priority than the cases that did get a chat offered.
   </div>
-</section>
-
-<!-- ===================== ADA BOT FUNNEL ===================== -->
-<section id="ada-funnel">
-  <h2>Ada Bot Funnel</h2>
-  <p class="subtitle">Top-of-funnel automation, before any human touch · all figures from the Ada MCP (aggregate conversation metrics), May 2026 · trend Dec 2025–May 2026</p>
-
-  <div class="scorecard">
-    <div class="kpi good">
-      <label>Total Contacts (engaged)</label>
-      <div class="value">32,703</div>
-      <div class="delta neutral-d">Apr: 32,185 (▲ 1.6%)</div>
-      <div class="goal-label">37,532 greeted (opened)</div>
-    </div>
-    <div class="kpi warn">
-      <label>Resolved by Bot <span class="tip" data-tip="The bot answered the question and marked the conversation resolved — a positive outcome within Ada. Does not include conversations that contained but dropped off or abandoned.">?</span></label>
-      <div class="value">73.2%</div>
-      <div class="delta down-bad">▼ Apr: 73.8%</div>
-      <div class="goal-label">Ada auto-resolution</div>
-    </div>
-    <div class="kpi good">
-      <label>Handed Over to Agent</label>
-      <div class="value">5,250</div>
-      <div class="delta down-good">▼ Apr: 5,498 (escalations fell)</div>
-      <div class="goal-label">16.1% of engaged</div>
-    </div>
-    <div class="kpi warn">
-      <label>Contained (not escalated) <span class="tip" data-tip="Conversation ended in the bot — no live agent involved. Includes both resolved conversations AND ones that dropped off without a clear answer. Always ≥ resolved by bot %.">?</span></label>
-      <div class="value">83.9%</div>
-      <div class="delta up-good">▲ Apr: 82.9%</div>
-      <div class="goal-label">Dec baseline: 90.9%</div>
-    </div>
-    <div class="kpi neutral">
-      <label>Cases Created (no agent) <span class="tip" data-tip="Customer chose to create a support case via Ada without being connected to a live agent — e.g. picked 'open a ticket' in the bot menu. Separate from the 5,250 handoffs, most of which also create a case alongside the live-chat connection.">?</span></label>
-      <div class="value">727</div>
-      <div class="delta neutral-d">1.5% of bot-only (contained) conversations</div>
-      <div class="goal-label">of 27,453 contained convs</div>
-    </div>
-  </div>
-
-  <div class="callout insight">
-    <strong>Of 32,703 engaged conversations in May, Ada handled 84% without a human (27,453 contained), auto-resolved 73%, and handed 5,250 (16%) to a live agent.</strong> "Handed over" is the customer being connected to a person — <em>not</em> an Ada failure. Routing through Ada (<code>origin = 'AdaBot'</code>) means the bot did its job of triaging; it does not mean the bot couldn't help.
-  </div>
-
-  <div class="chart-row two">
-    <div class="chart-box">
-      <h3>Conversation volume — contained vs handed over</h3>
-      <p class="chart-note">Dec 2025–May 2026. Engaged conversations split into bot-contained and handed-to-agent. Jan is the MIAW transition month (live agent went live 2026-01-26).</p>
-      <canvas id="chartAdaVolume"></canvas>
-      <p class="chart-insight">Engaged volume grew ~34% Dec→May (24.3k→32.7k). Handoffs grew faster — from 2.2k to 5.3k — as containment slipped.</p>
-    </div>
-    <div class="chart-box">
-      <h3>Resolved-by-bot % vs Containment %</h3>
-      <p class="chart-note">Dec 2025–May 2026. Containment = share not escalated to a human. Resolution = share auto-resolved by the bot.</p>
-      <canvas id="chartAdaRates"></canvas>
-      <p class="chart-insight">Containment fell ~8pp Dec→Apr (90.9%→82.9%) before stabilising in May (83.9%). The gap below containment is conversations that neither escalated nor resolved.</p>
-    </div>
-  </div>
-
-  <div class="narrative">
-    <p>Ada is the first thing almost every customer touches. In May 2026, <strong>37,532 conversations were opened</strong> (a greeting was shown) and <strong>32,703 engaged</strong> (the customer actually interacted). Of those engaged conversations, <strong>83.9% were contained</strong> — resolved or abandoned without ever reaching a human — and <strong>5,250 (16.1%) were handed over to a live agent</strong>.</p>
-    <p>The headline trend is <strong>containment erosion</strong>: it fell from <strong>90.9% in December to 82.9% in April</strong>, before stabilising at 83.9% in May. Each percentage point of lost containment pushes roughly <strong>~95 additional conversations per month onto human agents</strong>, so the ~7pp slide since December is a material contributor to rising agent load and the Q2 cases-per-property OKR miss. This matches the containment regression already flagged in the Priority &amp; Origin section.</p>
-    <p>Note the gap between containment (83.9%) and bot resolution (73.2%) — about <strong>10.7pp, or ~3,500 conversations in May</strong>. These engaged the bot, did not escalate, but were not auto-resolved either: customers who dropped off, abandoned, or got an answer the bot couldn't formally mark as resolved. It is the clearest pool of "self-service that didn't quite land."</p>
-    <p><strong>Caveat:</strong> live agent (MIAW) only went live on 2026-01-26, so December and the bulk of January predate the current handoff routing — read the Dec/Jan handoff and containment figures as a transition baseline, not like-for-like with Feb onward.</p>
-  </div>
-
-  <table class="data-table" style="margin-top:16px;">
-    <thead>
-      <tr><th>Month</th><th>Opened (greeted)</th><th>Engaged</th><th>Resolved by Bot</th><th>Contained</th><th>Handed to Agent</th><th>Handoff %</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Dec 2025</td><td>28,680</td><td>24,318</td><td>76.6%</td><td>90.9%</td><td>2,213</td><td>9.1%</td></tr>
-      <tr><td>Jan 2026</td><td>33,055</td><td>28,650</td><td>73.2%</td><td>87.5%</td><td>3,568</td><td>12.5%</td></tr>
-      <tr><td>Feb 2026</td><td>32,983</td><td>28,480</td><td>70.3%</td><td>83.9%</td><td>4,576</td><td>16.1%</td></tr>
-      <tr><td>Mar 2026</td><td>37,249</td><td>32,565</td><td>71.3%</td><td>83.7%</td><td>5,320</td><td>16.3%</td></tr>
-      <tr><td>Apr 2026</td><td>36,662</td><td>32,185</td><td>73.8%</td><td>82.9%</td><td>5,498</td><td>17.1%</td></tr>
-      <tr class="may-row"><td>May 2026</td><td>37,532</td><td>32,703</td><td>73.2%</td><td>83.9%</td><td>5,250</td><td>16.1%</td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:11px;color:var(--muted);margin-top:6px;">Source: Ada MCP aggregate metrics (<code>conversation_volume_opened</code>, <code>conversation_volume_engaged</code>, <code>resolution_rate</code>, <code>containment_rate</code>, and engaged volume with <code>HANDOFF IS true</code>). "Handed to Agent" = engaged − contained. A live-chat <em>resolved-within-chat</em> (FCR) line is intentionally not shown here — Ada's resolution metric is 0 by construction for handed-over conversations; that figure comes from the Databricks live-chat FCR query and can be added later.</p>
 </section>
 
 <!-- ===================== CSAT ===================== -->
