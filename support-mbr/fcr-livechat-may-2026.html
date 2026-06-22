@@ -175,7 +175,7 @@
         <canvas id="dowChart"></canvas>
       </div>
       <div class="insight" style="margin-top:12px">
-        <strong>Wednesday is a clear outlier:</strong> avg wait 8.7 min and 33.6% waiting >5 min — nearly double the weekly average.
+        <strong>Wednesday shows the highest wait rate (33.6%, avg 8.7 min)</strong> — nearly double other weekdays. Caveat: May had 4 Wednesdays (6th, 13th, 20th, 27th) and this could be driven by 1–2 bad days rather than a structural pattern. Worth checking against June before drawing conclusions.
         <strong>Saturday (32.7%) and Sunday (27.2%)</strong> have the highest unresponsiveness, likely because customers reach out outside business hours and move on before an agent connects.
         <strong>Friday (26.5%)</strong> also high despite short waits — customers EOD and disconnect quickly.
       </div>
@@ -247,7 +247,6 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Mews RMS</td><td>23</td><td style="color:var(--red)">13.0%</td><td style="color:var(--red)">−42.5pp</td><td style="color:var(--red)">−10</td><td><div class="bar-bg"><div class="bar-fill red" style="width:25%"></div></div></td></tr>
           <tr><td>Security</td><td>106</td><td style="color:var(--red)">21.7%</td><td style="color:var(--red)">−33.8pp</td><td style="color:var(--red)">−36</td><td><div class="bar-bg"><div class="bar-fill red" style="width:90%"></div></div></td></tr>
           <tr><td>Mews POS</td><td>19</td><td style="color:var(--orange)">36.8%</td><td style="color:var(--orange)">−18.7pp</td><td style="color:var(--orange)">−4</td><td><div class="bar-bg"><div class="bar-fill red" style="width:10%"></div></div></td></tr>
           <tr><td>Mews HMS</td><td>46</td><td style="color:var(--orange)">41.3%</td><td style="color:var(--orange)">−14.2pp</td><td style="color:var(--orange)">−7</td><td><div class="bar-bg"><div class="bar-fill red" style="width:18%"></div></div></td></tr>
@@ -263,6 +262,7 @@
         <strong>Security (21.7%)</strong> and <strong>Channel Manager (47.9%)</strong> are the largest drag categories by weighted cases.
         Security's low FCR is structural — confirmed incidents need follow-up by design.
         Channel Manager drag is driven by Overbooking (25.8%), Missing Reservations (33.3%), and Reservation Price Discrepancies (37.8%).
+        Mews RMS (13%) excluded from table — only 23 cases, too small a sample for a reliable rate.
       </div>
     </div>
   </div>
@@ -321,7 +321,7 @@
 
   <!-- Response time vs FCR -->
   <div class="section">
-    <h2>Response Time vs FCR Outcome</h2>
+    <h2>Response Time vs FCR Outcome <span style="font-size:12px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(n=3,075 — ~5% of cases excluded: no Ada conversationId match)</span></h2>
     <div class="grid-2">
       <div class="card">
         <div class="chart-wrap" style="height:250px">
