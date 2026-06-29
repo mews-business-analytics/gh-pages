@@ -80,6 +80,11 @@
   .pill.over { background: #fff3cd; color: #856404; }
   .pill.good { background: #d4edda; color: #155724; font-weight: 600; }
 
+  .mom-tag { font-size: 10px; color: #888; margin-top: 6px; text-align: center; }
+  .mom-g { color: #2eb87a; font-weight: 700; }
+  .mom-r { color: #d9534f; font-weight: 700; }
+  .mom-n { color: #888; font-weight: 600; }
+
   .footnote { font-size: 11px; color: #b5b5b5; margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; line-height: 1.9; }
 
   @media (max-width: 880px) {
@@ -113,6 +118,7 @@
         <div class="km"><div class="kml">May</div><div class="kmv">37,180</div></div>
         <div class="km"><div class="kml">Jun*</div><div class="kmv">35,116</div></div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-n">+1.2%</span></div>
     </div>
 
     <div class="kpi bot">
@@ -124,6 +130,7 @@
         <div class="km"><div class="kml">May</div><div class="kmv">64.3%</div></div>
         <div class="km"><div class="kml">Jun*</div><div class="kmv">64.5%</div></div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-r">−0.4pp</span></div>
     </div>
 
     <div class="kpi chat">
@@ -135,6 +142,7 @@
         <div class="km"><div class="kml">May</div><div class="kmv">5,253</div></div>
         <div class="km"><div class="kml">Jun*</div><div class="kmv">5,111</div></div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">−4.6%</span></div>
     </div>
 
     <div class="kpi warn">
@@ -146,6 +154,7 @@
         <div class="km"><div class="kml">May</div><div class="kmv" style="color:#f5a623;">8.04%</div></div>
         <div class="km"><div class="kml">Jun*</div><div class="kmv" style="color:#f5a623;">8.69%</div></div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">−1.2pp</span></div>
     </div>
 
   </div>
@@ -161,6 +170,7 @@
         <div class="km"><div class="kml">May</div><div class="kmv" style="color:#f5a623;">0.672</div></div>
         <div class="km"><div class="kml">Jun*</div><div class="kmv" style="color:#f5a623;">0.661</div></div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">−2.3%</span></div>
     </div>
 
     <div class="kpi props">
@@ -172,6 +182,7 @@
         <div class="km"><div class="kml">May</div><div class="kmv">3.18</div></div>
         <div class="km"><div class="kml">Jun*</div><div class="kmv">2.99</div></div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-n">−0.6%</span></div>
     </div>
 
     <div class="kpi grey" style="grid-column: span 2;">
@@ -186,7 +197,8 @@
             <div class="km"><div class="kml">May</div><div class="kmv">8.75d</div></div>
             <div class="km"><div class="kml">Jun*</div><div class="kmv" style="color:#f5a623;">13.4d</div></div>
           </div>
-          <div style="font-size:11px;color:#aaa;margin-top:6px;">Jun spike = team clearing older backlog, not slower handling of new cases.</div>
+          <div class="mom-tag" style="text-align:left;margin:5px 0 0;">Apr→May <span class="mom-g">−1.1%</span></div>
+          <div style="font-size:11px;color:#aaa;margin-top:4px;">Jun spike = team clearing older backlog, not slower handling of new cases.</div>
         </div>
         <div style="border-left:1px solid #f0f0f0;padding-left:20px;">
           <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px;">Created-month view</div>
@@ -355,35 +367,37 @@
           <th>Metric</th>
           <th>April</th>
           <th>May</th>
+          <th style="color:#4a90d9;background:#f0f6ff;">Apr→May</th>
           <th>June *</th>
           <th>Q2</th>
         </tr>
       </thead>
       <tbody>
 
-        <tr class="sep"><td colspan="5">Scale</td></tr>
+        <tr class="sep"><td colspan="6">Scale</td></tr>
         <tr>
           <td>Avg properties (all-products)</td>
-          <td>11,462</td><td>11,678</td><td>11,751</td><td>11,630 avg</td>
+          <td>11,462</td><td>11,678</td><td>+1.9%</td><td>11,751</td><td>11,630 avg</td>
         </tr>
         <tr>
           <td>Total contacts (AI + cases)</td>
-          <td>36,733</td><td>37,180</td><td>35,116</td><td>109,029</td>
+          <td>36,733</td><td>37,180</td><td>+1.2%</td><td>35,116</td><td>109,029</td>
         </tr>
         <tr>
           <td>Ada engaged conversations</td>
-          <td>32,200</td><td>32,716</td><td>30,858</td><td>95,774</td>
+          <td>32,200</td><td>32,716</td><td>+1.6%</td><td>30,858</td><td>95,774</td>
         </tr>
         <tr>
           <td>Total SF cases created (MBR)</td>
-          <td>7,885</td><td>7,845</td><td>7,769</td><td>23,499</td>
+          <td>7,885</td><td>7,845</td><td>−0.5%</td><td>7,769</td><td>23,499</td>
         </tr>
 
-        <tr class="sep"><td colspan="5">Contact pipeline</td></tr>
+        <tr class="sep"><td colspan="6">Contact pipeline</td></tr>
         <tr>
           <td>Resolved by Ada bot</td>
           <td>23,764 <span style="font-size:11px;color:#aaa;">(73.8%)</span></td>
           <td>23,916 <span style="font-size:11px;color:#aaa;">(73.1%)</span></td>
+          <td>+0.6%</td>
           <td>22,650 <span style="font-size:11px;color:#aaa;">(73.4%)</span></td>
           <td>70,330</td>
         </tr>
@@ -391,6 +405,7 @@
           <td>Left without resolution</td>
           <td>2,929 <span style="font-size:11px;color:#aaa;">(9.1%)</span></td>
           <td>3,547 <span style="font-size:11px;color:#aaa;">(10.8%)</span></td>
+          <td class="bad">+21.1%</td>
           <td>3,097 <span style="font-size:11px;color:#aaa;">(10.0%)</span></td>
           <td>9,573</td>
         </tr>
@@ -398,19 +413,21 @@
           <td>Escalated to human (live chat)</td>
           <td>5,507 <span style="font-size:11px;color:#aaa;">(17.1%)</span></td>
           <td>5,253 <span style="font-size:11px;color:#aaa;">(16.1%)</span></td>
+          <td class="good">−4.6%</td>
           <td>5,111 <span style="font-size:11px;color:#aaa;">(16.6%)</span></td>
           <td>15,871</td>
         </tr>
         <tr>
           <td>Direct cases (no Ada session)</td>
-          <td>4,533</td><td>4,464</td><td>4,258</td><td>13,255</td>
+          <td>4,533</td><td>4,464</td><td>−1.5%</td><td>4,258</td><td>13,255</td>
         </tr>
 
-        <tr class="sep"><td colspan="5">What happened to escalated conversations</td></tr>
+        <tr class="sep"><td colspan="6">What happened to escalated conversations</td></tr>
         <tr>
           <td>Chose case (no live chat)</td>
           <td>1,835 <span style="font-size:11px;color:#aaa;">(33.3%)</span></td>
           <td>1,645 <span style="font-size:11px;color:#aaa;">(31.3%)</span></td>
+          <td>−10.4%</td>
           <td>1,733 <span style="font-size:11px;color:#aaa;">(33.9%)</span></td>
           <td>5,213</td>
         </tr>
@@ -418,6 +435,7 @@
           <td>Missed chat (wanted agent, couldn't get one)</td>
           <td>342 <span style="font-size:11px;color:#aaa;">(6.2%)</span></td>
           <td>297 <span style="font-size:11px;color:#aaa;">(5.7%)</span></td>
+          <td class="good">−13.2%</td>
           <td>347 <span style="font-size:11px;color:#aaa;">(6.8%)</span></td>
           <td>986</td>
         </tr>
@@ -425,6 +443,7 @@
           <td>Chat FCR (resolved in chat, no case)</td>
           <td>1,766 <span style="font-size:11px;color:#aaa;">(32.1%)</span></td>
           <td>1,799 <span style="font-size:11px;color:#aaa;">(34.3%)</span></td>
+          <td class="good">+1.9%</td>
           <td>1,864 <span style="font-size:11px;color:#aaa;">(36.5% †)</span></td>
           <td>5,429</td>
         </tr>
@@ -432,48 +451,49 @@
           <td>Chat + follow-up case</td>
           <td>1,564 <span style="font-size:11px;color:#aaa;">(28.4%)</span></td>
           <td>1,512 <span style="font-size:11px;color:#aaa;">(28.8%)</span></td>
+          <td>−3.3%</td>
           <td>1,167 <span style="font-size:11px;color:#aaa;">(22.8%)</span></td>
           <td>4,243</td>
         </tr>
 
-        <tr class="sep"><td colspan="5">Efficiency</td></tr>
+        <tr class="sep"><td colspan="6">Efficiency</td></tr>
         <tr>
           <td>Cases / property — canonical MBR <span class="pill over">goal 0.60</span></td>
-          <td class="bad">0.688</td><td class="mid">0.672</td><td class="mid">0.661</td><td class="mid">0.674 avg</td>
+          <td class="bad">0.688</td><td class="mid">0.672</td><td class="good">−2.3%</td><td class="mid">0.661</td><td class="mid">0.674 avg</td>
         </tr>
         <tr>
           <td>Contacts / property — all channels incl. AI</td>
-          <td>3.20</td><td>3.18</td><td>2.99</td><td>3.12 avg</td>
+          <td>3.20</td><td>3.18</td><td>−0.6%</td><td>2.99</td><td>3.12 avg</td>
         </tr>
         <tr>
           <td>Missed chat rate <span class="pill goal">goal 5%</span></td>
-          <td class="bad">9.21%</td><td class="mid">8.04%</td><td class="mid">8.69%</td><td class="bad">8.65%</td>
+          <td class="bad">9.21%</td><td class="mid">8.04%</td><td class="good">−1.2pp</td><td class="mid">8.69%</td><td class="bad">8.65%</td>
         </tr>
         <tr>
           <td>Chat FCR rate <span class="pill goal">goal 65%</span></td>
-          <td class="bad">53.0%</td><td class="bad">54.3%</td><td class="mid">61.5% †</td><td>—</td>
+          <td class="bad">53.0%</td><td class="bad">54.3%</td><td class="good">+1.3pp</td><td class="mid">61.5% †</td><td>—</td>
         </tr>
         <tr>
           <td>Resolution time — closed-month view</td>
-          <td>8.85d</td><td>8.75d</td><td class="prov">13.4d *</td><td>10.3d avg</td>
+          <td>8.85d</td><td>8.75d</td><td class="good">−1.1%</td><td class="prov">13.4d *</td><td>10.3d avg</td>
         </tr>
         <tr>
           <td>Resolution time — created-month view</td>
-          <td>8.86d</td><td class="prov">5.64d *</td><td class="prov">2.17d *</td><td>—</td>
+          <td>8.86d</td><td class="prov">5.64d *</td><td class="prov">−36.3% *</td><td class="prov">2.17d *</td><td>—</td>
         </tr>
 
-        <tr class="sep"><td colspan="5">CSAT</td></tr>
+        <tr class="sep"><td colspan="6">CSAT</td></tr>
         <tr>
           <td>Ada bot CSAT (bot-resolved conversations only)</td>
-          <td>65.2%</td><td>65.4%</td><td>66.9%</td><td>65.8% avg</td>
+          <td>65.2%</td><td>65.4%</td><td class="good">+0.2pp</td><td>66.9%</td><td>65.8% avg</td>
         </tr>
         <tr>
           <td>Overall Ada CSAT (bot + human paths)</td>
-          <td>69.1%</td><td>69.4%</td><td>70.1%</td><td>69.5% avg</td>
+          <td>69.1%</td><td>69.4%</td><td class="good">+0.3pp</td><td>70.1%</td><td>69.5% avg</td>
         </tr>
         <tr>
           <td>Human live-chat CSAT <span class="pill goal">goal 90%</span></td>
-          <td class="mid">85.3%</td><td class="mid">87.1%</td><td class="mid">81.2%</td><td class="mid">84.3% wtd avg</td>
+          <td class="mid">85.3%</td><td class="mid">87.1%</td><td class="good">+1.8pp</td><td class="mid">81.2%</td><td class="mid">84.3% wtd avg</td>
         </tr>
 
       </tbody>
@@ -505,6 +525,7 @@
           <div class="mc-v" style="color:#7b5ea7;">66.9%</div>
         </div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">+0.2pp</span></div>
       <div class="takeaway">Satisfaction for conversations fully resolved by the bot — no human handoff. Steady upward trend across Q2. Q2 avg: 65.8%.</div>
     </div>
 
@@ -524,6 +545,7 @@
           <div class="mc-v" style="color:#7b5ea7;">70.1%</div>
         </div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">+0.3pp</span></div>
       <div class="takeaway">Satisfaction across all Ada-initiated conversations — bot-only and those escalated to an agent. Higher than bot-only CSAT because escalations include human handling. Trending up. Q2 avg: 69.5%.</div>
     </div>
 
@@ -546,6 +568,7 @@
           <div class="mc-s">1,369 resp.</div>
         </div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">+1.8pp</span></div>
       <div class="takeaway">Satisfaction for customers who spoke to a live agent. Strong Apr–May, dipped in June. Below the 90% goal all quarter. Q2 weighted avg: 84.3%. Email CSAT excluded — not captured reliably.</div>
     </div>
 
@@ -566,13 +589,13 @@
       </div>
       <table>
         <thead>
-          <tr><th>Month</th><th>Cases</th><th>Avg props</th><th>Cases / prop</th><th>vs goal</th></tr>
+          <tr><th>Month</th><th>Cases</th><th>Avg props</th><th>Cases / prop</th><th>vs goal</th><th style="color:#4a90d9;">MoM Δ</th></tr>
         </thead>
         <tbody>
-          <tr><td>April</td><td>7,885</td><td>11,462</td><td class="bad">0.688</td><td class="bad">+14.7%</td></tr>
-          <tr><td>May</td><td>7,845</td><td>11,678</td><td class="mid">0.672</td><td class="mid">+12.0%</td></tr>
-          <tr><td>June *</td><td>7,769</td><td>11,751</td><td class="mid">0.661</td><td class="mid">+10.2%</td></tr>
-          <tr class="total"><td>Q2 avg</td><td>23,499 total</td><td>11,630 avg</td><td class="mid">0.674</td><td class="mid">+12.3%</td></tr>
+          <tr><td>April</td><td>7,885</td><td>11,462</td><td class="bad">0.688</td><td class="bad">+14.7%</td><td>—</td></tr>
+          <tr><td>May</td><td>7,845</td><td>11,678</td><td class="mid">0.672</td><td class="mid">+12.0%</td><td class="good">−2.3%</td></tr>
+          <tr><td>June *</td><td>7,769</td><td>11,751</td><td class="mid">0.661</td><td class="mid">+10.2%</td><td class="good">−1.6%</td></tr>
+          <tr class="total"><td>Q2 avg</td><td>23,499 total</td><td>11,630 avg</td><td class="mid">0.674</td><td class="mid">+12.3%</td><td>—</td></tr>
         </tbody>
       </table>
       <div class="takeaway">Moving in the right direction — 0.688 in April down to 0.661 in June — but still above the 0.60 OKR target all quarter. The improvement is driven as much by property base growth (+2.5% Apr→Jun) as by case volume reduction.</div>
@@ -585,13 +608,13 @@
       </div>
       <table>
         <thead>
-          <tr><th>Month</th><th>Total contacts</th><th>Avg props</th><th>Contacts / prop</th></tr>
+          <tr><th>Month</th><th>Total contacts</th><th>Avg props</th><th>Contacts / prop</th><th style="color:#4a90d9;">MoM Δ</th></tr>
         </thead>
         <tbody>
-          <tr><td>April</td><td>36,733</td><td>11,462</td><td>3.20</td></tr>
-          <tr><td>May</td><td>37,180</td><td>11,678</td><td>3.18</td></tr>
-          <tr><td>June *</td><td>35,116</td><td>11,751</td><td>2.99</td></tr>
-          <tr class="total"><td>Q2 avg</td><td>36,343 / month</td><td>11,630 avg</td><td>3.12</td></tr>
+          <tr><td>April</td><td>36,733</td><td>11,462</td><td>3.20</td><td>—</td></tr>
+          <tr><td>May</td><td>37,180</td><td>11,678</td><td>3.18</td><td>−0.6%</td></tr>
+          <tr><td>June *</td><td>35,116</td><td>11,751</td><td>2.99</td><td class="prov">−6.0% *</td></tr>
+          <tr class="total"><td>Q2 avg</td><td>36,343 / month</td><td>11,630 avg</td><td>3.12</td><td>—</td></tr>
         </tbody>
       </table>
       <div class="takeaway">The fuller picture of how often a property reaches support — includes every AI chat, not just cases. The gap between 3.12 contacts/prop and 0.674 cases/prop means <strong>roughly 80% of all property contacts are handled by AI or leave without creating a Salesforce case.</strong> June's dip to 2.99 is partly provisional (incomplete month).</div>
@@ -626,6 +649,7 @@
           <div class="mc-s">344 / 3,958</div>
         </div>
       </div>
+      <div class="mom-tag">Apr→May <span class="mom-g">−1.2pp</span></div>
       <div class="takeaway">Running ~3–4pp above the 5% goal all quarter. May was best. June ticked back up. Q2 weighted average: <strong>8.65%</strong>. Counts chats where the customer didn't get a meaningful response — Support queue only (Onboarding excluded).</div>
     </div>
 
@@ -633,12 +657,12 @@
       <div class="bar-lbl"><span>Avg days to resolution — two views</span></div>
       <table>
         <thead>
-          <tr><th>Month</th><th>Closed that month</th><th>Created that month</th></tr>
+          <tr><th>Month</th><th>Closed that month</th><th style="color:#4a90d9;">MoM Δ (closed)</th><th>Created that month</th></tr>
         </thead>
         <tbody>
-          <tr><td>April</td><td>8.85d</td><td>8.86d</td></tr>
-          <tr><td>May</td><td>8.75d</td><td class="prov">5.64d *</td></tr>
-          <tr><td>June *</td><td class="prov">13.4d *</td><td class="prov">2.17d *</td></tr>
+          <tr><td>April</td><td>8.85d</td><td>—</td><td>8.86d</td></tr>
+          <tr><td>May</td><td>8.75d</td><td class="good">−1.1%</td><td class="prov">5.64d *</td></tr>
+          <tr><td>June *</td><td class="prov">13.4d *</td><td class="prov">+53.1% *</td><td class="prov">2.17d *</td></tr>
         </tbody>
       </table>
       <div class="takeaway">
